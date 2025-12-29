@@ -97,7 +97,8 @@ export async function salesforceRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getAccessToken();
-  const baseUrl = token.instance_url || import.meta.env.VITE_SALESFORCE_INSTANCE_URL;
+  // Try VITE_ prefixed first, then fallback to unprefixed
+  const baseUrl = token.instance_url || import.meta.env.VITE_SALESFORCE_INSTANCE_URL || import.meta.env.SALESFORCE_INSTANCE_URL;
 
   const response = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
