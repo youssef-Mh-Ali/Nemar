@@ -29,12 +29,18 @@ export async function getAccessToken(): Promise<SalesforceToken> {
   const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET || import.meta.env.SALESFORCE_CLIENT_SECRET;
   const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL || import.meta.env.SALESFORCE_TOKEN_URL;
 
+  // Get all available env vars (for debugging)
+  const allEnvKeys = Object.keys(import.meta.env)
+  const salesforceEnvKeys = allEnvKeys.filter(key => key.includes('SALESFORCE'))
+  
   console.log('[Salesforce Auth] Attempting authentication...', {
     hasClientId: !!clientId,
     hasClientSecret: !!clientSecret,
     hasTokenUrl: !!tokenUrl,
-    tokenUrl: tokenUrl,
-    clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed' : 'not found',
+    tokenUrl: tokenUrl ? `${tokenUrl.substring(0, 30)}...` : 'not set',
+    clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed ✅' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed ❌ (will not work in Vite)' : 'not found ❌',
+    availableSalesforceEnvVars: salesforceEnvKeys,
+    mode: import.meta.env.MODE,
   });
 
   if (!clientId || !clientSecret || !tokenUrl) {
@@ -42,7 +48,14 @@ export async function getAccessToken(): Promise<SalesforceToken> {
       clientId: !!clientId,
       clientSecret: !!clientSecret,
       tokenUrl: !!tokenUrl,
+      availableSalesforceEnvVars: salesforceEnvKeys,
     });
+    console.error('[Salesforce Auth] ❌ CRITICAL: In Vite, environment variables MUST be prefixed with VITE_ to be accessible in client-side code');
+    console.error('[Salesforce Auth] ❌ To fix: Add these in Netlify Site Settings → Environment Variables:');
+    console.error('[Salesforce Auth]    - VITE_SALESFORCE_CLIENT_ID');
+    console.error('[Salesforce Auth]    - VITE_SALESFORCE_CLIENT_SECRET');
+    console.error('[Salesforce Auth]    - VITE_SALESFORCE_TOKEN_URL');
+    console.error('[Salesforce Auth]    - VITE_SALESFORCE_INSTANCE_URL (optional)');
     throw new Error("Salesforce credentials not configured");
   }
 
