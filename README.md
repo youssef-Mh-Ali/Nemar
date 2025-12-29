@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Faisal Bin Saedan PWA
+
+A premium real estate PWA for Faisal Bin Saedan Group, built with Next.js 14.
+
+## Features
+
+- 📱 Mobile-first responsive design with bottom navigation
+- 🏠 Home page with hero video and latest projects
+- 🔍 Search units with filters (project, phase, price, bedrooms, area)
+- 🏢 Unit details with gallery and Register Interest form
+- 🔐 Owner login with JWT authentication
+- 👥 My Community - owned units and case management
+- 📞 Contact page with inquiry form
+- 📲 PWA support with install prompt and offline page
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router) + TypeScript
+- **Styling**: Tailwind CSS with CSS Variables
+- **State**: Zustand
+- **Forms**: React Hook Form + Zod
+- **PWA**: @ducanh2912/next-pwa
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set these in your Netlify dashboard under **Site settings > Environment variables**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|----------|-------------|
+| `SALESFORCE_CLIENT_ID` | Connected App Consumer Key |
+| `SALESFORCE_CLIENT_SECRET` | Connected App Consumer Secret |
+| `SALESFORCE_TOKEN_URL` | OAuth token endpoint |
+| `SALESFORCE_INSTANCE_URL` | Salesforce instance URL |
+| `JWT_SECRET` | Secret key for JWT tokens |
 
-## Learn More
+## Deployment on Netlify
 
-To learn more about Next.js, take a look at the following resources:
+1. Connect this repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `.next`
+4. Add the Next.js plugin: `@netlify/plugin-nextjs`
+5. Configure environment variables in Netlify dashboard
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Demo Credentials
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For testing the owner portal:
+- **Username**: `demo`
+- **Password**: `demo123`
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+app/
+  (main)/           # Main layout with bottom nav
+    page.tsx        # Home
+    search/         # Search Units
+    unit/[id]/      # Unit Details
+    community/      # My Community (auth)
+    contact/        # Contact page
+  login/            # Login page
+  api/              # API routes
+components/
+  ui/               # Base UI components
+  layout/           # Header, BottomNav, InstallBanner
+  home/             # Hero, ProjectsGrid
+  search/           # Filters, UnitCard
+  community/        # CaseForm, CaseList
+lib/
+  mock-data/        # Mock Salesforce data
+  salesforce/       # Salesforce API client
+  api-client/       # Frontend API wrapper
+  store/            # Zustand stores
+  auth/             # JWT utilities
+  types/            # TypeScript types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Salesforce Integration
+
+The app includes a Salesforce client (`lib/salesforce/`) ready for integration:
+
+- Uses OAuth 2.0 Client Credentials flow
+- Token caching for performance
+- SOQL query helper
+- CRUD operations for Salesforce objects
+
+### Expected Salesforce Objects
+
+- `Project__c` - Real estate projects
+- `Phase__c` - Project phases
+- `Unit__c` - Individual units
+- `Lead` - Register Interest captures
+- `Contact` - Owner accounts
+- `Case` - Support requests
+
+## License
+
+© 2024 Faisal Bin Saedan Group. All rights reserved.
