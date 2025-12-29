@@ -24,15 +24,17 @@ export async function getAccessToken(): Promise<SalesforceToken> {
     return cachedToken;
   }
 
-  const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID;
-  const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET;
-  const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL;
+  // Try VITE_ prefixed first (Vite convention), then fallback to unprefixed (for Netlify)
+  const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID || import.meta.env.SALESFORCE_CLIENT_ID;
+  const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET || import.meta.env.SALESFORCE_CLIENT_SECRET;
+  const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL || import.meta.env.SALESFORCE_TOKEN_URL;
 
   console.log('[Salesforce Auth] Attempting authentication...', {
     hasClientId: !!clientId,
     hasClientSecret: !!clientSecret,
     hasTokenUrl: !!tokenUrl,
     tokenUrl: tokenUrl,
+    clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed' : 'not found',
   });
 
   if (!clientId || !clientSecret || !tokenUrl) {

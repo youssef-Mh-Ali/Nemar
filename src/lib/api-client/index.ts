@@ -75,19 +75,24 @@ export async function getFeaturedVideo() {
   
   try {
     // Check if Salesforce credentials are configured
-    const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID
-    const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET
-    const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL
+    // Try VITE_ prefixed first (Vite convention), then fallback to unprefixed (for Netlify)
+    const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID || import.meta.env.SALESFORCE_CLIENT_ID
+    const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET || import.meta.env.SALESFORCE_CLIENT_SECRET
+    const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL || import.meta.env.SALESFORCE_TOKEN_URL
 
     console.log('[Hero Video] Checking Salesforce credentials...', {
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
       hasTokenUrl: !!tokenUrl,
+      clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed' : 'not found',
+      allEnvVars: Object.keys(import.meta.env).filter(key => key.includes('SALESFORCE')),
     })
 
     if (!clientId || !clientSecret || !tokenUrl) {
       // Credentials not configured, skip Salesforce and go to fallback
       console.warn('[Hero Video] ⚠️ Salesforce credentials not configured, using fallback')
+      console.warn('[Hero Video] ⚠️ NOTE: In Netlify, environment variables must be prefixed with VITE_ to be accessible in client-side code')
+      console.warn('[Hero Video] ⚠️ Please add: VITE_SALESFORCE_CLIENT_ID, VITE_SALESFORCE_CLIENT_SECRET, VITE_SALESFORCE_TOKEN_URL')
       throw new Error('Salesforce credentials not configured')
     }
 
