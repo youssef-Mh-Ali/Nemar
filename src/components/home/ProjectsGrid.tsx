@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
 import { getProjects } from '../../lib/api-client'
-import { Project } from '../../lib/types'
+import type { Project } from '../../lib/types'
 
 interface ProjectWithAvailability extends Project {
   hasAvailability: boolean
