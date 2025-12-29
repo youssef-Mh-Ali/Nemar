@@ -28,6 +28,7 @@ export default function HeroSection() {
   const [featuredVideo, setFeaturedVideo] = useState<FeaturedVideo | null>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [instagramEmbedFailed, setInstagramEmbedFailed] = useState(false)
 
   // Auto-play video when it loads
   useEffect(() => {
@@ -91,6 +92,9 @@ export default function HeroSection() {
   // Load Instagram embed script when Instagram video is present
   useEffect(() => {
     if (featuredVideo?.videoUrl?.includes('instagram.com')) {
+      // Reset failed state when video changes
+      setInstagramEmbedFailed(false)
+
       // Check if script is already loaded
       if (window.instgrm) {
         console.log('[Hero Section] Instagram embed script already loaded, processing embeds...')
@@ -98,26 +102,44 @@ export default function HeroSection() {
         return
       }
 
-      // Load Instagram embed script
+      // Try to load Instagram embed script
       const script = document.createElement('script')
       script.src = 'https://www.instagram.com/embed.js'
       script.async = true
       script.onload = () => {
         console.log('[Hero Section] ✅ Instagram embed script loaded')
-        if (window.instgrm) {
-          window.instgrm.Embeds.process()
-        }
+        // Wait a bit for the script to initialize
+        setTimeout(() => {
+          if (window.instgrm) {
+            window.instgrm.Embeds.process()
+          } else {
+            console.warn('[Hero Section] ⚠️ Instagram embed script loaded but instgrm not available')
+            setInstagramEmbedFailed(true)
+          }
+        }, 100)
       }
       script.onerror = () => {
-        console.error('[Hero Section] ❌ Failed to load Instagram embed script')
+        console.error('[Hero Section] ❌ Failed to load Instagram embed script (likely blocked by ad blocker)')
+        console.log('[Hero Section] Falling back to iframe embed method')
+        setInstagramEmbedFailed(true)
       }
+      
+      // Add timeout fallback in case script loads but doesn't initialize
+      const timeout = setTimeout(() => {
+        if (!window.instgrm) {
+          console.warn('[Hero Section] ⚠️ Instagram embed script timeout, using fallback')
+          setInstagramEmbedFailed(true)
+        }
+      }, 3000)
+
       document.body.appendChild(script)
 
       return () => {
+        clearTimeout(timeout)
         // Cleanup: remove script if component unmounts
         const existingScript = document.querySelector('script[src="https://www.instagram.com/embed.js"]')
-        if (existingScript) {
-          document.body.removeChild(existingScript)
+        if (existingScript && existingScript.parentNode) {
+          existingScript.parentNode.removeChild(existingScript)
         }
       }
     }
@@ -158,30 +180,58 @@ export default function HeroSection() {
         )}
         {featuredVideo && featuredVideo.videoUrl && (
           <>
-            {/* Instagram videos use official embed method */}
+            {/* Instagram videos use official embed method with iframe fallback */}
             {featuredVideo.videoUrl.includes('instagram.com') ? (
-              <Box
-                component="blockquote"
-                className="instagram-media"
-                data-instgrm-permalink={featuredVideo.videoUrl}
-                data-instgrm-version="14"
-                sx={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  margin: 0,
-                  padding: 0,
-                  background: 'transparent',
-                  border: 'none',
-                  zIndex: 1,
-                  '& iframe': {
-                    width: '100% !important',
-                    height: '100% !important',
+              instagramEmbedFailed ? (
+                // Fallback: Use iframe embed when script is blocked
+                <Box
+                  component="iframe"
+                  src={`${featuredVideo.videoUrl}/embed/`}
+                  onLoad={() => {
+                    console.log('[Hero Section] ✅ Instagram iframe fallback loaded')
+                    setIsVideoPlaying(true)
+                  }}
+                  onError={(e) => {
+                    console.error('[Hero Section] ❌ Instagram iframe fallback failed:', e)
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
                     border: 'none',
-                  },
-                }}
-              />
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                  }}
+                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                  allowFullScreen
+                  loading="eager"
+                />
+              ) : (
+                // Official Instagram embed method
+                <Box
+                  component="blockquote"
+                  className="instagram-media"
+                  data-instgrm-permalink={featuredVideo.videoUrl}
+                  data-instgrm-version="14"
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    margin: 0,
+                    padding: 0,
+                    background: 'transparent',
+                    border: 'none',
+                    zIndex: 1,
+                    '& iframe': {
+                      width: '100% !important',
+                      height: '100% !important',
+                      border: 'none',
+                    },
+                  }}
+                />
+              )
             ) : (
               /* YouTube and Google Drive videos use iframe */
               <Box
