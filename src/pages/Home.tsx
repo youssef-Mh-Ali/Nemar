@@ -1,14 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, Container, Typography, Button, Grid } from '@mui/material'
 import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import HeroSection from '../components/home/HeroSection'
 import ProjectsGrid from '../components/home/ProjectsGrid'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
 export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const { t, i18n } = useTranslation()
+
+  useEffect(() => {
+    // Update HTML lang and dir attributes when language changes
+    document.documentElement.lang = i18n.language
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
+  }, [i18n.language])
 
   return (
     <>
@@ -33,31 +41,31 @@ export default function Home() {
                   display: 'block',
                 }}
               >
-                لماذا نحن
+                {t('home.whyChooseUs')}
               </Typography>
               <Typography variant="h3" fontWeight="bold" gutterBottom>
-                إرث من الثقة والجودة
+                {t('home.legacyTitle')}
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '36rem', mx: 'auto' }}>
-                نبني مجتمعات متكاملة منذ أكثر من ثلاثة عقود
+                {t('home.legacyDescription')}
               </Typography>
             </Box>
 
             <Grid container spacing={4}>
               {[
                 {
-                  title: 'جودة البناء',
-                  description: 'نلتزم بأعلى معايير الجودة في البناء والتشطيب',
+                  title: t('home.qualityTitle'),
+                  description: t('home.qualityDescription'),
                   icon: Construction,
                 },
                 {
-                  title: 'مواقع استراتيجية',
-                  description: 'نختار أفضل المواقع لضمان استثمار مستقبلي ناجح',
+                  title: t('home.locationTitle'),
+                  description: t('home.locationDescription'),
                   icon: LocationOn,
                 },
                 {
-                  title: 'خدمة ما بعد البيع',
-                  description: 'نقدم خدمات متكاملة لعملائنا حتى بعد التسليم',
+                  title: t('home.serviceTitle'),
+                  description: t('home.serviceDescription'),
                   icon: Handshake,
                 },
               ].map((item, index) => {
@@ -112,10 +120,10 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Typography variant="h3" fontWeight="bold" gutterBottom>
-              هل تبحث عن منزل أحلامك؟
+              {t('home.ctaTitle')}
             </Typography>
             <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 4, maxWidth: '42rem', mx: 'auto' }}>
-              سجل اهتمامك الآن وسيتواصل معك فريقنا لمساعدتك في اختيار الوحدة المناسبة
+              {t('home.ctaDescription')}
             </Typography>
             <Button
               variant="contained"
@@ -123,7 +131,7 @@ export default function Home() {
               size="large"
               onClick={() => setIsRegisterModalOpen(true)}
             >
-              سجل اهتمامك الآن
+              {t('home.registerInterest')}
             </Button>
           </motion.div>
         </Container>
@@ -147,12 +155,12 @@ export default function Home() {
             >
               <Phone size={20} />
               <Typography variant="body2" dir="ltr">
-                +966 11 234 5678
+                {t('home.phone')}
               </Typography>
             </Box>
             <Box
               component="a"
-              href="mailto:info@binsaedan.com"
+              href={`mailto:${t('home.email')}`}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -163,7 +171,7 @@ export default function Home() {
               }}
             >
               <Mail size={20} />
-              <Typography variant="body2">info@binsaedan.com</Typography>
+              <Typography variant="body2">{t('home.email')}</Typography>
             </Box>
             <Box
               sx={{
@@ -174,7 +182,7 @@ export default function Home() {
               }}
             >
               <MapPin size={20} />
-              <Typography variant="body2">الرياض، المملكة العربية السعودية</Typography>
+              <Typography variant="body2">{t('home.address')}</Typography>
             </Box>
           </Box>
         </Container>

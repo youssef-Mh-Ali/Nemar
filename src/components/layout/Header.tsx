@@ -1,17 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
 import { AppBar, Toolbar, Box, Button, IconButton } from '@mui/material'
 import { LogOut, User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
+import LanguageToggle from '../ui/LanguageToggle'
 
 export default function Header() {
   const location = useLocation()
   const { user, clearAuth } = useAuthStore()
+  const { t } = useTranslation()
 
   const navItems = [
-    { path: '/', label: 'الرئيسية' },
-    { path: '/search', label: 'البحث' },
-    { path: '/community', label: 'مجتمعي' },
-    { path: '/contact', label: 'تواصل معنا' },
+    { path: '/', label: t('common.home') },
+    { path: '/search', label: t('common.search') },
+    { path: '/community', label: t('common.community') },
+    { path: '/contact', label: t('common.contact') },
   ]
 
   return (
@@ -60,24 +63,25 @@ export default function Header() {
           ))}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {user ? (
-            <>
-              <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
-                {user.firstName}
-              </Box>
-              <IconButton onClick={clearAuth} size="small" title="تسجيل الخروج">
-                <LogOut size={20} />
-              </IconButton>
-            </>
-          ) : (
-            <Button component={Link} to="/login" variant="outlined" size="small" startIcon={<User size={16} />}>
-              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                تسجيل الدخول
-              </Box>
-            </Button>
-          )}
-        </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LanguageToggle />
+              {user ? (
+                <>
+                  <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
+                    {user.firstName}
+                  </Box>
+                  <IconButton onClick={clearAuth} size="small" title={t('common.logout')}>
+                    <LogOut size={20} />
+                  </IconButton>
+                </>
+              ) : (
+                <Button component={Link} to="/login" variant="outlined" size="small" startIcon={<User size={16} />}>
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {t('common.login')}
+                  </Box>
+                </Button>
+              )}
+            </Box>
       </Toolbar>
     </AppBar>
   )
