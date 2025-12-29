@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, Chip, Box, Typography, Divider } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Bed, Bath, Maximize, Calendar } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Unit } from '../../lib/types'
 import FavoriteButton from '../ui/FavoriteButton'
 import LazyImage from '../ui/LazyImage'
@@ -12,8 +13,10 @@ interface UnitCardProps {
 }
 
 export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
+  const { t, i18n } = useTranslation()
+  
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'SAR',
       maximumFractionDigits: 0,
@@ -21,7 +24,7 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'short',
     })
@@ -34,9 +37,9 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
   }
 
   const statusLabels: Record<Unit['status'], string> = {
-    Available: 'متاح',
-    Reserved: 'محجوز',
-    Sold: 'مباع',
+    Available: t('unit.available'),
+    Reserved: t('unit.reserved'),
+    Sold: t('unit.sold'),
   }
 
   return (
@@ -104,13 +107,13 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
           </Typography>
 
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {unit.projectNameAr} • {unit.phaseNameAr}
+            {i18n.language === 'ar' ? unit.projectNameAr : unit.projectNameEn} • {i18n.language === 'ar' ? unit.phaseNameAr : unit.phaseNameEn}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, fontSize: '0.75rem', color: 'text.secondary' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Bed size={16} />
-              <Typography variant="caption">{unit.bedrooms} غرف</Typography>
+              <Typography variant="caption">{unit.bedrooms} {t('unit.bedrooms')}</Typography>
             </Box>
             {unit.bathrooms && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -120,7 +123,7 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
             )}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Maximize size={16} />
-              <Typography variant="caption">{unit.area} م²</Typography>
+              <Typography variant="caption">{unit.area} {t('unit.areaUnit')}</Typography>
             </Box>
           </Box>
 
@@ -128,7 +131,7 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.75rem', color: 'text.secondary' }}>
             <Calendar size={16} />
-            <Typography variant="caption">التسليم: {formatDate(unit.deliveryDate)}</Typography>
+            <Typography variant="caption">{t('unit.delivery')}: {formatDate(unit.deliveryDate)}</Typography>
           </Box>
         </CardContent>
       </Card>

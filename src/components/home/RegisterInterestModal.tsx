@@ -15,18 +15,19 @@ import { Close, CheckCircle } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { createLead } from '../../lib/api-client'
 import { useToastStore } from '../../lib/store/toast-store'
 
-const schema = z.object({
-  firstName: z.string().min(2, 'الاسم الأول مطلوب'),
-  lastName: z.string().min(2, 'اسم العائلة مطلوب'),
-  email: z.string().email('البريد الإلكتروني غير صحيح'),
-  phone: z.string().min(9, 'رقم الهاتف غير صحيح'),
+type FormData = z.infer<ReturnType<typeof getSchema>>
+
+const getSchema = (t: (key: string) => string) => z.object({
+  firstName: z.string().min(2, t('registerInterest.firstNameRequired')),
+  lastName: z.string().min(2, t('registerInterest.lastNameRequired')),
+  email: z.string().email(t('registerInterest.emailInvalid')),
+  phone: z.string().min(9, t('registerInterest.phoneInvalid')),
   message: z.string().optional(),
 })
-
-type FormData = z.infer<typeof schema>
 
 interface RegisterInterestModalProps {
   isOpen: boolean
@@ -45,6 +46,7 @@ export default function RegisterInterestModal({
   unitId,
   projectName,
 }: RegisterInterestModalProps) {
+  const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,7 +58,7 @@ export default function RegisterInterestModal({
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(getSchema(t)),
   })
 
   const onSubmit = async (data: FormData) => {
@@ -73,19 +75,19 @@ export default function RegisterInterestModal({
 
       if (response.success) {
         setIsSuccess(true)
-        addToast('تم التسجيل بنجاح! سنتواصل معك قريباً', 'success')
+        addToast(t('registerInterest.successMessage'), 'success')
         reset()
         setTimeout(() => {
           onClose()
           setIsSuccess(false)
         }, 2000)
       } else {
-        const errorMsg = response.error || 'حدث خطأ. يرجى المحاولة مرة أخرى.'
+        const errorMsg = response.error || t('registerInterest.errorOccurred')
         setError(errorMsg)
         addToast(errorMsg, 'error')
       }
     } catch {
-      setError('حدث خطأ. يرجى المحاولة مرة أخرى.')
+      setError(t('registerInterest.errorOccurred'))
     } finally {
       setIsSubmitting(false)
     }
@@ -104,7 +106,7 @@ export default function RegisterInterestModal({
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>
-            <Typography variant="h6">سجل اهتمامك</Typography>
+            <Typography variant="h6">{t('registerInterest.title')}</Typography>
             {projectName && (
               <Typography variant="body2" color="text.secondary">
                 {projectName}
@@ -122,10 +124,10 @@ export default function RegisterInterestModal({
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
             <Typography variant="h6" gutterBottom>
-              تم التسجيل بنجاح!
+              {t('registerInterest.success')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              سنتواصل معك قريباً
+              {t('registerInterest.successMessage')}
             </Typography>
           </Box>
         ) : (
@@ -134,8 +136,8 @@ export default function RegisterInterestModal({
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   {...register('firstName')}
-                  label="الاسم الأول"
-                  placeholder="أحمد"
+                  label={t('registerInterest.firstName')}
+                  placeholder={t('registerInterest.firstNamePlaceholder')}
                   fullWidth
                   error={!!errors.firstName}
                   helperText={errors.firstName?.message}
@@ -144,8 +146,8 @@ export default function RegisterInterestModal({
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   {...register('lastName')}
-                  label="اسم العائلة"
-                  placeholder="الراشد"
+                  label={t('registerInterest.lastName')}
+                  placeholder={t('registerInterest.lastNamePlaceholder')}
                   fullWidth
                   error={!!errors.lastName}
                   helperText={errors.lastName?.message}
@@ -154,9 +156,9 @@ export default function RegisterInterestModal({
               <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('email')}
-                  label="البريد الإلكتروني"
+                  label={t('registerInterest.email')}
                   type="email"
-                  placeholder="ahmed@example.com"
+                  placeholder={t('registerInterest.emailPlaceholder')}
                   fullWidth
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -165,9 +167,9 @@ export default function RegisterInterestModal({
               <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('phone')}
-                  label="رقم الهاتف"
+                  label={t('registerInterest.phone')}
                   type="tel"
-                  placeholder="+966 5X XXX XXXX"
+                  placeholder={t('registerInterest.phonePlaceholder')}
                   fullWidth
                   error={!!errors.phone}
                   helperText={errors.phone?.message}
@@ -176,8 +178,8 @@ export default function RegisterInterestModal({
               <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('message')}
-                  label="ملاحظات (اختياري)"
-                  placeholder="أي استفسارات أو ملاحظات..."
+                  label={t('registerInterest.notes')}
+                  placeholder={t('registerInterest.notesPlaceholder')}
                   fullWidth
                   multiline
                   rows={3}
@@ -193,10 +195,10 @@ export default function RegisterInterestModal({
 
             <DialogActions sx={{ px: 0, pt: 2 }}>
               <Button onClick={handleClose} disabled={isSubmitting}>
-                إلغاء
+                {t('common.cancel')}
               </Button>
               <Button type="submit" variant="contained" disabled={isSubmitting}>
-                {isSubmitting ? 'جاري الإرسال...' : 'إرسال'}
+                {isSubmitting ? t('registerInterest.submitting') : t('common.submit')}
               </Button>
             </DialogActions>
           </form>

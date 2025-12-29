@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import { Building2, Plus, FileText, User } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
 import CaseForm from '../components/community/CaseForm'
 import CaseList from '../components/community/CaseList'
@@ -23,6 +24,7 @@ import { getMyUnits, getCases } from '../lib/api-client'
 import { Unit, Case } from '../lib/types'
 
 export default function Community() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, token } = useAuthStore()
   const [units, setUnits] = useState<Unit[]>([])
@@ -86,7 +88,7 @@ export default function Community() {
             <Box
               component="img"
               src="/BinSaedanLogo-White.png"
-              alt="فيصل بن سعيدان"
+              alt={t('home.title')}
               sx={{
                 height: 40,
                 width: 'auto',
@@ -109,7 +111,7 @@ export default function Community() {
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                  مرحباً
+                  {t('community.welcome')}
                 </Typography>
                 <Typography variant="h6" fontWeight="bold">
                   {user.firstName} {user.lastName}
@@ -117,7 +119,7 @@ export default function Community() {
               </Box>
             </Box>
             <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-              مرحباً بك في مجتمع فيصل بن سعيدان
+              {t('community.welcomeMessage')}
             </Typography>
           </motion.div>
         </Container>
@@ -134,7 +136,7 @@ export default function Community() {
                   {units.length}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  وحداتي
+                  {t('community.unitsCount')}
                 </Typography>
               </CardContent>
             </Card>
@@ -147,7 +149,7 @@ export default function Community() {
                   {cases.length}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  طلباتي
+                  {t('community.casesCount')}
                 </Typography>
               </CardContent>
             </Card>
@@ -169,7 +171,7 @@ export default function Community() {
         >
           <Tab
             value="units"
-            label="وحداتي"
+            label={t('community.myUnits')}
             sx={{
               flex: 1,
               borderRadius: 1,
@@ -183,7 +185,7 @@ export default function Community() {
             value="cases"
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                طلباتي
+                {t('community.myCases')}
                 {activeCasesCount > 0 && (
                   <Badge badgeContent={activeCasesCount} color="warning" />
                 )}
@@ -213,13 +215,13 @@ export default function Community() {
               <Box sx={{ textAlign: 'center', py: 8 }}>
                 <Building2 size={48} color="#e2e8f0" style={{ margin: '0 auto 12px', display: 'block' }} />
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  لا توجد وحدات
+                  {t('community.noUnits')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  لم يتم تسجيل أي وحدات باسمك
+                  {t('community.noUnitsDescription')}
                 </Typography>
                 <Button component={Link} to="/search" variant="contained">
-                  استكشف الوحدات
+                  {t('community.exploreUnits')}
                 </Button>
               </Box>
             ) : (
@@ -241,7 +243,7 @@ export default function Community() {
                 startIcon={<Plus size={16} />}
                 onClick={() => setIsCaseFormOpen(true)}
               >
-                طلب جديد
+                {t('community.newCase')}
               </Button>
             </Box>
             <CaseList cases={cases} />

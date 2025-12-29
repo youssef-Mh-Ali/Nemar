@@ -15,50 +15,22 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Twitter, Instagram } from 'lucide-react'
 import { createLead } from '../lib/api-client'
 
-const schema = z.object({
-  firstName: z.string().min(2, 'الاسم الأول مطلوب'),
-  lastName: z.string().min(2, 'اسم العائلة مطلوب'),
-  email: z.string().email('البريد الإلكتروني غير صحيح'),
-  phone: z.string().min(9, 'رقم الهاتف غير صحيح'),
-  message: z.string().min(10, 'الرسالة مطلوبة'),
+type FormData = z.infer<ReturnType<typeof getSchema>>
+
+const getSchema = (t: (key: string) => string) => z.object({
+  firstName: z.string().min(2, t('registerInterest.firstNameRequired')),
+  lastName: z.string().min(2, t('registerInterest.lastNameRequired')),
+  email: z.string().email(t('registerInterest.emailInvalid')),
+  phone: z.string().min(9, t('registerInterest.phoneInvalid')),
+  message: z.string().min(10, t('contact.message')),
 })
 
-type FormData = z.infer<typeof schema>
-
-const contactInfo = [
-  {
-    icon: Phone,
-    label: 'الهاتف',
-    value: '+966 11 234 5678',
-    href: 'tel:+966112345678',
-  },
-  {
-    icon: Mail,
-    label: 'البريد الإلكتروني',
-    value: 'info@binsaedan.com',
-    href: 'mailto:info@binsaedan.com',
-  },
-  {
-    icon: MapPin,
-    label: 'العنوان',
-    value: 'الرياض، المملكة العربية السعودية',
-  },
-  {
-    icon: Clock,
-    label: 'ساعات العمل',
-    value: 'الأحد - الخميس، 9 ص - 5 م',
-  },
-]
-
-const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/binsaedan', label: 'تويتر' },
-  { icon: Instagram, href: 'https://instagram.com/binsaedan', label: 'انستقرام' },
-]
-
 export default function Contact() {
+  const { t } = useTranslation()
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -68,7 +40,7 @@ export default function Contact() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(getSchema(t)),
   })
 
   const onSubmit = async (data: FormData) => {
@@ -82,10 +54,10 @@ export default function Contact() {
         reset()
         setTimeout(() => setIsSuccess(false), 5000)
       } else {
-        setError(response.error || 'حدث خطأ. يرجى المحاولة مرة أخرى.')
+        setError(response.error || t('contact.errorOccurred'))
       }
     } catch {
-      setError('حدث خطأ. يرجى المحاولة مرة أخرى.')
+      setError(t('contact.errorOccurred'))
     }
   }
 
@@ -99,10 +71,10 @@ export default function Contact() {
             animate={{ opacity: 1, y: 0 }}
           >
             <Typography variant="h3" fontWeight="bold" gutterBottom>
-              تواصل معنا
+              {t('contact.title')}
             </Typography>
             <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)', maxWidth: '42rem', mx: 'auto' }}>
-              نحن هنا لمساعدتك. تواصل معنا لأي استفسارات أو ملاحظات
+              {t('contact.description')}
             </Typography>
           </motion.div>
         </Container>
@@ -120,7 +92,7 @@ export default function Contact() {
               <Card>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                    أرسل لنا رسالة
+                    {t('contact.formTitle')}
                   </Typography>
 
                   {isSuccess ? (
@@ -133,10 +105,10 @@ export default function Contact() {
                         <CheckCircle size={64} color="#38a169" />
                       </Box>
                         <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                          تم إرسال رسالتك!
+                          {t('contact.messageSent')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          سنتواصل معك قريباً
+                          {t('contact.willContactSoon')}
                         </Typography>
                       </Box>
                     </motion.div>
@@ -146,8 +118,8 @@ export default function Contact() {
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             {...register('firstName')}
-                            label="الاسم الأول"
-                            placeholder="أحمد"
+                            label={t('contact.firstName')}
+                            placeholder={t('contact.firstNamePlaceholder')}
                             fullWidth
                             error={!!errors.firstName}
                             helperText={errors.firstName?.message}
@@ -156,8 +128,8 @@ export default function Contact() {
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             {...register('lastName')}
-                            label="اسم العائلة"
-                            placeholder="الراشد"
+                            label={t('contact.lastName')}
+                            placeholder={t('contact.lastNamePlaceholder')}
                             fullWidth
                             error={!!errors.lastName}
                             helperText={errors.lastName?.message}
@@ -166,9 +138,9 @@ export default function Contact() {
                         <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('email')}
-                            label="البريد الإلكتروني"
+                            label={t('contact.email')}
                             type="email"
-                            placeholder="ahmed@example.com"
+                            placeholder={t('contact.emailPlaceholder')}
                             fullWidth
                             error={!!errors.email}
                             helperText={errors.email?.message}
@@ -177,9 +149,9 @@ export default function Contact() {
                         <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('phone')}
-                            label="رقم الهاتف"
+                            label={t('contact.phone')}
                             type="tel"
-                            placeholder="+966 5X XXX XXXX"
+                            placeholder={t('contact.phonePlaceholder')}
                             fullWidth
                             error={!!errors.phone}
                             helperText={errors.phone?.message}
@@ -188,8 +160,8 @@ export default function Contact() {
                         <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('message')}
-                            label="رسالتك"
-                            placeholder="كيف يمكننا مساعدتك؟"
+                            label={t('contact.message')}
+                            placeholder={t('contact.messagePlaceholder')}
                             fullWidth
                             multiline
                             rows={4}
@@ -214,7 +186,7 @@ export default function Contact() {
                         startIcon={<Send size={20} />}
                         sx={{ mt: 2 }}
                       >
-                        {isSubmitting ? 'جاري الإرسال...' : 'إرسال'}
+                        {isSubmitting ? t('contact.submitting') : t('contact.send')}
                       </Button>
                     </form>
                   )}
@@ -232,10 +204,33 @@ export default function Contact() {
             >
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  معلومات التواصل
+                  {t('contact.contactInfo')}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {contactInfo.map((item) => {
+                  {[
+                    {
+                      icon: Phone,
+                      label: t('contact.phoneLabel'),
+                      value: '+966 11 234 5678',
+                      href: 'tel:+966112345678',
+                    },
+                    {
+                      icon: Mail,
+                      label: t('contact.emailLabel'),
+                      value: 'info@binsaedan.com',
+                      href: 'mailto:info@binsaedan.com',
+                    },
+                    {
+                      icon: MapPin,
+                      label: t('contact.addressLabel'),
+                      value: t('contact.address'),
+                    },
+                    {
+                      icon: Clock,
+                      label: t('contact.workingHours'),
+                      value: t('contact.workingHoursValue'),
+                    },
+                  ].map((item) => {
                     const Icon = item.icon
                     const content = (
                       <Card>
@@ -287,10 +282,13 @@ export default function Contact() {
               {/* Social Links */}
               <Box>
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  تابعنا
+                  {t('contact.followUs')}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  {socialLinks.map((social) => {
+                  {[
+                    { icon: Twitter, href: 'https://twitter.com/binsaedan', label: t('share.twitter') },
+                    { icon: Instagram, href: 'https://instagram.com/binsaedan', label: t('share.facebook') },
+                  ].map((social) => {
                     const Icon = social.icon
                     return (
                       <IconButton
@@ -330,7 +328,7 @@ export default function Contact() {
                 <Box sx={{ textAlign: 'center' }}>
                   <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
                   <Typography variant="caption" color="text.secondary">
-                    الخريطة ستظهر هنا
+                    {t('contact.mapPlaceholder')}
                   </Typography>
                 </Box>
               </Box>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Box, Container, Typography, Card, CardContent, Chip, Grid, Skeleton, Link as MuiLink } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
 import { getProjects } from '../../lib/api-client'
 import type { Project } from '../../lib/types'
@@ -13,6 +14,7 @@ interface ProjectWithAvailability extends Project {
 }
 
 export default function ProjectsGrid() {
+  const { t, i18n } = useTranslation()
   const [projects, setProjects] = useState<ProjectWithAvailability[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -44,7 +46,7 @@ export default function ProjectsGrid() {
             transition={{ duration: 0.5 }}
           >
             <Chip
-              label="مشاريعنا"
+              label={t('home.latestProjects')}
               sx={{
                 bgcolor: 'secondary.main',
                 color: 'primary.dark',
@@ -53,10 +55,10 @@ export default function ProjectsGrid() {
               }}
             />
             <Typography variant="h3" fontWeight="bold" gutterBottom>
-              أحدث المشاريع
+              {t('home.latestProjects')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '36rem', mx: 'auto' }}>
-              استكشف مجموعتنا المتميزة من المشاريع السكنية في أفضل مواقع المملكة
+              {t('home.subtitle')}
             </Typography>
           </motion.div>
         </Box>
@@ -104,7 +106,7 @@ export default function ProjectsGrid() {
                         <Box sx={{ position: 'relative', height: { xs: 192, md: 224 }, overflow: 'hidden' }}>
                           <LazyImage
                             src={project.coverImageUrl}
-                            alt={project.nameAr}
+                            alt={i18n.language === 'ar' ? project.nameAr : project.nameEn}
                             objectFit="cover"
                             sx={{
                               height: '100%',
@@ -118,8 +120,8 @@ export default function ProjectsGrid() {
                       <Chip
                         label={
                           project.hasAvailability
-                            ? `${project.availablePhasesCount} مراحل متاحة`
-                            : 'مباع بالكامل'
+                            ? t('home.phasesAvailable', { count: project.availablePhasesCount })
+                            : t('home.soldOut')
                         }
                         color={project.hasAvailability ? 'success' : 'error'}
                         size="small"
@@ -141,19 +143,20 @@ export default function ProjectsGrid() {
 
                     <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                       <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                        {project.nameAr}
+                        {i18n.language === 'ar' ? project.nameAr : project.nameEn}
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2, color: 'text.secondary' }}>
                         <MapPin size={16} />
-                        <Typography variant="body2">{project.locationAr}</Typography>
+                        <Typography variant="body2">{i18n.language === 'ar' ? project.locationAr : project.locationEn}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
                           <Building2 size={16} />
-                          <Typography variant="caption">{project.phases.length} مراحل</Typography>
+                          <Typography variant="caption">{project.phases.length} {t('home.phases')}</Typography>
                         </Box>
                         <MuiLink
-                          component="span"
+                          component={Link}
+                          to={`/search?projectId=${project.id}`}
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -167,7 +170,7 @@ export default function ProjectsGrid() {
                             },
                           }}
                         >
-                          عرض الوحدات
+                          {t('home.viewUnits')}
                           <ArrowLeft size={16} />
                         </MuiLink>
                       </Box>
@@ -202,7 +205,7 @@ export default function ProjectsGrid() {
                 },
               }}
             >
-              عرض جميع الوحدات
+              {t('home.viewAllUnits')}
               <ArrowLeft size={20} />
             </MuiLink>
           </Box>

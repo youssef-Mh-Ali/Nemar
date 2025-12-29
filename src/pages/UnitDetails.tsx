@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import { ArrowRight, ChevronLeft, ChevronRight, Bed, Bath, Maximize, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import ImageGallery from '../components/ui/ImageGallery'
@@ -25,6 +26,7 @@ import { useAuthStore } from '../lib/store'
 import { Unit } from '../lib/types'
 
 export default function UnitDetails() {
+  const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
@@ -55,7 +57,7 @@ export default function UnitDetails() {
   }, [id])
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'SAR',
       maximumFractionDigits: 0,
@@ -63,7 +65,7 @@ export default function UnitDetails() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
     })
@@ -276,7 +278,7 @@ export default function UnitDetails() {
                     <Box sx={{ textAlign: 'center' }}>
                       <Bed size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
-                        غرف النوم
+                        {t('unit.bedroomsLabel')}
                       </Typography>
                       <Typography variant="h6" fontWeight="semibold">
                         {unit.bedrooms}
@@ -288,7 +290,7 @@ export default function UnitDetails() {
                       <Box sx={{ textAlign: 'center' }}>
                         <Bath size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                         <Typography variant="caption" color="text.secondary" display="block">
-                          دورات المياه
+                          {t('unit.bathroomsLabel')}
                         </Typography>
                         <Typography variant="h6" fontWeight="semibold">
                           {unit.bathrooms}
@@ -300,10 +302,10 @@ export default function UnitDetails() {
                     <Box sx={{ textAlign: 'center' }}>
                       <Maximize size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
-                        المساحة
+                        {t('unit.areaLabel')}
                       </Typography>
                       <Typography variant="h6" fontWeight="semibold">
-                        {unit.area} م²
+                        {unit.area} {t('unit.areaUnit')}
                       </Typography>
                     </Box>
                   </Grid>
@@ -311,7 +313,7 @@ export default function UnitDetails() {
                     <Box sx={{ textAlign: 'center' }}>
                       <Calendar size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
-                        التسليم
+                        {t('unit.deliveryLabel')}
                       </Typography>
                       <Typography variant="h6" fontWeight="semibold">
                         {formatDate(unit.deliveryDate)}
@@ -323,13 +325,13 @@ export default function UnitDetails() {
             </Card>
 
             {/* Description */}
-            {unit.descriptionAr && (
+            {(i18n.language === 'ar' ? unit.descriptionAr : unit.descriptionEn) && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  الوصف
+                  {t('unit.description')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                  {unit.descriptionAr}
+                  {i18n.language === 'ar' ? unit.descriptionAr : unit.descriptionEn}
                 </Typography>
               </Box>
             )}
@@ -343,11 +345,11 @@ export default function UnitDetails() {
                 onClick={() => setIsRegisterModalOpen(true)}
                 disabled={unit.status === 'Sold'}
               >
-                {unit.status === 'Sold' ? 'مباع' : 'سجل اهتمامك'}
+                {unit.status === 'Sold' ? t('unit.sold') : t('unit.registerInterest')}
               </Button>
               {user && (
                 <Button component={Link} to="/community" variant="outlined" size="large" fullWidth>
-                  فتح طلب دعم
+                  {t('unit.openSupportCase')}
                 </Button>
               )}
             </Box>
@@ -356,7 +358,7 @@ export default function UnitDetails() {
             {relatedUnits.length > 0 && (
               <Box>
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  وحدات مشابهة
+                  {t('unit.similarUnits')}
                 </Typography>
                 <Grid container spacing={2}>
                   {relatedUnits.map((relatedUnit) => (

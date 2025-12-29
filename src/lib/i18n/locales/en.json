@@ -21,7 +21,7 @@
   },
   "home": {
     "title": "Faisal Bin Saedan",
-    "subtitle": "Discover Premium Real Estate Projects",
+    "subtitle": "Explore our distinguished collection of residential projects in the best locations in the Kingdom",
     "heroTitle": "Your Community,",
     "heroSubtitle": "With a New Style",
     "heroDescription": "Discover the finest residential projects in the Kingdom of Saudi Arabia. We build integrated communities for future generations.",
@@ -43,7 +43,11 @@
     "viewAllUnits": "View All Units",
     "phone": "+966 11 234 5678",
     "email": "info@binsaedan.com",
-    "address": "Riyadh, Kingdom of Saudi Arabia"
+    "address": "Riyadh, Kingdom of Saudi Arabia",
+    "phasesAvailable": "{{count}} phases available",
+    "soldOut": "Sold Out",
+    "phases": "phases",
+    "viewUnits": "View Units"
   },
   "search": {
     "title": "Search for a Unit",
@@ -54,7 +58,8 @@
     "modifyFilters": "Modify Filters",
     "filters": "Filters",
     "viewGrid": "Grid View",
-    "viewList": "List View"
+    "viewList": "List View",
+    "filter": "Filter"
   },
   "unit": {
     "details": "Unit Details",
@@ -73,29 +78,45 @@
     "project": "Project",
     "phase": "Phase",
     "unitNumber": "Unit Number",
-    "similarUnits": "Similar Units"
-  },
-  "community": {
-    "welcome": "Welcome",
-    "welcomeMessage": "Welcome to Faisal Bin Saedan Community",
-    "myUnits": "My Units",
-    "myCases": "My Cases",
-    "noUnits": "No Units",
-    "noUnitsDescription": "No units registered under your name",
-    "exploreUnits": "Explore Units",
-    "newCase": "New Case",
-    "activeCases": "Active Cases"
+    "similarUnits": "Similar Units",
+    "bedroomsLabel": "Bedrooms",
+    "bathroomsLabel": "Bathrooms",
+    "areaLabel": "Area",
+    "deliveryLabel": "Delivery",
+    "description": "Description",
+    "openSupportCase": "Open Support Case",
+    "areaUnit": "m²"
   },
   "contact": {
     "title": "Contact Us",
-    "description": "We're here to help. Contact us through any of the following channels",
+    "description": "We're here to help. Contact us for any inquiries or feedback",
     "formTitle": "Send us a Message",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-    "message": "Message",
+    "message": "Your Message",
     "send": "Send",
-    "sent": "Message sent successfully"
+    "sent": "Message sent successfully",
+    "contactInfo": "Contact Information",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "addressLabel": "Address",
+    "address": "Riyadh, Kingdom of Saudi Arabia",
+    "workingHours": "Working Hours",
+    "workingHoursValue": "Sunday - Thursday, 9 AM - 5 PM",
+    "followUs": "Follow Us",
+    "mapPlaceholder": "Map will appear here",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "firstNamePlaceholder": "Ahmed",
+    "lastNamePlaceholder": "Al-Rashid",
+    "emailPlaceholder": "ahmed@example.com",
+    "phonePlaceholder": "+966 5X XXX XXXX",
+    "messagePlaceholder": "How can we help you?",
+    "submitting": "Sending...",
+    "messageSent": "Your message has been sent!",
+    "willContactSoon": "We will contact you soon",
+    "errorOccurred": "An error occurred. Please try again."
   },
   "registerInterest": {
     "title": "Register Your Interest",
@@ -106,7 +127,17 @@
     "notes": "Notes (Optional)",
     "submitting": "Submitting...",
     "success": "Registration Successful!",
-    "successMessage": "We will contact you soon"
+    "successMessage": "We will contact you soon",
+    "firstNamePlaceholder": "Ahmed",
+    "lastNamePlaceholder": "Al-Rashid",
+    "emailPlaceholder": "ahmed@example.com",
+    "phonePlaceholder": "Phone",
+    "notesPlaceholder": "Any inquiries or notes...",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "emailInvalid": "Invalid email address",
+    "phoneInvalid": "Invalid phone number",
+    "errorOccurred": "An error occurred. Please try again."
   },
   "favorites": {
     "add": "Add to Favorites",
@@ -122,6 +153,34 @@
     "twitter": "Twitter",
     "facebook": "Facebook",
     "success": "Shared successfully"
+  },
+  "community": {
+    "welcome": "Welcome",
+    "welcomeMessage": "Welcome to Faisal Bin Saedan Community",
+    "myUnits": "My Units",
+    "myCases": "My Cases",
+    "noUnits": "No Units",
+    "noUnitsDescription": "No units registered under your name",
+    "exploreUnits": "Explore Units",
+    "newCase": "New Case",
+    "activeCases": "Active Cases",
+    "unitsCount": "My Units",
+    "casesCount": "My Cases"
+  },
+  "calculator": {
+    "title": "Finance Calculator",
+    "unitPrice": "Unit Price",
+    "downPayment": "Down Payment",
+    "downPaymentValue": "{{value}}%",
+    "loanTerm": "Loan Term",
+    "loanTermValue": "{{value}} years",
+    "interestRate": "Interest Rate (%)",
+    "loanAmount": "Loan Amount",
+    "monthlyPayment": "Monthly Payment",
+    "totalInterest": "Total Interest",
+    "totalAmount": "Total Amount",
+    "close": "Close",
+    "print": "Print"
   }
 }
 

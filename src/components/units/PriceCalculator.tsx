@@ -14,6 +14,7 @@ import {
   Divider,
 } from '@mui/material'
 import { Calculator, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Unit } from '../../lib/types'
 
 interface PriceCalculatorProps {
@@ -23,6 +24,7 @@ interface PriceCalculatorProps {
 }
 
 export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculatorProps) {
+  const { t, i18n } = useTranslation()
   const [downPayment, setDownPayment] = useState(20)
   const [loanTerm, setLoanTerm] = useState(20)
   const [interestRate, setInterestRate] = useState(4.5)
@@ -41,7 +43,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
   const totalAmount = unit.price + totalInterest
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'SAR',
       maximumFractionDigits: 0,
@@ -54,7 +56,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Calculator size={24} />
-            <Typography variant="h6">حاسبة التمويل</Typography>
+            <Typography variant="h6">{t('calculator.title')}</Typography>
           </Box>
           <Button onClick={onClose} sx={{ minWidth: 'auto', p: 1 }}>
             <X size={20} />
@@ -65,7 +67,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
       <DialogContent>
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            سعر الوحدة
+            {t('calculator.unitPrice')}
           </Typography>
           <Typography variant="h5" fontWeight="bold" color="primary.main">
             {formatCurrency(unit.price)}
@@ -76,7 +78,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
           {/* Down Payment */}
           <Grid size={{ xs: 12 }}>
             <Typography variant="body2" gutterBottom>
-              الدفعة الأولى: {downPayment}%
+              {t('calculator.downPayment')}: {downPayment}%
             </Typography>
             <Slider
               value={downPayment}
@@ -86,7 +88,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
               step={5}
               marks
               valueLabelDisplay="auto"
-              valueLabelFormat={(value) => `${value}%`}
+              valueLabelFormat={(value) => t('calculator.downPaymentValue', { value })}
             />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               {formatCurrency(unit.price * (downPayment / 100))}
@@ -96,7 +98,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
           {/* Loan Term */}
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="body2" gutterBottom>
-              مدة القرض: {loanTerm} سنة
+              {t('calculator.loanTerm')}: {loanTerm} {i18n.language === 'ar' ? 'سنة' : 'years'}
             </Typography>
             <Slider
               value={loanTerm}
@@ -106,14 +108,14 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
               step={5}
               marks
               valueLabelDisplay="auto"
-              valueLabelFormat={(value) => `${value} سنة`}
+              valueLabelFormat={(value) => t('calculator.loanTermValue', { value })}
             />
           </Grid>
 
           {/* Interest Rate */}
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label="معدل الفائدة (%)"
+              label={t('calculator.interestRate')}
               type="number"
               value={interestRate}
               onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
@@ -130,7 +132,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
-                مبلغ القرض
+                {t('calculator.loanAmount')}
               </Typography>
               <Typography variant="h6" fontWeight="bold">
                 {formatCurrency(loanAmount)}
@@ -138,7 +140,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
-                القسط الشهري
+                {t('calculator.monthlyPayment')}
               </Typography>
               <Typography variant="h6" fontWeight="bold" color="primary.main">
                 {formatCurrency(monthlyPayment)}
@@ -146,7 +148,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
-                إجمالي الفوائد
+                {t('calculator.totalInterest')}
               </Typography>
               <Typography variant="h6" fontWeight="bold">
                 {formatCurrency(totalInterest)}
@@ -154,7 +156,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
-                إجمالي المبلغ
+                {t('calculator.totalAmount')}
               </Typography>
               <Typography variant="h6" fontWeight="bold">
                 {formatCurrency(totalAmount)}
@@ -165,9 +167,9 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>إغلاق</Button>
+        <Button onClick={onClose}>{t('calculator.close')}</Button>
         <Button variant="contained" onClick={onClose}>
-          طباعة
+          {t('calculator.print')}
         </Button>
       </DialogActions>
     </Dialog>

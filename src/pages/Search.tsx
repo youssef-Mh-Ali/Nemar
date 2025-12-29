@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import { Badge } from '@mui/material'
 import { LayoutGrid, List, SlidersHorizontal, Search as SearchIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
 import FilterDrawer from '../components/search/FilterDrawer'
 import DesktopFilters from '../components/search/DesktopFilters'
@@ -22,6 +23,7 @@ import { searchUnits } from '../lib/api-client'
 import { Unit } from '../lib/types'
 
 export default function Search() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const { filters, setFilters, setFilterDrawerOpen } = useAppStore()
   const [units, setUnits] = useState<Unit[]>([])
@@ -73,10 +75,10 @@ export default function Search() {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
               <Box>
                 <Typography variant="h6" fontWeight="semibold">
-                  البحث عن وحدة
+                  {t('search.title')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {isLoading ? 'جاري البحث...' : `${units.length} وحدة`}
+                  {isLoading ? t('search.searching') : t('search.unitsFound', { count: units.length })}
                 </Typography>
               </Box>
 
@@ -106,7 +108,7 @@ export default function Search() {
                     startIcon={<SlidersHorizontal size={16} />}
                     sx={{ display: { xs: 'flex', md: 'none' } }}
                   >
-                    تصفية
+                    {t('search.filter')}
                   </Button>
                 </Badge>
               </Box>
@@ -143,17 +145,17 @@ export default function Search() {
               <Box sx={{ textAlign: 'center', py: 8 }}>
                 <SearchIcon size={64} color="#e2e8f0" style={{ margin: '0 auto 16px' }} />
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                  لا توجد نتائج
+                  {t('search.noResults')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  جرب تغيير معايير البحث للعثور على وحدات أخرى
+                  {t('search.noResultsDescription')}
                 </Typography>
                 <Button
                   variant="outlined"
                   onClick={() => setFilterDrawerOpen(true)}
                   sx={{ display: { xs: 'inline-flex', md: 'none' } }}
                 >
-                  تعديل الفلاتر
+                  {t('search.modifyFilters')}
                 </Button>
               </Box>
             ) : (

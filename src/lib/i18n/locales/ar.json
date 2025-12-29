@@ -43,7 +43,11 @@
     "viewAllUnits": "عرض جميع الوحدات",
     "phone": "+966 11 234 5678",
     "email": "info@binsaedan.com",
-    "address": "الرياض، المملكة العربية السعودية"
+    "address": "الرياض، المملكة العربية السعودية",
+    "phasesAvailable": "{{count}} مراحل متاحة",
+    "soldOut": "مباع بالكامل",
+    "phases": "مراحل",
+    "viewUnits": "عرض الوحدات"
   },
   "search": {
     "title": "البحث عن وحدة",
@@ -54,7 +58,8 @@
     "modifyFilters": "تعديل الفلاتر",
     "filters": "تصفية",
     "viewGrid": "عرض شبكي",
-    "viewList": "عرض قائمة"
+    "viewList": "عرض قائمة",
+    "filter": "تصفية"
   },
   "unit": {
     "details": "تفاصيل الوحدة",
@@ -73,7 +78,14 @@
     "project": "المشروع",
     "phase": "المرحلة",
     "unitNumber": "رقم الوحدة",
-    "similarUnits": "وحدات مشابهة"
+    "similarUnits": "وحدات مشابهة",
+    "bedroomsLabel": "غرف النوم",
+    "bathroomsLabel": "دورات المياه",
+    "areaLabel": "المساحة",
+    "deliveryLabel": "التسليم",
+    "description": "الوصف",
+    "openSupportCase": "فتح طلب دعم",
+    "areaUnit": "م²"
   },
   "community": {
     "welcome": "مرحباً",
@@ -88,14 +100,34 @@
   },
   "contact": {
     "title": "تواصل معنا",
-    "description": "نحن هنا لمساعدتك. تواصل معنا عبر أي من القنوات التالية",
+    "description": "نحن هنا لمساعدتك. تواصل معنا لأي استفسارات أو ملاحظات",
     "formTitle": "أرسل لنا رسالة",
     "name": "الاسم",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
-    "message": "الرسالة",
+    "message": "رسالتك",
     "send": "إرسال",
-    "sent": "تم الإرسال بنجاح"
+    "sent": "تم الإرسال بنجاح",
+    "contactInfo": "معلومات التواصل",
+    "phoneLabel": "الهاتف",
+    "emailLabel": "البريد الإلكتروني",
+    "addressLabel": "العنوان",
+    "address": "الرياض، المملكة العربية السعودية",
+    "workingHours": "ساعات العمل",
+    "workingHoursValue": "الأحد - الخميس، 9 ص - 5 م",
+    "followUs": "تابعنا",
+    "mapPlaceholder": "الخريطة ستظهر هنا",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "firstNamePlaceholder": "أحمد",
+    "lastNamePlaceholder": "الراشد",
+    "emailPlaceholder": "ahmed@example.com",
+    "phonePlaceholder": "+966 5X XXX XXXX",
+    "messagePlaceholder": "كيف يمكننا مساعدتك؟",
+    "submitting": "جاري الإرسال...",
+    "messageSent": "تم إرسال رسالتك!",
+    "willContactSoon": "سنتواصل معك قريباً",
+    "errorOccurred": "حدث خطأ. يرجى المحاولة مرة أخرى."
   },
   "registerInterest": {
     "title": "سجل اهتمامك",
@@ -106,7 +138,17 @@
     "notes": "ملاحظات (اختياري)",
     "submitting": "جاري الإرسال...",
     "success": "تم التسجيل بنجاح!",
-    "successMessage": "سنتواصل معك قريباً"
+    "successMessage": "سنتواصل معك قريباً",
+    "firstNamePlaceholder": "أحمد",
+    "lastNamePlaceholder": "الراشد",
+    "emailPlaceholder": "ahmed@example.com",
+    "phonePlaceholder": "رقم الهاتف",
+    "notesPlaceholder": "أي استفسارات أو ملاحظات...",
+    "firstNameRequired": "الاسم الأول مطلوب",
+    "lastNameRequired": "اسم العائلة مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صحيح",
+    "phoneInvalid": "رقم الهاتف غير صحيح",
+    "errorOccurred": "حدث خطأ. يرجى المحاولة مرة أخرى."
   },
   "favorites": {
     "add": "إضافة للمفضلة",
@@ -122,6 +164,34 @@
     "twitter": "تويتر",
     "facebook": "فيسبوك",
     "success": "تم المشاركة بنجاح"
+  },
+  "community": {
+    "welcome": "مرحباً",
+    "welcomeMessage": "مرحباً بك في مجتمع فيصل بن سعيدان",
+    "myUnits": "وحداتي",
+    "myCases": "طلباتي",
+    "noUnits": "لا توجد وحدات",
+    "noUnitsDescription": "لم يتم تسجيل أي وحدات باسمك",
+    "exploreUnits": "استكشف الوحدات",
+    "newCase": "طلب جديد",
+    "activeCases": "طلبات نشطة",
+    "unitsCount": "وحداتي",
+    "casesCount": "طلباتي"
+  },
+  "calculator": {
+    "title": "حاسبة التمويل",
+    "unitPrice": "سعر الوحدة",
+    "downPayment": "الدفعة الأولى",
+    "downPaymentValue": "{{value}}%",
+    "loanTerm": "مدة القرض",
+    "loanTermValue": "{{value}} سنة",
+    "interestRate": "معدل الفائدة (%)",
+    "loanAmount": "مبلغ القرض",
+    "monthlyPayment": "القسط الشهري",
+    "totalInterest": "إجمالي الفوائد",
+    "totalAmount": "إجمالي المبلغ",
+    "close": "إغلاق",
+    "print": "طباعة"
   }
 }
 

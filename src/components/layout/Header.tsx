@@ -32,7 +32,7 @@ export default function Header() {
           <Box
             component="img"
             src="/BinSaedanLogo.png"
-            alt="فيصل بن سعيدان"
+            alt={t('home.title')}
             sx={{
               height: { xs: 32, sm: 40 },
               width: 'auto',

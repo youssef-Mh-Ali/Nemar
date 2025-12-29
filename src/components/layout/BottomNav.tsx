@@ -1,17 +1,19 @@
 import { useLocation, Link } from 'react-router-dom'
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material'
 import { Home, Search, Building2, MoreHorizontal } from 'lucide-react'
-
-const navItems = [
-  { path: '/', label: 'الرئيسية', icon: Home },
-  { path: '/search', label: 'البحث', icon: Search },
-  { path: '/community', label: 'مجتمعي', icon: Building2 },
-  { path: '/contact', label: 'المزيد', icon: MoreHorizontal },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function BottomNav() {
+  const { t } = useTranslation()
   const location = useLocation()
   const currentPath = location.pathname
+
+  const navItems = [
+    { path: '/', label: t('common.home'), icon: Home },
+    { path: '/search', label: t('common.search'), icon: Search },
+    { path: '/community', label: t('common.community'), icon: Building2 },
+    { path: '/contact', label: t('common.more'), icon: MoreHorizontal },
+  ]
 
   return (
     <Paper
