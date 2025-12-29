@@ -120,14 +120,14 @@ export default function HeroSection() {
       }
       script.onerror = () => {
         console.error('[Hero Section] ❌ Failed to load Instagram embed script (likely blocked by ad blocker)')
-        console.log('[Hero Section] Falling back to iframe embed method')
+        console.log('[Hero Section] Falling back to clickable link UI')
         setInstagramEmbedFailed(true)
       }
       
       // Add timeout fallback in case script loads but doesn't initialize
       const timeout = setTimeout(() => {
         if (!window.instgrm) {
-          console.warn('[Hero Section] ⚠️ Instagram embed script timeout, using fallback')
+          console.warn('[Hero Section] ⚠️ Instagram embed script timeout, using fallback UI')
           setInstagramEmbedFailed(true)
         }
       }, 3000)
@@ -180,33 +180,54 @@ export default function HeroSection() {
         )}
         {featuredVideo && featuredVideo.videoUrl && (
           <>
-            {/* Instagram videos use official embed method with iframe fallback */}
+            {/* Instagram videos use official embed method with fallback UI */}
             {featuredVideo.videoUrl.includes('instagram.com') ? (
               instagramEmbedFailed ? (
-                // Fallback: Use iframe embed when script is blocked
+                // Fallback: Show clickable link/image when embed is blocked
                 <Box
-                  component="iframe"
-                  src={`${featuredVideo.videoUrl}/embed/`}
-                  onLoad={() => {
-                    console.log('[Hero Section] ✅ Instagram iframe fallback loaded')
-                    setIsVideoPlaying(true)
-                  }}
-                  onError={(e) => {
-                    console.error('[Hero Section] ❌ Instagram iframe fallback failed:', e)
-                  }}
+                  component="a"
+                  href={featuredVideo.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   sx={{
                     position: 'absolute',
                     inset: 0,
                     width: '100%',
                     height: '100%',
-                    border: 'none',
-                    pointerEvents: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    background: featuredVideo.coverImageUrl
+                      ? `url(${featuredVideo.coverImageUrl})`
+                      : 'linear-gradient(135deg, #1a365d 0%, #2c5282 100%)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                     zIndex: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      opacity: 0.9,
+                    },
                   }}
-                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                  allowFullScreen
-                  loading="eager"
-                />
+                >
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      color: 'white',
+                      p: 3,
+                      bgcolor: 'rgba(0, 0, 0, 0.5)',
+                      borderRadius: 2,
+                      backdropFilter: 'blur(10px)',
+                    }}
+                  >
+                    <Typography variant="h5" fontWeight="bold" gutterBottom>
+                      شاهد الفيديو على Instagram
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      اضغط للفتح
+                    </Typography>
+                  </Box>
+                </Box>
               ) : (
                 // Official Instagram embed method
                 <Box
