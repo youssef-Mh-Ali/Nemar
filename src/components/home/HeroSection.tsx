@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
 import VideoCover from './VideoCover'
+import VideoOverlay from './VideoOverlay'
 
 // Type declaration for Instagram embed API
 declare global {
@@ -291,25 +292,25 @@ export default function HeroSection() {
                   mediaType="instagram"
                   sx={{ zIndex: 1 }}
                 >
-                  <Box
-                    component="blockquote"
-                    className="instagram-media"
-                    data-instgrm-permalink={featuredVideo.videoUrl}
-                    data-instgrm-version="14"
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      margin: 0,
-                      padding: 0,
-                      background: 'transparent',
+                <Box
+                  component="blockquote"
+                  className="instagram-media"
+                  data-instgrm-permalink={featuredVideo.videoUrl}
+                  data-instgrm-version="14"
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    margin: 0,
+                    padding: 0,
+                    background: 'transparent',
+                    border: 'none',
+                    '& iframe': {
+                      width: '100% !important',
+                      height: '100% !important',
                       border: 'none',
-                      '& iframe': {
-                        width: '100% !important',
-                        height: '100% !important',
-                        border: 'none',
-                      },
-                    }}
-                  />
+                    },
+                  }}
+                />
                 </VideoCover>
               )
             ) : (
@@ -350,8 +351,8 @@ export default function HeroSection() {
                         }}
                         onPlay={() => setIsVideoPlaying(true)}
                         style={{
-                          width: '100%',
-                          height: '100%',
+                  width: '100%',
+                  height: '100%',
                         }}
                       />
                     </VideoCover>
@@ -363,34 +364,34 @@ export default function HeroSection() {
                       aspectRatio={aspectRatio}
                       mediaType="iframe"
                       sx={{ zIndex: 1 }}
-                    >
-                      <Box
-                        component="iframe"
-                        src={(() => {
-                          // Video URL is already processed by the API client
-                          // Just use it directly as it should already be in embed format with autoplay
-                          const videoUrl = featuredVideo.videoUrl.trim()
-                          console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
-                          return videoUrl
-                        })()}
-                        onLoad={() => {
-                          console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
-                          setIsVideoPlaying(true)
-                        }}
-                        onError={(e) => {
-                          console.error('[Hero Section] ❌ Video iframe failed to load:', e)
-                        }}
-                        sx={{
+              >
+                <Box
+                  component="iframe"
+                  src={(() => {
+                    // Video URL is already processed by the API client
+                    // Just use it directly as it should already be in embed format with autoplay
+                    const videoUrl = featuredVideo.videoUrl.trim()
+                    console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
+                    return videoUrl
+                  })()}
+                  onLoad={() => {
+                    console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
+                    setIsVideoPlaying(true)
+                  }}
+                  onError={(e) => {
+                    console.error('[Hero Section] ❌ Video iframe failed to load:', e)
+                  }}
+                  sx={{
                           width: '100%',
                           height: '100%',
-                          border: 'none',
-                          pointerEvents: 'none',
-                        }}
-                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
-                        allowFullScreen
-                        loading="eager"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
-                      />
+                    border: 'none',
+                    pointerEvents: 'none',
+                  }}
+                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
+                  allowFullScreen
+                  loading="eager"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
+                />
                     </VideoCover>
                   )
                 }
@@ -398,14 +399,8 @@ export default function HeroSection() {
             )}
           </>
         )}
-        {/* Gradient Overlay */}
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(15, 31, 58, 0.7), rgba(15, 31, 58, 0.5), rgba(15, 31, 58, 0.9))',
-          }}
-        />
+        {/* Animated Dark Overlay with React bits */}
+        <VideoOverlay />
       </Box>
 
       {/* Content */}

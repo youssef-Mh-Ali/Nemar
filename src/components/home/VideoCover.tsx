@@ -23,7 +23,7 @@ export default function VideoCover({
   ...boxProps
 }: VideoCoverProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { scale, translateX, translateY } = useCoverScale(containerRef, {
+  const { scale, translateX, translateY, baseWidth, baseHeight } = useCoverScale(containerRef, {
     aspectRatio,
     objectPosition,
   })
@@ -58,8 +58,7 @@ export default function VideoCover({
 
   // For iframes (YouTube, Google Drive, etc.), use transform scaling
   // For Instagram embeds, also use transform scaling on the wrapper
-  // Base dimensions: the hook uses container height as reference
-  // So we set height to 100% and width to height * aspectRatio
+  // The hook calculates base dimensions internally, so we set dimensions that will be scaled
   return (
     <Box
       ref={containerRef}
@@ -80,10 +79,9 @@ export default function VideoCover({
           left: '50%',
           transform: `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`,
           transformOrigin: 'center center',
-          // Base dimensions: height matches container, width = height * aspectRatio
-          // The hook will scale these to cover
-          height: '100%',
-          width: `${aspectRatio * 100}%`,
+          // Use calculated base dimensions from the hook
+          width: baseWidth > 0 ? `${baseWidth}px` : aspectRatio >= 1 ? `${100 * aspectRatio}vh` : '100vw',
+          height: baseHeight > 0 ? `${baseHeight}px` : aspectRatio <= 1 ? `${100 / aspectRatio}vw` : '100vh',
         }}
       >
         {children}

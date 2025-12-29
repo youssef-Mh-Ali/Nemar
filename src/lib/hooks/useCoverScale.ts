@@ -4,6 +4,8 @@ interface CoverScaleResult {
   scale: number
   translateX: number
   translateY: number
+  baseWidth: number
+  baseHeight: number
 }
 
 interface UseCoverScaleOptions {
@@ -28,6 +30,8 @@ export function useCoverScale(
   const [scale, setScale] = useState(1)
   const [translateX, setTranslateX] = useState(0)
   const [translateY, setTranslateY] = useState(0)
+  const [baseWidth, setBaseWidth] = useState(0)
+  const [baseHeight, setBaseHeight] = useState(0)
 
   useEffect(() => {
     const container = containerRef.current
@@ -41,21 +45,35 @@ export function useCoverScale(
         setScale(1)
         setTranslateX(0)
         setTranslateY(0)
+        setBaseWidth(containerWidth || 0)
+        setBaseHeight(containerHeight || 0)
         return
       }
 
-      // Base media dimensions: use container height as reference
-      // This ensures we have a consistent reference point
-      // For landscape media (aspectRatio > 1): base height = container height, base width = height * aspectRatio
-      // For portrait media (aspectRatio < 1): base width = container width, base height = width / aspectRatio
-      // Actually, simpler: always use container height as reference for base dimensions
-      const baseHeight = containerHeight
-      const baseWidth = baseHeight * aspectRatio
+      // Calculate the container aspect ratio
+      const containerAspectRatio = containerWidth / containerHeight
+      
+      // Determine base dimensions based on media and container aspect ratios
+      // If media is wider than container (landscape media in portrait container):
+      //   - Scale by height to ensure height covers
+      // If media is taller than container (portrait media in landscape container):
+      //   - Scale by width to ensure width covers
+      
+      let baseWidth: number
+      let baseHeight: number
+      
+      if (aspectRatio > containerAspectRatio) {
+        // Media is wider relative to container - scale by height
+        baseHeight = containerHeight
+        baseWidth = baseHeight * aspectRatio
+      } else {
+        // Media is taller relative to container - scale by width
+        baseWidth = containerWidth
+        baseHeight = baseWidth / aspectRatio
+      }
       
       // Calculate scale needed to cover container
-      // Scale by width: if scaled width >= container width, we cover horizontally
-      // Scale by height: if scaled height >= container height, we cover vertically
-      // We need both, so use the larger scale
+      // We need to ensure both width and height cover, so use the larger scale
       const scaleX = containerWidth / baseWidth
       const scaleY = containerHeight / baseHeight
       
@@ -111,6 +129,8 @@ export function useCoverScale(
       setScale(newScale)
       setTranslateX(newTranslateX)
       setTranslateY(newTranslateY)
+      setBaseWidth(baseWidth)
+      setBaseHeight(baseHeight)
     }
 
     // Calculate initial scale
@@ -128,6 +148,6 @@ export function useCoverScale(
     }
   }, [containerRef, aspectRatio, objectPosition])
 
-  return { scale, translateX, translateY }
+  return { scale, translateX, translateY, baseWidth, baseHeight }
 }
 
