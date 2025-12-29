@@ -1,12 +1,13 @@
 "use client";
 
-import { HTMLAttributes, forwardRef, ReactNode } from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { forwardRef, ReactNode } from "react";
+import { motion } from "framer-motion";
 
-interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, keyof HTMLMotionProps<"div">> {
+interface CardProps {
   hoverable?: boolean;
   padding?: "none" | "sm" | "md" | "lg";
   children?: ReactNode;
+  className?: string;
 }
 
 const paddingSizes = {
@@ -17,7 +18,7 @@ const paddingSizes = {
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ hoverable = false, padding = "md", className = "", children, ...props }, ref) => {
+  ({ hoverable = false, padding = "md", className = "", children }, ref) => {
     return (
       <motion.div
         ref={ref}
@@ -32,7 +33,6 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           ${paddingSizes[padding]}
           ${className}
         `}
-        {...props}
       >
         {children}
       </motion.div>
