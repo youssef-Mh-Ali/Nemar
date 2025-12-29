@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Twitter, Instagram } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Twitter, Instagram, Linkedin, MessageCircle, Video } from 'lucide-react'
 import { createLead } from '../lib/api-client'
 
 type FormData = z.infer<ReturnType<typeof getSchema>>
@@ -284,10 +284,44 @@ export default function Contact() {
                 <Typography variant="h6" fontWeight="semibold" gutterBottom>
                   {t('contact.followUs')}
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   {[
-                    { icon: Twitter, href: 'https://twitter.com/binsaedan', label: t('share.twitter') },
-                    { icon: Instagram, href: 'https://instagram.com/binsaedan', label: t('share.facebook') },
+                    { 
+                      icon: Instagram, 
+                      href: 'https://www.instagram.com/faisalsaedanco?igshid=NzZlODBkYWE4Ng%3D%3D', 
+                      label: t('share.instagram'),
+                      color: '#E4405F'
+                    },
+                    { 
+                      icon: Twitter, 
+                      href: 'https://x.com/faisalsaedanco', 
+                      label: t('share.twitter'),
+                      color: '#000000'
+                    },
+                    { 
+                      icon: Linkedin, 
+                      href: 'https://www.linkedin.com/company/faisal-binsaedan/posts/?feedView=all', 
+                      label: t('share.linkedin'),
+                      color: '#0077B5'
+                    },
+                    { 
+                      icon: MessageCircle, 
+                      href: 'https://wa.me/966920024010', 
+                      label: t('share.whatsapp'),
+                      color: '#25D366'
+                    },
+                    { 
+                      icon: Video, 
+                      href: 'https://www.snapchat.com/@binsaedanco', 
+                      label: t('share.snapchat'),
+                      color: '#FFFC00'
+                    },
+                    { 
+                      icon: Video, 
+                      href: 'https://www.tiktok.com/@faisalbinsaedan.c', 
+                      label: t('share.tiktok'),
+                      color: '#000000'
+                    },
                   ].map((social) => {
                     const Icon = social.icon
                     return (
@@ -300,9 +334,16 @@ export default function Contact() {
                         sx={{
                           border: 1,
                           borderColor: 'divider',
-                          '&:hover': { bgcolor: 'action.hover' },
+                          '&:hover': { 
+                            bgcolor: 'action.hover',
+                            borderColor: social.color || 'primary.main',
+                            '& svg': {
+                              color: social.color || 'primary.main',
+                            }
+                          },
                         }}
                         aria-label={social.label}
+                        title={social.label}
                       >
                         <Icon size={20} />
                       </IconButton>
