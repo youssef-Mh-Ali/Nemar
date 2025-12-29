@@ -108,23 +108,13 @@ export async function getFeaturedVideo() {
       console.log('[Hero Video] Processing video URL:', videoUrl)
       
       // Handle Instagram URLs (reels and posts)
+      // Instagram uses official embed script, so we keep the original URL
+      // The HeroSection component will handle the Instagram embed differently
       if (videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/')) {
-        // Extract reel/post ID from URL
-        // Format: https://www.instagram.com/reel/Cmrhr2QjzLj/?utm_source=...
-        // Format: https://www.instagram.com/p/ABC123/?utm_source=...
-        const reelMatch = videoUrl.match(/\/reel\/([^/?]+)/)
-        const postMatch = videoUrl.match(/\/p\/([^/?]+)/)
-        const contentId = reelMatch?.[1] || postMatch?.[1]
-        
-        if (contentId) {
-          const contentType = reelMatch ? 'reel' : 'p'
-          // Instagram embed URL - note: Instagram may not support autoplay via URL params
-          // but we'll add them anyway in case they do
-          videoUrl = `https://www.instagram.com/${contentType}/${contentId}/embed/?autoplay=true&muted=true`
-          console.log('[Hero Video] ✅ Converted Instagram URL to embed with autoplay:', videoUrl)
-        } else {
-          console.warn('[Hero Video] ⚠️ Could not extract Instagram reel/post ID from URL:', videoUrl)
-        }
+        // Clean up the URL - remove utm_source and other query params, keep the base URL
+        const cleanUrl = videoUrl.split('?')[0]
+        videoUrl = cleanUrl
+        console.log('[Hero Video] ✅ Prepared Instagram URL for official embed:', videoUrl)
       }
       // Handle Google Drive URLs
       else if (videoUrl.includes('drive.google.com')) {
