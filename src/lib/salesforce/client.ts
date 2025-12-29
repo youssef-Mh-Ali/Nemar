@@ -1,179 +1,118 @@
 /**
  * Salesforce API Client
- * Uses OAuth 2.0 Client Credentials flow for server-to-server authentication
+ * Uses Netlify Functions for server-side authentication and API calls
+ * Secrets are kept server-side and never exposed to the client
  */
 
-interface SalesforceToken {
-  access_token: string;
-  instance_url: string;
-  token_type: string;
-  issued_at: string;
-  expires_in?: number;
+interface SalesforceQueryResult<T> {
+  success: boolean
+  records: T[]
+  error?: string
 }
 
-let cachedToken: SalesforceToken | null = null;
-let tokenExpiry: number = 0;
-
-/**
- * Get OAuth access token using client credentials flow
- */
-export async function getAccessToken(): Promise<SalesforceToken> {
-  // Return cached token if still valid (with 5 min buffer)
-  if (cachedToken && Date.now() < tokenExpiry - 300000) {
-    console.log('[Salesforce Auth] Using cached access token');
-    return cachedToken;
-  }
-
-  // Try VITE_ prefixed first (Vite convention), then fallback to unprefixed (for Netlify)
-  const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID || import.meta.env.SALESFORCE_CLIENT_ID;
-  const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET || import.meta.env.SALESFORCE_CLIENT_SECRET;
-  const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL || import.meta.env.SALESFORCE_TOKEN_URL;
-
-  // Get all available env vars (for debugging)
-  const allEnvKeys = Object.keys(import.meta.env)
-  const salesforceEnvKeys = allEnvKeys.filter(key => key.includes('SALESFORCE'))
-  
-  console.log('[Salesforce Auth] Attempting authentication...', {
-    hasClientId: !!clientId,
-    hasClientSecret: !!clientSecret,
-    hasTokenUrl: !!tokenUrl,
-    tokenUrl: tokenUrl ? `${tokenUrl.substring(0, 30)}...` : 'not set',
-    clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed ✅' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed ❌ (will not work in Vite)' : 'not found ❌',
-    availableSalesforceEnvVars: salesforceEnvKeys,
-    mode: import.meta.env.MODE,
-  });
-
-  if (!clientId || !clientSecret || !tokenUrl) {
-    console.error('[Salesforce Auth] ❌ FAILED: Credentials not configured', {
-      clientId: !!clientId,
-      clientSecret: !!clientSecret,
-      tokenUrl: !!tokenUrl,
-      availableSalesforceEnvVars: salesforceEnvKeys,
-    });
-    console.error('[Salesforce Auth] ❌ CRITICAL: In Vite, environment variables MUST be prefixed with VITE_ to be accessible in client-side code');
-    console.error('[Salesforce Auth] ❌ To fix: Add these in Netlify Site Settings → Environment Variables:');
-    console.error('[Salesforce Auth]    - VITE_SALESFORCE_CLIENT_ID');
-    console.error('[Salesforce Auth]    - VITE_SALESFORCE_CLIENT_SECRET');
-    console.error('[Salesforce Auth]    - VITE_SALESFORCE_TOKEN_URL');
-    console.error('[Salesforce Auth]    - VITE_SALESFORCE_INSTANCE_URL (optional)');
-    throw new Error("Salesforce credentials not configured");
-  }
-
-  try {
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "client_credentials",
-        client_id: clientId,
-        client_secret: clientSecret,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error("[Salesforce Auth] ❌ FAILED:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: error,
-      });
-      throw new Error(`Failed to authenticate with Salesforce: ${response.status}`);
-    }
-
-    const token: SalesforceToken = await response.json();
-    
-    console.log('[Salesforce Auth] ✅ SUCCESS:', {
-      instanceUrl: token.instance_url,
-      tokenType: token.token_type,
-      expiresIn: token.expires_in,
-      scope: token.scope,
-    });
-    
-    // Cache the token (default 2 hour expiry if not specified)
-    cachedToken = token;
-    tokenExpiry = Date.now() + (token.expires_in || 7200) * 1000;
-
-    return token;
-  } catch (error) {
-    console.error('[Salesforce Auth] ❌ ERROR:', error);
-    throw error;
-  }
+interface SalesforceCreateResult {
+  success: boolean
+  id: string
+  error?: string
 }
 
 /**
- * Make authenticated request to Salesforce REST API
- */
-export async function salesforceRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const token = await getAccessToken();
-  // Try VITE_ prefixed first, then fallback to unprefixed
-  const baseUrl = token.instance_url || import.meta.env.VITE_SALESFORCE_INSTANCE_URL || import.meta.env.SALESFORCE_INSTANCE_URL;
-
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token.access_token}`,
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error(`Salesforce API error (${endpoint}):`, error);
-    throw new Error(`Salesforce API error: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Query Salesforce using SOQL
+ * Query Salesforce using SOQL via Netlify Function
  */
 export async function salesforceQuery<T>(soql: string): Promise<{ records: T[] }> {
-  console.log('[Salesforce Query] Executing SOQL:', soql);
-  const encodedQuery = encodeURIComponent(soql);
+  console.log('[Salesforce Query] Executing SOQL via Netlify Function:', soql)
+  
   try {
-    const result = await salesforceRequest<{ records: T[] }>(`/services/data/v59.0/query?q=${encodedQuery}`);
+    const response = await fetch('/.netlify/functions/salesforce-query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ soql }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('[Salesforce Query] ❌ FAILED:', response.status, errorData)
+      throw new Error(`Salesforce query failed: ${errorData.error || response.statusText}`)
+    }
+
+    const result: SalesforceQueryResult<T> = await response.json()
+
+    if (!result.success) {
+      console.error('[Salesforce Query] ❌ FAILED:', result.error)
+      throw new Error(result.error || 'Salesforce query failed')
+    }
+
     console.log('[Salesforce Query] ✅ SUCCESS:', {
       recordCount: result.records?.length || 0,
-      records: result.records,
-    });
-    return result;
+    })
+
+    return {
+      records: result.records || [],
+    }
   } catch (error) {
-    console.error('[Salesforce Query] ❌ FAILED:', error);
-    throw error;
+    console.error('[Salesforce Query] ❌ ERROR:', error)
+    throw error
   }
 }
 
 /**
- * Create a record in Salesforce
+ * Create a record in Salesforce via Netlify Function
  */
 export async function salesforceCreate(
   objectName: string,
   data: Record<string, unknown>
 ): Promise<{ id: string; success: boolean }> {
-  return salesforceRequest(`/services/data/v59.0/sobjects/${objectName}`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  console.log(`[Salesforce Create] Creating record in ${objectName} via Netlify Function:`, data)
+  
+  try {
+    const response = await fetch('/.netlify/functions/salesforce-create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ objectName, data }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('[Salesforce Create] ❌ FAILED:', response.status, errorData)
+      throw new Error(`Salesforce create failed: ${errorData.error || response.statusText}`)
+    }
+
+    const result: SalesforceCreateResult = await response.json()
+
+    if (!result.success) {
+      console.error('[Salesforce Create] ❌ FAILED:', result.error)
+      throw new Error(result.error || 'Salesforce create failed')
+    }
+
+    console.log(`[Salesforce Create] ✅ SUCCESS: Record created with ID ${result.id}`)
+
+    return {
+      id: result.id,
+      success: true,
+    }
+  } catch (error) {
+    console.error(`[Salesforce Create] ❌ ERROR for ${objectName}:`, error)
+    throw error
+  }
 }
 
 /**
- * Update a record in Salesforce
+ * Update a record in Salesforce via Netlify Function
+ * Note: This requires a separate function or can be added to salesforce-create
  */
 export async function salesforceUpdate(
   objectName: string,
   recordId: string,
   data: Record<string, unknown>
 ): Promise<void> {
-  await salesforceRequest(`/services/data/v59.0/sobjects/${objectName}/${recordId}`, {
-    method: "PATCH",
-    body: JSON.stringify(data),
-  });
+  console.log(`[Salesforce Update] Updating record ${recordId} in ${objectName} via Netlify Function:`, data)
+  
+  // For now, we'll use the create function pattern
+  // In production, you might want to create a separate salesforce-update function
+  // This is a placeholder that throws an error - implement if needed
+  throw new Error('salesforceUpdate not yet implemented via Netlify Functions')
 }
-

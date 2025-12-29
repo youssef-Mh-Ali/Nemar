@@ -71,46 +71,11 @@ export async function getProject(id: string) {
 }
 
 export async function getFeaturedVideo() {
-  console.log('[Hero Video] Starting to fetch featured video...')
+  console.log('[Hero Video] Starting to fetch featured video via Netlify Function...')
   
   try {
-    // Check if Salesforce credentials are configured
-    // Try VITE_ prefixed first (Vite convention), then fallback to unprefixed (for Netlify)
-    const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID || import.meta.env.SALESFORCE_CLIENT_ID
-    const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET || import.meta.env.SALESFORCE_CLIENT_SECRET
-    const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL || import.meta.env.SALESFORCE_TOKEN_URL
-
-    // Get all available env vars (for debugging)
-    const allEnvKeys = Object.keys(import.meta.env)
-    const salesforceEnvKeys = allEnvKeys.filter(key => key.includes('SALESFORCE'))
-    
-    console.log('[Hero Video] Checking Salesforce credentials...', {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      hasTokenUrl: !!tokenUrl,
-      clientIdSource: import.meta.env.VITE_SALESFORCE_CLIENT_ID ? 'VITE_ prefixed' : import.meta.env.SALESFORCE_CLIENT_ID ? 'unprefixed (will not work in Vite)' : 'not found',
-      availableSalesforceEnvVars: salesforceEnvKeys,
-      totalEnvVars: allEnvKeys.length,
-      mode: import.meta.env.MODE,
-      dev: import.meta.env.DEV,
-      prod: import.meta.env.PROD,
-    })
-
-    if (!clientId || !clientSecret || !tokenUrl) {
-      // Credentials not configured, skip Salesforce and go to fallback
-      console.error('[Hero Video] ❌ Salesforce credentials not configured!')
-      console.error('[Hero Video] ❌ CRITICAL: In Vite, environment variables MUST be prefixed with VITE_ to be accessible in client-side code')
-      console.error('[Hero Video] ❌ Available env vars with "SALESFORCE":', salesforceEnvKeys)
-      console.error('[Hero Video] ❌ To fix: Add these in Netlify Site Settings → Environment Variables:')
-      console.error('[Hero Video]    - VITE_SALESFORCE_CLIENT_ID')
-      console.error('[Hero Video]    - VITE_SALESFORCE_CLIENT_SECRET')
-      console.error('[Hero Video]    - VITE_SALESFORCE_TOKEN_URL')
-      console.error('[Hero Video]    - VITE_SALESFORCE_INSTANCE_URL (optional)')
-      console.warn('[Hero Video] ⚠️ Falling back to API endpoint...')
-      throw new Error('Salesforce credentials not configured')
-    }
-
     // Query Salesforce for PWA Content with Location = 'Homepage Hero Section' and Type = 'Video'
+    // This now uses Netlify Functions, so secrets are kept server-side
     const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c 
                   FROM PWA_Content__c 
                   WHERE Location__c = 'Homepage Hero Section' 
@@ -118,7 +83,7 @@ export async function getFeaturedVideo() {
                   ORDER BY CreatedDate DESC 
                   LIMIT 1`
     
-    console.log('[Hero Video] Querying Salesforce for hero video record...')
+    console.log('[Hero Video] Querying Salesforce for hero video record via Netlify Function...')
     const result = await salesforceQuery<PWAContent>(soql)
     
     if (result.records && result.records.length > 0) {
