@@ -20,7 +20,9 @@ export default function InstallBanner() {
     }
 
     const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevent the default mini-infobar from appearing
       e.preventDefault()
+      // Store the event for later use
       setInstallPrompt(e as BeforeInstallPromptEvent)
     }
 

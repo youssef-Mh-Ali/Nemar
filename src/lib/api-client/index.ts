@@ -1,19 +1,38 @@
 import { Project, Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
 import { salesforceQuery } from '../salesforce/client'
+import { mockProjects } from '../mock-data/projects'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
 async function fetcher<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    ...options,
-  })
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      ...options,
+    })
 
-  const data = await response.json()
-  return data
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      // If not JSON, return error response
+      return {
+        success: false,
+        error: 'API endpoint not available',
+      }
+    }
+
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error)
+    return {
+      success: false,
+      error: 'Network error or endpoint not available',
+    }
+  }
 }
 
 interface PWAContent {
@@ -27,7 +46,24 @@ interface PWAContent {
 
 // Projects
 export async function getProjects() {
-  return fetcher<(Project & { hasAvailability: boolean })[]>('/api/projects')
+  const result = await fetcher<(Project & { hasAvailability: boolean })[]>('/api/projects')
+  
+  // If API endpoint fails, return mock data as fallback
+  if (!result.success || !result.data || result.data.length === 0) {
+    // Transform mock projects to include availability info
+    const projectsWithAvailability = mockProjects.map((project) => ({
+      ...project,
+      hasAvailability: project.phases.some((phase) => phase.status === 'Available'),
+      availablePhasesCount: project.phases.filter((phase) => phase.status === 'Available').length,
+    }))
+    
+    return {
+      success: true,
+      data: projectsWithAvailability,
+    }
+  }
+  
+  return result
 }
 
 export async function getProject(id: string) {
@@ -36,6 +72,16 @@ export async function getProject(id: string) {
 
 export async function getFeaturedVideo() {
   try {
+    // Check if Salesforce credentials are configured
+    const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID
+    const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET
+    const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL
+
+    if (!clientId || !clientSecret || !tokenUrl) {
+      // Credentials not configured, skip Salesforce and go to fallback
+      throw new Error('Salesforce credentials not configured')
+    }
+
     // Query Salesforce for PWA Content with Location = 'Homepage Hero Section' and Type = 'Video'
     const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c 
                   FROM PWA_Content__c 
@@ -104,23 +150,59 @@ export async function getFeaturedVideo() {
     }
     
     // Fallback to API endpoint if no Salesforce record found
-    return fetcher<{
+    const fallback = await fetcher<{
       projectId: string
       projectName: string
       projectNameAr: string
       videoUrl: string
       coverImageUrl: string
     }>('/api/projects/featured-video')
+    
+    // If API endpoint also fails, return empty data (no video)
+    if (!fallback.success) {
+      return {
+        success: true,
+        data: {
+          projectId: '',
+          projectName: '',
+          projectNameAr: '',
+          videoUrl: '',
+          coverImageUrl: '',
+        },
+      }
+    }
+    
+    return fallback
   } catch (error) {
-    console.error('Error fetching featured video from Salesforce:', error)
+    // Only log if it's not a credentials error (expected in production without env vars)
+    if (!(error instanceof Error && error.message.includes('credentials not configured'))) {
+      console.error('Error fetching featured video from Salesforce:', error)
+    }
+    
     // Fallback to API endpoint on error
-    return fetcher<{
+    const fallback = await fetcher<{
       projectId: string
       projectName: string
       projectNameAr: string
       videoUrl: string
       coverImageUrl: string
     }>('/api/projects/featured-video')
+    
+    // If API endpoint also fails, return empty data (no video)
+    if (!fallback.success) {
+      return {
+        success: true,
+        data: {
+          projectId: '',
+          projectName: '',
+          projectNameAr: '',
+          videoUrl: '',
+          coverImageUrl: '',
+        },
+      }
+    }
+    
+    return fallback
   }
 }
 
