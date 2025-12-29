@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "بيانات غير صحيحة",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 }
       );
