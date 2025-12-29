@@ -95,7 +95,12 @@ export async function getFeaturedVideo() {
     if (result.records && result.records.length > 0) {
       const content = result.records[0]
       // Extract video URL - handle Instagram embeds and direct video URLs
-      let videoUrl = content.Content_URL__c
+      let videoUrl = (content.Content_URL__c || '').trim()
+      
+      if (!videoUrl) {
+        // No video URL in record, fall through to API endpoint
+        throw new Error('No video URL in Salesforce record')
+      }
       
       // If it's an Instagram URL, convert to embed format
       if (videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/')) {
@@ -106,28 +111,36 @@ export async function getFeaturedVideo() {
       }
       
       // For YouTube URLs, convert to embed format with autoplay and mute
+      let videoId = ''
+      
       if (videoUrl.includes('youtube.com/watch')) {
-        const videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1]
-        if (videoId) {
-          // Use playlist parameter for looping
-          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&playsinline=1&enablejsapi=1`
-        }
+        // Format: https://www.youtube.com/watch?v=VIDEO_ID
+        videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
       } else if (videoUrl.includes('youtu.be/')) {
-        const videoId = videoUrl.match(/youtu\.be\/([^/?]+)/)?.[1]
-        if (videoId) {
-          // Use playlist parameter for looping
-          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&playsinline=1&enablejsapi=1`
-        }
+        // Format: https://youtu.be/VIDEO_ID?si=...
+        // Extract video ID from path (before ? or /)
+        const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
+        videoId = match?.[1] || ''
       } else if (videoUrl.includes('youtube.com/embed/')) {
-        // Already an embed URL, ensure autoplay and mute parameters
-        if (!videoUrl.includes('autoplay=1')) {
-          videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playsinline=1&enablejsapi=1'
-          // Add playlist for looping if video ID can be extracted
-          const videoId = videoUrl.match(/embed\/([^?]+)/)?.[1]
-          if (videoId) {
-            videoUrl += `&playlist=${videoId}`
-          }
-        }
+        // Format: https://www.youtube.com/embed/VIDEO_ID
+        videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
+      }
+      
+      if (videoId) {
+        // Build YouTube embed URL with autoplay and mute
+        const params = new URLSearchParams({
+          autoplay: '1',
+          mute: '1',
+          loop: '1',
+          playlist: videoId, // Required for looping
+          controls: '0',
+          showinfo: '0',
+          playsinline: '1',
+          enablejsapi: '1',
+          rel: '0',
+          modestbranding: '1',
+        })
+        videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
       }
       
       // Try to extract thumbnail from Instagram or use default

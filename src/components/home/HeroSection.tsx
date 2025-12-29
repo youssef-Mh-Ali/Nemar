@@ -29,8 +29,10 @@ export default function HeroSection() {
     async function loadFeaturedVideo() {
       try {
         const response = await getFeaturedVideo()
-        if (response.success && response.data) {
+        if (response.success && response.data && response.data.videoUrl) {
           setFeaturedVideo(response.data)
+          // Auto-play video when it loads
+          setIsVideoPlaying(true)
         }
       } catch (error) {
         console.error('Error loading featured video:', error)
@@ -40,6 +42,13 @@ export default function HeroSection() {
     }
     loadFeaturedVideo()
   }, [])
+
+  // Auto-play video when it becomes available
+  useEffect(() => {
+    if (featuredVideo && featuredVideo.videoUrl && !isLoading) {
+      setIsVideoPlaying(true)
+    }
+  }, [featuredVideo, isLoading])
 
   const scrollToProjects = () => {
     document.getElementById('latest-projects')?.scrollIntoView({
@@ -78,17 +87,22 @@ export default function HeroSection() {
           <Box
             component="iframe"
             src={(() => {
-              let videoUrl = featuredVideo.videoUrl
+              let videoUrl = featuredVideo.videoUrl.trim()
               
               // For YouTube embeds, ensure autoplay and mute parameters
               if (videoUrl.includes('youtube.com/embed/') || videoUrl.includes('youtu.be/') || videoUrl.includes('youtube.com/watch')) {
-                // Extract video ID
+                // Extract video ID from various YouTube URL formats
                 let videoId = ''
+                
                 if (videoUrl.includes('/embed/')) {
-                  videoId = videoUrl.match(/embed\/([^?]+)/)?.[1] || ''
+                  // Already an embed URL: https://www.youtube.com/embed/VIDEO_ID
+                  videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
                 } else if (videoUrl.includes('youtu.be/')) {
-                  videoId = videoUrl.match(/youtu\.be\/([^?]+)/)?.[1] || ''
-                } else if (videoUrl.includes('v=')) {
+                  // Short URL: https://youtu.be/VIDEO_ID?si=...
+                  const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
+                  videoId = match?.[1] || ''
+                } else if (videoUrl.includes('youtube.com/watch')) {
+                  // Watch URL: https://www.youtube.com/watch?v=VIDEO_ID
                   videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
                 }
                 
@@ -107,6 +121,8 @@ export default function HeroSection() {
                     modestbranding: '1',
                   })
                   videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+                } else {
+                  console.warn('Could not extract YouTube video ID from:', videoUrl)
                 }
               } else if (videoUrl.includes('instagram.com')) {
                 // Instagram embeds - add autoplay if supported
@@ -130,9 +146,11 @@ export default function HeroSection() {
               height: '100%',
               border: 'none',
               pointerEvents: 'none',
+              zIndex: 1,
             }}
             allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowFullScreen
+            loading="eager"
           />
         )}
         {/* Gradient Overlay */}
