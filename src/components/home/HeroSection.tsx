@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Box, Container, Typography, Button, CircularProgress } from '@mui/material'
 import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { getFeaturedVideo } from '../../lib/api-client'
+import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
+import VideoCover from './VideoCover'
 
 // Type declaration for Instagram embed API
 declare global {
@@ -22,6 +23,7 @@ interface FeaturedVideo {
   projectNameAr: string
   videoUrl: string
   coverImageUrl: string
+  aspectRatio?: number
 }
 
 export default function HeroSection() {
@@ -29,6 +31,8 @@ export default function HeroSection() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [instagramEmbedFailed, setInstagramEmbedFailed] = useState(false)
+  const [aspectRatio, setAspectRatio] = useState<number>(16 / 9) // Default fallback: 16:9
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // Auto-play video when it loads
   useEffect(() => {
@@ -50,10 +54,62 @@ export default function HeroSection() {
             videoUrl: response.data.videoUrl,
             hasCoverImage: !!response.data.coverImageUrl,
             projectName: response.data.projectNameAr,
+            aspectRatio: response.data.aspectRatio,
           })
           
           if (response.data.videoUrl) {
-            setFeaturedVideo(response.data)
+            let finalAspectRatio = response.data.aspectRatio
+
+            // Priority 1: Use aspect ratio from Salesforce if available
+            if (finalAspectRatio) {
+              console.log('[Hero Section] ✅ Using aspect ratio from Salesforce:', finalAspectRatio)
+              setAspectRatio(finalAspectRatio)
+            } else {
+              // Priority 2: Detect from native video metadata if it's a native video
+              const isNativeVideo = /\.(mp4|webm|ogg|m3u8|mov|avi)(\?|$)/i.test(response.data.videoUrl) ||
+                                    response.data.videoUrl.startsWith('blob:') ||
+                                    response.data.videoUrl.startsWith('data:video/')
+              
+              if (isNativeVideo) {
+                console.log('[Hero Section] Attempting to detect aspect ratio from video metadata...')
+                try {
+                  const detectedRatio = await detectVideoAspectRatio(response.data.videoUrl)
+                  if (detectedRatio) {
+                    finalAspectRatio = detectedRatio
+                    console.log('[Hero Section] ✅ Detected aspect ratio from video metadata:', detectedRatio)
+                    setAspectRatio(detectedRatio)
+                  } else {
+                    console.log('[Hero Section] ⚠️ Could not detect aspect ratio, using fallback 16:9')
+                    setAspectRatio(16 / 9)
+                  }
+                } catch (error) {
+                  console.warn('[Hero Section] ⚠️ Error detecting aspect ratio:', error)
+                  setAspectRatio(16 / 9)
+                }
+              } else {
+                // Priority 3: Fallback to 16:9 for embedded videos (YouTube, etc.)
+                // Instagram videos are typically 1:1 or 9:16, but we'll use 16:9 as safe default
+                // unless we can detect it from the URL pattern
+                if (response.data.videoUrl.includes('instagram.com/reel/')) {
+                  // Instagram Reels are typically 9:16 (vertical)
+                  setAspectRatio(9 / 16)
+                  console.log('[Hero Section] Using Instagram Reel aspect ratio (9:16)')
+                } else if (response.data.videoUrl.includes('instagram.com/p/')) {
+                  // Instagram posts are typically 1:1 (square)
+                  setAspectRatio(1)
+                  console.log('[Hero Section] Using Instagram post aspect ratio (1:1)')
+                } else {
+                  // Default fallback: 16:9
+                  setAspectRatio(16 / 9)
+                  console.log('[Hero Section] Using default aspect ratio (16:9)')
+                }
+              }
+            }
+
+            setFeaturedVideo({
+              ...response.data,
+              aspectRatio: finalAspectRatio,
+            })
             // Auto-play video when it loads
             setIsVideoPlaying(true)
             console.log('[Hero Section] ✅ Video set and marked for playback')
@@ -229,89 +285,116 @@ export default function HeroSection() {
                   </Box>
                 </Box>
               ) : (
-                // Official Instagram embed method
-                <Box
-                  component="blockquote"
-                  className="instagram-media"
-                  data-instgrm-permalink={featuredVideo.videoUrl}
-                  data-instgrm-version="14"
-                  sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    margin: 0,
-                    padding: 0,
-                    background: 'transparent',
-                    border: 'none',
-                    zIndex: 1,
-                    '& iframe': {
-                      width: '100% !important',
-                      height: '100% !important',
+                // Official Instagram embed method with VideoCover wrapper
+                <VideoCover
+                  aspectRatio={aspectRatio}
+                  mediaType="instagram"
+                  sx={{ zIndex: 1 }}
+                >
+                  <Box
+                    component="blockquote"
+                    className="instagram-media"
+                    data-instgrm-permalink={featuredVideo.videoUrl}
+                    data-instgrm-version="14"
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      margin: 0,
+                      padding: 0,
+                      background: 'transparent',
                       border: 'none',
-                    },
-                  }}
-                />
+                      '& iframe': {
+                        width: '100% !important',
+                        height: '100% !important',
+                        border: 'none',
+                      },
+                    }}
+                  />
+                </VideoCover>
               )
             ) : (
-              /* YouTube and Google Drive videos use iframe with zoom to fill - no black bars */
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  overflow: 'hidden',
-                  zIndex: 1,
-                }}
-              >
-                <Box
-                  component="iframe"
-                  src={(() => {
-                    // Video URL is already processed by the API client
-                    // Just use it directly as it should already be in embed format with autoplay
-                    const videoUrl = featuredVideo.videoUrl.trim()
-                    console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
-                    return videoUrl
-                  })()}
-                  onLoad={() => {
-                    console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
-                    setIsVideoPlaying(true)
-                  }}
-                  onError={(e) => {
-                    console.error('[Hero Section] ❌ Video iframe failed to load:', e)
-                  }}
-                  sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    // Scale video to fill container - use aspect ratio math to ensure no black bars
-                    // For 16:9 videos, we need to scale based on container dimensions
-                    width: '177.78vh', // 16:9 ratio: height * 16/9 = width
-                    height: '100vh',
-                    minWidth: '100vw',
-                    minHeight: '56.25vw', // 16:9 ratio: width * 9/16 = height
-                    // Ensure video always covers the container
-                    '@media (max-aspect-ratio: 16/9)': {
-                      // Container is taller than 16:9 - scale by width
-                      width: '100vw',
-                      height: '56.25vw',
-                    },
-                    '@media (min-aspect-ratio: 16/9)': {
-                      // Container is wider than 16:9 - scale by height
-                      width: '177.78vh',
-                      height: '100vh',
-                    },
-                    border: 'none',
-                    pointerEvents: 'none',
-                  }}
-                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
-                  allowFullScreen
-                  loading="eager"
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
-                />
-              </Box>
+              /* Check if it's a native video or iframe embed */
+              (() => {
+                const isNativeVideo = /\.(mp4|webm|ogg|m3u8|mov|avi)(\?|$)/i.test(featuredVideo.videoUrl) ||
+                                      featuredVideo.videoUrl.startsWith('blob:') ||
+                                      featuredVideo.videoUrl.startsWith('data:video/')
+                
+                if (isNativeVideo) {
+                  // Native video element with VideoCover
+                  return (
+                    <VideoCover
+                      aspectRatio={aspectRatio}
+                      mediaType="video"
+                      sx={{ zIndex: 1 }}
+                    >
+                      <video
+                        ref={videoRef}
+                        src={featuredVideo.videoUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        onLoadedMetadata={() => {
+                          // Update aspect ratio if video metadata loads and differs
+                          if (videoRef.current) {
+                            const video = videoRef.current
+                            if (video.videoWidth && video.videoHeight) {
+                              const detectedRatio = video.videoWidth / video.videoHeight
+                              if (Math.abs(detectedRatio - aspectRatio) > 0.01) {
+                                console.log('[Hero Section] Updating aspect ratio from video metadata:', detectedRatio)
+                                setAspectRatio(detectedRatio)
+                              }
+                            }
+                          }
+                          setIsVideoPlaying(true)
+                        }}
+                        onPlay={() => setIsVideoPlaying(true)}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      />
+                    </VideoCover>
+                  )
+                } else {
+                  // YouTube and Google Drive videos use iframe with VideoCover
+                  return (
+                    <VideoCover
+                      aspectRatio={aspectRatio}
+                      mediaType="iframe"
+                      sx={{ zIndex: 1 }}
+                    >
+                      <Box
+                        component="iframe"
+                        src={(() => {
+                          // Video URL is already processed by the API client
+                          // Just use it directly as it should already be in embed format with autoplay
+                          const videoUrl = featuredVideo.videoUrl.trim()
+                          console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
+                          return videoUrl
+                        })()}
+                        onLoad={() => {
+                          console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
+                          setIsVideoPlaying(true)
+                        }}
+                        onError={(e) => {
+                          console.error('[Hero Section] ❌ Video iframe failed to load:', e)
+                        }}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          border: 'none',
+                          pointerEvents: 'none',
+                        }}
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
+                        allowFullScreen
+                        loading="eager"
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
+                      />
+                    </VideoCover>
+                  )
+                }
+              })()
             )}
           </>
         )}

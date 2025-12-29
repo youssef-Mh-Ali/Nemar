@@ -35,6 +35,103 @@ async function fetcher<T>(endpoint: string, options?: RequestInit): Promise<ApiR
   }
 }
 
+/**
+ * Detect aspect ratio from native video metadata
+ * Priority 2: If Aspect_Ratio__c is not available, detect from video element
+ * @param videoUrl - URL to the video file (.mp4, .m3u8, etc.)
+ * @param videoElement - Optional existing video element to use
+ * @returns Promise resolving to aspect ratio (width/height) or null if detection fails
+ */
+export async function detectVideoAspectRatio(
+  videoUrl: string,
+  videoElement?: HTMLVideoElement
+): Promise<number | null> {
+  // Only detect for native video URLs
+  const isNativeVideo = /\.(mp4|webm|ogg|m3u8|mov|avi)(\?|$)/i.test(videoUrl) || 
+                        videoUrl.startsWith('blob:') ||
+                        videoUrl.startsWith('data:video/')
+  
+  if (!isNativeVideo) {
+    console.log('[Video Detection] Not a native video URL, skipping detection:', videoUrl)
+    return null
+  }
+
+  return new Promise((resolve) => {
+    const video = videoElement || document.createElement('video')
+    let resolved = false
+
+    const cleanup = () => {
+      if (!videoElement && video.parentNode) {
+        video.parentNode.removeChild(video)
+      } else if (!videoElement) {
+        video.src = ''
+        video.load()
+      }
+    }
+
+    const finish = (value: number | null) => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(timeout)
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      video.removeEventListener('error', handleError)
+      cleanup()
+      resolve(value)
+    }
+
+    const handleLoadedMetadata = () => {
+      if (resolved) return
+      
+      const width = video.videoWidth
+      const height = video.videoHeight
+      
+      if (width && height) {
+        const aspectRatio = width / height
+        console.log('[Video Detection] ✅ Detected aspect ratio:', {
+          width,
+          height,
+          aspectRatio,
+        })
+        finish(aspectRatio)
+      } else {
+        console.warn('[Video Detection] ⚠️ Could not get video dimensions')
+        finish(null)
+      }
+    }
+
+    const handleError = () => {
+      if (resolved) return
+      console.warn('[Video Detection] ⚠️ Error loading video metadata:', videoUrl)
+      finish(null)
+    }
+
+    // Set timeout to avoid hanging
+    const timeout = setTimeout(() => {
+      if (resolved) return
+      console.warn('[Video Detection] ⚠️ Timeout detecting video aspect ratio')
+      finish(null)
+    }, 5000)
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true })
+    video.addEventListener('error', handleError, { once: true })
+    
+    // Set video source
+    if (!videoElement) {
+      video.preload = 'metadata'
+      video.muted = true
+      video.playsInline = true
+      video.style.position = 'absolute'
+      video.style.visibility = 'hidden'
+      video.style.width = '1px'
+      video.style.height = '1px'
+      document.body.appendChild(video)
+    }
+    
+    video.src = videoUrl
+    video.load()
+  })
+}
+
 interface PWAContent {
   Id: string
   Name: string
@@ -42,6 +139,7 @@ interface PWAContent {
   Type__c: string
   Location__c: string
   Meta_keywords__c?: string
+  Aspect_Ratio__c?: string
 }
 
 // Projects
@@ -76,7 +174,7 @@ export async function getFeaturedVideo() {
   try {
     // Query Salesforce for PWA Content with Location = 'Homepage Hero Section' and Type = 'Video'
     // This now uses Netlify Functions, so secrets are kept server-side
-    const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c 
+    const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c, Aspect_Ratio__c 
                   FROM PWA_Content__c 
                   WHERE Location__c = 'Homepage Hero Section' 
                   AND Type__c = 'Video' 
@@ -106,6 +204,21 @@ export async function getFeaturedVideo() {
       }
       
       console.log('[Hero Video] Processing video URL:', videoUrl)
+      
+      // Parse aspect ratio from Salesforce field (Priority 1)
+      let aspectRatio: number | undefined = undefined
+      if (content.Aspect_Ratio__c) {
+        const ratioMatch = content.Aspect_Ratio__c.match(/(\d+):(\d+)/)
+        if (ratioMatch) {
+          aspectRatio = parseFloat(ratioMatch[1]) / parseFloat(ratioMatch[2])
+          console.log('[Hero Video] ✅ Parsed aspect ratio from Salesforce:', {
+            raw: content.Aspect_Ratio__c,
+            decimal: aspectRatio,
+          })
+        } else {
+          console.warn('[Hero Video] ⚠️ Invalid aspect ratio format:', content.Aspect_Ratio__c)
+        }
+      }
       
       // Handle Instagram URLs (reels and posts)
       // Instagram uses official embed script, so we keep the original URL
@@ -211,6 +324,7 @@ export async function getFeaturedVideo() {
         projectNameAr: content.Name,
         videoUrl: videoUrl,
         coverImageUrl: coverImageUrl,
+        aspectRatio: aspectRatio,
       }
       
       console.log('[Hero Video] ✅ Returning video data:', videoData)
@@ -224,6 +338,7 @@ export async function getFeaturedVideo() {
         projectNameAr: string
         videoUrl: string
         coverImageUrl: string
+        aspectRatio?: number
       }>
     } else {
       console.warn('[Hero Video] ⚠️ No records found in Salesforce query result')
@@ -237,6 +352,7 @@ export async function getFeaturedVideo() {
       projectNameAr: string
       videoUrl: string
       coverImageUrl: string
+      aspectRatio?: number
     }>('/api/projects/featured-video')
     
     // If API endpoint also fails, return empty data (no video)
@@ -250,6 +366,7 @@ export async function getFeaturedVideo() {
           projectNameAr: '',
           videoUrl: '',
           coverImageUrl: '',
+          aspectRatio: undefined,
         },
       }
     }
@@ -267,6 +384,7 @@ export async function getFeaturedVideo() {
       projectNameAr: string
       videoUrl: string
       coverImageUrl: string
+      aspectRatio?: number
     }>('/api/projects/featured-video')
     
     // If API endpoint also fails, return empty data (no video)
@@ -280,6 +398,7 @@ export async function getFeaturedVideo() {
           projectNameAr: '',
           videoUrl: '',
           coverImageUrl: '',
+          aspectRatio: undefined,
         },
       }
     }

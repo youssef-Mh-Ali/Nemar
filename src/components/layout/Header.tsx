@@ -38,10 +38,6 @@ export default function Header() {
               width: 'auto',
             }}
           />
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            <Box sx={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.2 }}>فيصل بن سعيدان</Box>
-            <Box sx={{ fontSize: '10px', color: 'text.secondary', lineHeight: 1.2 }}>Faisal Bin Saedan</Box>
-          </Box>
         </Link>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
