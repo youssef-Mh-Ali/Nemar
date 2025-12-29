@@ -13,10 +13,6 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  // Use webpack for build to support next-pwa
-  experimental: {
-    turbo: {},
-  },
   images: {
     remotePatterns: [
       {
