@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Box, Container, Typography, Button, CircularProgress } from '@mui/material'
 import { motion } from 'framer-motion'
-import { Play, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getFeaturedVideo } from '../../lib/api-client'
 
@@ -74,6 +74,7 @@ export default function HeroSection() {
         isVideoPlaying,
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featuredVideo, isLoading])
 
   const scrollToProjects = () => {
