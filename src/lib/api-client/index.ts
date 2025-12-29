@@ -105,16 +105,28 @@ export async function getFeaturedVideo() {
         }
       }
       
-      // For YouTube URLs, convert to embed format
+      // For YouTube URLs, convert to embed format with autoplay and mute
       if (videoUrl.includes('youtube.com/watch')) {
         const videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1]
         if (videoId) {
-          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`
+          // Use playlist parameter for looping
+          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&playsinline=1&enablejsapi=1`
         }
       } else if (videoUrl.includes('youtu.be/')) {
         const videoId = videoUrl.match(/youtu\.be\/([^/?]+)/)?.[1]
         if (videoId) {
-          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`
+          // Use playlist parameter for looping
+          videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&playsinline=1&enablejsapi=1`
+        }
+      } else if (videoUrl.includes('youtube.com/embed/')) {
+        // Already an embed URL, ensure autoplay and mute parameters
+        if (!videoUrl.includes('autoplay=1')) {
+          videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playsinline=1&enablejsapi=1'
+          // Add playlist for looping if video ID can be extracted
+          const videoId = videoUrl.match(/embed\/([^?]+)/)?.[1]
+          if (videoId) {
+            videoUrl += `&playlist=${videoId}`
+          }
         }
       }
       

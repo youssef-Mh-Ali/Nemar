@@ -18,6 +18,13 @@ export default function HeroSection() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Auto-play video when it loads
+  useEffect(() => {
+    if (featuredVideo && featuredVideo.videoUrl && !isLoading) {
+      setIsVideoPlaying(true)
+    }
+  }, [featuredVideo, isLoading])
+
   useEffect(() => {
     async function loadFeaturedVideo() {
       try {
@@ -53,12 +60,13 @@ export default function HeroSection() {
     >
       {/* Background */}
       <Box sx={{ position: 'absolute', inset: 0 }}>
-        {featuredVideo && !isVideoPlaying && (
+        {/* Show cover image only while loading or if no video */}
+        {(!featuredVideo || !featuredVideo.videoUrl || isLoading) && (
           <Box
             sx={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: featuredVideo.coverImageUrl 
+              backgroundImage: featuredVideo?.coverImageUrl 
                 ? `url(${featuredVideo.coverImageUrl})`
                 : 'linear-gradient(135deg, #1a365d 0%, #2c5282 100%)',
               backgroundSize: 'cover',
@@ -66,12 +74,55 @@ export default function HeroSection() {
             }}
           />
         )}
-        {isVideoPlaying && featuredVideo && (
+        {featuredVideo && featuredVideo.videoUrl && (
           <Box
             component="iframe"
-            src={featuredVideo.videoUrl.includes('?') 
-              ? featuredVideo.videoUrl 
-              : `${featuredVideo.videoUrl}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+            src={(() => {
+              let videoUrl = featuredVideo.videoUrl
+              
+              // For YouTube embeds, ensure autoplay and mute parameters
+              if (videoUrl.includes('youtube.com/embed/') || videoUrl.includes('youtu.be/') || videoUrl.includes('youtube.com/watch')) {
+                // Extract video ID
+                let videoId = ''
+                if (videoUrl.includes('/embed/')) {
+                  videoId = videoUrl.match(/embed\/([^?]+)/)?.[1] || ''
+                } else if (videoUrl.includes('youtu.be/')) {
+                  videoId = videoUrl.match(/youtu\.be\/([^?]+)/)?.[1] || ''
+                } else if (videoUrl.includes('v=')) {
+                  videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
+                }
+                
+                if (videoId) {
+                  // Build YouTube embed URL with autoplay and mute
+                  const params = new URLSearchParams({
+                    autoplay: '1',
+                    mute: '1',
+                    loop: '1',
+                    playlist: videoId, // Required for looping
+                    controls: '0',
+                    showinfo: '0',
+                    playsinline: '1',
+                    enablejsapi: '1',
+                    rel: '0',
+                    modestbranding: '1',
+                  })
+                  videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+                }
+              } else if (videoUrl.includes('instagram.com')) {
+                // Instagram embeds - add autoplay if supported
+                if (!videoUrl.includes('autoplay')) {
+                  videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'autoplay=1&muted=1'
+                }
+              } else {
+                // For other video sources, ensure autoplay and mute
+                const separator = videoUrl.includes('?') ? '&' : '?'
+                if (!videoUrl.includes('autoplay')) {
+                  videoUrl += `${separator}autoplay=1&muted=1&loop=1`
+                }
+              }
+              
+              return videoUrl
+            })()}
             sx={{
               position: 'absolute',
               inset: 0,
@@ -80,7 +131,7 @@ export default function HeroSection() {
               border: 'none',
               pointerEvents: 'none',
             }}
-            allow="autoplay; encrypted-media; fullscreen"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowFullScreen
           />
         )}
@@ -165,25 +216,6 @@ export default function HeroSection() {
             >
               استكشف المشاريع
             </Button>
-            {!isVideoPlaying && featuredVideo && (
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => setIsVideoPlaying(true)}
-                startIcon={<Play size={20} />}
-                sx={{
-                  minWidth: '200px',
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
-                  color: 'white',
-                  '&:hover': {
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                    bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                }}
-              >
-                شاهد الفيديو
-              </Button>
-            )}
           </Box>
         </motion.div>
       </Container>
