@@ -71,8 +71,38 @@ export default function Header() {
                   </IconButton>
                 </>
               ) : (
-                <Button component={Link} to="/login" variant="outlined" size="small" startIcon={<User size={16} />}>
-                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                <Button 
+                  component={Link} 
+                  to="/login" 
+                  variant="outlined" 
+                  size="small" 
+                  startIcon={<User size={18} />}
+                  sx={{
+                    px: { xs: 1.5, sm: 2 },
+                    py: { xs: 0.75, sm: 0.875 },
+                    minWidth: { xs: 'auto', sm: 'auto' },
+                    gap: 0.5,
+                    borderRadius: 1.5,
+                    borderWidth: 1.5,
+                    fontWeight: 500,
+                    '& .MuiButton-startIcon': {
+                      margin: 0,
+                      marginRight: { xs: 0, sm: 0.5 },
+                      display: 'flex',
+                      alignItems: 'center',
+                    },
+                    '&:hover': {
+                      borderWidth: 1.5,
+                    },
+                  }}
+                >
+                  <Box 
+                    component="span" 
+                    sx={{ 
+                      display: { xs: 'none', sm: 'inline' },
+                      lineHeight: 1.5,
+                    }}
+                  >
                     {t('common.login')}
                   </Box>
                 </Button>
