@@ -119,14 +119,17 @@ export async function getFeaturedVideo() {
       // Handle Google Drive URLs
       else if (videoUrl.includes('drive.google.com')) {
         // Extract file ID from various Google Drive URL formats
+        // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
         // Format: https://drive.google.com/file/d/FILE_ID/view
         // Format: https://drive.google.com/open?id=FILE_ID
         // Format: https://drive.google.com/uc?id=FILE_ID
         let fileId = ''
         
-        const fileIdMatch = videoUrl.match(/\/file\/d\/([^/]+)/)
-        const openIdMatch = videoUrl.match(/[?&]id=([^&]+)/)
-        const ucIdMatch = videoUrl.match(/\/uc\?id=([^&]+)/)
+        // Primary pattern: /file/d/FILE_ID/ (works for /view, /preview, etc.)
+        const fileIdMatch = videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+        // Fallback patterns
+        const openIdMatch = videoUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+        const ucIdMatch = videoUrl.match(/\/uc\?id=([a-zA-Z0-9_-]+)/)
         
         fileId = fileIdMatch?.[1] || openIdMatch?.[1] || ucIdMatch?.[1] || ''
         
@@ -134,7 +137,11 @@ export async function getFeaturedVideo() {
           // Convert to embeddable preview URL with autoplay
           // Google Drive preview supports autoplay via URL parameter
           videoUrl = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1&mute=1`
-          console.log('[Hero Video] ✅ Converted Google Drive URL to embed with autoplay:', videoUrl)
+          console.log('[Hero Video] ✅ Converted Google Drive URL to embed with autoplay:', {
+            originalUrl: videoUrl,
+            fileId: fileId,
+            embedUrl: videoUrl,
+          })
         } else {
           console.warn('[Hero Video] ⚠️ Could not extract Google Drive file ID from URL:', videoUrl)
         }
