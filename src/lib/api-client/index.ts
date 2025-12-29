@@ -118,8 +118,10 @@ export async function getFeaturedVideo() {
         
         if (contentId) {
           const contentType = reelMatch ? 'reel' : 'p'
-          videoUrl = `https://www.instagram.com/${contentType}/${contentId}/embed/`
-          console.log('[Hero Video] ✅ Converted Instagram URL to embed:', videoUrl)
+          // Instagram embed URL - note: Instagram may not support autoplay via URL params
+          // but we'll add them anyway in case they do
+          videoUrl = `https://www.instagram.com/${contentType}/${contentId}/embed/?autoplay=true&muted=true`
+          console.log('[Hero Video] ✅ Converted Instagram URL to embed with autoplay:', videoUrl)
         } else {
           console.warn('[Hero Video] ⚠️ Could not extract Instagram reel/post ID from URL:', videoUrl)
         }
@@ -139,9 +141,10 @@ export async function getFeaturedVideo() {
         fileId = fileIdMatch?.[1] || openIdMatch?.[1] || ucIdMatch?.[1] || ''
         
         if (fileId) {
-          // Convert to embeddable preview URL
-          videoUrl = `https://drive.google.com/file/d/${fileId}/preview`
-          console.log('[Hero Video] ✅ Converted Google Drive URL to embed:', videoUrl)
+          // Convert to embeddable preview URL with autoplay
+          // Google Drive preview supports autoplay via URL parameter
+          videoUrl = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1&mute=1`
+          console.log('[Hero Video] ✅ Converted Google Drive URL to embed with autoplay:', videoUrl)
         } else {
           console.warn('[Hero Video] ⚠️ Could not extract Google Drive file ID from URL:', videoUrl)
         }

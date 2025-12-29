@@ -115,13 +115,14 @@ export default function HeroSection() {
             component="iframe"
             src={(() => {
               // Video URL is already processed by the API client
-              // Just use it directly as it should already be in embed format
+              // Just use it directly as it should already be in embed format with autoplay
               const videoUrl = featuredVideo.videoUrl.trim()
-              console.log('[Hero Section] Using processed video URL for iframe:', videoUrl)
+              console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
               return videoUrl
             })()}
             onLoad={() => {
-              console.log('[Hero Section] ✅ Video iframe loaded successfully')
+              console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
+              setIsVideoPlaying(true)
             }}
             onError={(e) => {
               console.error('[Hero Section] ❌ Video iframe failed to load:', e)
@@ -138,7 +139,9 @@ export default function HeroSection() {
             allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
             allowFullScreen
             loading="eager"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+            // Remove sandbox restrictions that might prevent autoplay
+            // Keep only essential permissions for video playback
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
           />
         )}
         {/* Gradient Overlay */}
