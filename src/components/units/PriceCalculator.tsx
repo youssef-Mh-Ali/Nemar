@@ -74,7 +74,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
 
         <Grid container spacing={3}>
           {/* Down Payment */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="body2" gutterBottom>
               الدفعة الأولى: {downPayment}%
             </Typography>
@@ -94,7 +94,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
           </Grid>
 
           {/* Loan Term */}
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="body2" gutterBottom>
               مدة القرض: {loanTerm} سنة
             </Typography>
@@ -111,7 +111,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
           </Grid>
 
           {/* Interest Rate */}
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="معدل الفائدة (%)"
               type="number"
@@ -128,7 +128,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
         {/* Results */}
         <Paper sx={{ p: 3, bgcolor: 'grey.50' }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 مبلغ القرض
               </Typography>
@@ -136,7 +136,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
                 {formatCurrency(loanAmount)}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 القسط الشهري
               </Typography>
@@ -144,7 +144,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
                 {formatCurrency(monthlyPayment)}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 إجمالي الفوائد
               </Typography>
@@ -152,7 +152,7 @@ export default function PriceCalculator({ unit, isOpen, onClose }: PriceCalculat
                 {formatCurrency(totalInterest)}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 إجمالي المبلغ
               </Typography>

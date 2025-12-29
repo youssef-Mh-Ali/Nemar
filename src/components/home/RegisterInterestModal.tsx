@@ -131,8 +131,7 @@ export default function RegisterInterestModal({
         ) : (
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   {...register('firstName')}
                   label="الاسم الأول"
@@ -142,8 +141,7 @@ export default function RegisterInterestModal({
                   helperText={errors.firstName?.message}
                 />
               </Grid>
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   {...register('lastName')}
                   label="اسم العائلة"
@@ -153,8 +151,7 @@ export default function RegisterInterestModal({
                   helperText={errors.lastName?.message}
                 />
               </Grid>
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('email')}
                   label="البريد الإلكتروني"
@@ -165,8 +162,7 @@ export default function RegisterInterestModal({
                   helperText={errors.email?.message}
                 />
               </Grid>
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('phone')}
                   label="رقم الهاتف"
@@ -177,8 +173,7 @@ export default function RegisterInterestModal({
                   helperText={errors.phone?.message}
                 />
               </Grid>
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   {...register('message')}
                   label="ملاحظات (اختياري)"

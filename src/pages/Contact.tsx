@@ -111,8 +111,7 @@ export default function Contact() {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4}>
           {/* Contact Form */}
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -144,8 +143,7 @@ export default function Contact() {
                   ) : (
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <Grid container spacing={2} sx={{ mt: 1 }}>
-                        // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             {...register('firstName')}
                             label="الاسم الأول"
@@ -155,8 +153,7 @@ export default function Contact() {
                             helperText={errors.firstName?.message}
                           />
                         </Grid>
-                        // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             {...register('lastName')}
                             label="اسم العائلة"
@@ -166,8 +163,7 @@ export default function Contact() {
                             helperText={errors.lastName?.message}
                           />
                         </Grid>
-                        // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('email')}
                             label="البريد الإلكتروني"
@@ -178,8 +174,7 @@ export default function Contact() {
                             helperText={errors.email?.message}
                           />
                         </Grid>
-                        // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('phone')}
                             label="رقم الهاتف"
@@ -190,8 +185,7 @@ export default function Contact() {
                             helperText={errors.phone?.message}
                           />
                         </Grid>
-                        // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('message')}
                             label="رسالتك"
@@ -230,8 +224,7 @@ export default function Contact() {
           </Grid>
 
           {/* Contact Info */}
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

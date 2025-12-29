@@ -272,8 +272,7 @@ export default function UnitDetails() {
             <Card sx={{ mb: 3 }}>
               <CardContent>
                 <Grid container spacing={4}>
-                  // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6} md={3}>
+                  <Grid size={{ xs: 6, md: 3 }}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Bed size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
@@ -285,8 +284,7 @@ export default function UnitDetails() {
                     </Box>
                   </Grid>
                   {unit.bathrooms && (
-                    // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6} md={3}>
+                    <Grid size={{ xs: 6, md: 3 }}>
                       <Box sx={{ textAlign: 'center' }}>
                         <Bath size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                         <Typography variant="caption" color="text.secondary" display="block">
@@ -298,8 +296,7 @@ export default function UnitDetails() {
                       </Box>
                     </Grid>
                   )}
-                  // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6} md={3}>
+                  <Grid size={{ xs: 6, md: 3 }}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Maximize size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
@@ -310,8 +307,7 @@ export default function UnitDetails() {
                       </Typography>
                     </Box>
                   </Grid>
-                  // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6} md={3}>
+                  <Grid size={{ xs: 6, md: 3 }}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Calendar size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
                       <Typography variant="caption" color="text.secondary" display="block">
@@ -364,8 +360,7 @@ export default function UnitDetails() {
                 </Typography>
                 <Grid container spacing={2}>
                   {relatedUnits.map((relatedUnit) => (
-                    // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6} key={relatedUnit.id}>
+                    <Grid size={{ xs: 12, sm: 6 }} key={relatedUnit.id}>
                       <UnitCard unit={relatedUnit} />
                     </Grid>
                   ))}

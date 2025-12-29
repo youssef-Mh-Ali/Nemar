@@ -65,8 +65,7 @@ export default function ProjectsGrid() {
         {isLoading ? (
           <Grid container spacing={3}>
             {[1, 2, 3].map((i) => (
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={6} lg={4} key={i}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }} key={i}>
                 <Card>
                   <Skeleton variant="rectangular" height={200} />
                   <CardContent>
@@ -80,8 +79,7 @@ export default function ProjectsGrid() {
         ) : (
           <Grid container spacing={3}>
             {projects.map((project, index) => (
-              // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={6} lg={4} key={project.id}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

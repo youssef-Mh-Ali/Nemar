@@ -71,8 +71,7 @@ export default function Home() {
               ].map((item, index) => {
                 const IconComponent = item.icon
                 return (
-                  // -expect-error - MUI v7 Grid API
-                  <Grid item={true} xs={12} md={4} key={item.title}>
+                  <Grid size={{ xs: 12, md: 4 }} key={item.title}>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}

@@ -127,16 +127,14 @@ export default function Search() {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           {/* Desktop Sidebar */}
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={3} sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Grid size={{ xs: 12, md: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
             <Box sx={{ position: 'sticky', top: 100 }}>
               <DesktopFilters />
             </Box>
           </Grid>
 
           {/* Units Grid */}
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={9}>
+          <Grid size={{ xs: 12, md: 9 }}>
             {isLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
                 <CircularProgress />
@@ -161,8 +159,7 @@ export default function Search() {
             ) : (
               <Grid container spacing={2}>
                 {units.map((unit, index) => (
-                  // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6} lg={viewMode === 'grid' ? 4 : 12} key={unit.id}>
+                  <Grid size={{ xs: 12, sm: 6, lg: viewMode === 'grid' ? 4 : 12 }} key={unit.id}>
                     <UnitCard unit={unit} index={index} />
                   </Grid>
                 ))}

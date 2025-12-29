@@ -126,8 +126,7 @@ export default function Community() {
       {/* Stats */}
       <Container maxWidth="lg" sx={{ mt: -2 }}>
         <Grid container spacing={2}>
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Building2 size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
@@ -140,8 +139,7 @@ export default function Community() {
               </CardContent>
             </Card>
           </Grid>
-          // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <FileText size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
@@ -227,8 +225,7 @@ export default function Community() {
             ) : (
               <Grid container spacing={2}>
                 {units.map((unit) => (
-                  // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} sm={6} key={unit.id}>
+                  <Grid size={{ xs: 12, sm: 6 }} key={unit.id}>
                     <UnitCard unit={unit} />
                   </Grid>
                 ))}

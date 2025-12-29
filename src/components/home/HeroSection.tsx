@@ -3,6 +3,7 @@ import { Box, Container, Typography, Button, CircularProgress } from '@mui/mater
 import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
 import VideoCover from './VideoCover'
 import VideoOverlay from './VideoOverlay'
@@ -28,6 +29,7 @@ interface FeaturedVideo {
 }
 
 export default function HeroSection() {
+  const { t } = useTranslation()
   const [featuredVideo, setFeaturedVideo] = useState<FeaturedVideo | null>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -424,7 +426,7 @@ export default function HeroSection() {
             <Box
               component="img"
               src="/BinSaedanLogo-White.png"
-              alt="فيصل بن سعيدان"
+              alt={t('home.title')}
               sx={{
                 height: { xs: '64px', md: '80px' },
                 width: 'auto',
@@ -444,10 +446,10 @@ export default function HeroSection() {
               lineHeight: 1.2,
             }}
           >
-            مجتمعك،
+            {t('home.heroTitle')}
             <br />
             <Box component="span" sx={{ color: 'secondary.main' }}>
-              بأسلوب جديد
+              {t('home.heroSubtitle')}
             </Box>
           </Typography>
 
@@ -461,9 +463,7 @@ export default function HeroSection() {
               lineHeight: 1.6,
             }}
           >
-            اكتشف أرقى المشاريع السكنية في المملكة العربية السعودية.
-            <Box component="br" sx={{ display: { xs: 'none', md: 'block' } }} />
-            نبني مجتمعات متكاملة للأجيال القادمة.
+            {t('home.heroDescription')}
           </Typography>
 
           {/* CTAs */}
@@ -476,7 +476,7 @@ export default function HeroSection() {
               size="large"
               sx={{ minWidth: '200px' }}
             >
-              استكشف المشاريع
+              {t('home.exploreProjects')}
             </Button>
           </Box>
         </motion.div>
@@ -498,7 +498,7 @@ export default function HeroSection() {
           color: 'rgba(255, 255, 255, 0.6)',
           cursor: 'pointer',
         }}
-        aria-label="انتقل للأسفل"
+        aria-label={t('home.scrollDown')}
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
