@@ -254,37 +254,63 @@ export default function HeroSection() {
                 />
               )
             ) : (
-              /* YouTube and Google Drive videos use iframe */
+              /* YouTube and Google Drive videos use iframe with zoom to fill */
               <Box
-                component="iframe"
-                src={(() => {
-                  // Video URL is already processed by the API client
-                  // Just use it directly as it should already be in embed format with autoplay
-                  const videoUrl = featuredVideo.videoUrl.trim()
-                  console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
-                  return videoUrl
-                })()}
-                onLoad={() => {
-                  console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
-                  setIsVideoPlaying(true)
-                }}
-                onError={(e) => {
-                  console.error('[Hero Section] ❌ Video iframe failed to load:', e)
-                }}
                 sx={{
                   position: 'absolute',
                   inset: 0,
                   width: '100%',
                   height: '100%',
-                  border: 'none',
-                  pointerEvents: 'none',
+                  overflow: 'hidden',
                   zIndex: 1,
                 }}
-                allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
-                allowFullScreen
-                loading="eager"
-                sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
-              />
+              >
+                <Box
+                  component="iframe"
+                  src={(() => {
+                    // Video URL is already processed by the API client
+                    // Just use it directly as it should already be in embed format with autoplay
+                    const videoUrl = featuredVideo.videoUrl.trim()
+                    console.log('[Hero Section] Using processed video URL for iframe (autoplay enabled):', videoUrl)
+                    return videoUrl
+                  })()}
+                  onLoad={() => {
+                    console.log('[Hero Section] ✅ Video iframe loaded successfully - autoplay should start')
+                    setIsVideoPlaying(true)
+                  }}
+                  onError={(e) => {
+                    console.error('[Hero Section] ❌ Video iframe failed to load:', e)
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    // Center the iframe
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    // Scale to fill - use a larger scale to ensure no black bars
+                    // Calculate scale based on container aspect ratio vs 16:9 video ratio
+                    minWidth: '100%',
+                    minHeight: '100%',
+                    width: '177.78vh', // 16:9 aspect ratio based on viewport height
+                    height: '56.25vw', // 16:9 aspect ratio based on viewport width
+                    // Use the larger dimension to ensure full coverage
+                    '@media (orientation: portrait)': {
+                      width: '177.78vh',
+                      height: '100vh',
+                    },
+                    '@media (orientation: landscape)': {
+                      width: '100vw',
+                      height: '56.25vw',
+                    },
+                    border: 'none',
+                    pointerEvents: 'none',
+                  }}
+                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
+                  allowFullScreen
+                  loading="eager"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-autoplay"
+                />
+              </Box>
             )}
           </>
         )}
