@@ -27,21 +27,14 @@ export default function Header() {
       <Toolbar sx={{ justifyContent: 'space-between', minHeight: '64px !important' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <Box
+            component="img"
+            src="/BinSaedanLogo.png"
+            alt="فيصل بن سعيدان"
             sx={{
-              width: 40,
-              height: 40,
-              bgcolor: 'primary.main',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '18px',
+              height: { xs: 32, sm: 40 },
+              width: 'auto',
             }}
-          >
-            ب
-          </Box>
+          />
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             <Box sx={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.2 }}>فيصل بن سعيدان</Box>
             <Box sx={{ fontSize: '10px', color: 'text.secondary', lineHeight: 1.2 }}>Faisal Bin Saedan</Box>

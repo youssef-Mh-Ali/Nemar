@@ -75,23 +75,16 @@ export default function Login() {
         <Box sx={{ width: '100%' }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box
+              component="img"
+              src="/BinSaedanLogo.png"
+              alt="فيصل بن سعيدان"
               sx={{
-                width: 64,
                 height: 64,
-                bgcolor: 'primary.main',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '24px',
+                width: 'auto',
                 mx: 'auto',
                 mb: 2,
               }}
-            >
-              ب
-            </Box>
+            />
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               تسجيل الدخول
             </Typography>
