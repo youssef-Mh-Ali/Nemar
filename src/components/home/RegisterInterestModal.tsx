@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createLead } from '../../lib/api-client'
+import { useToastStore } from '../../lib/store/toast-store'
 
 const schema = z.object({
   firstName: z.string().min(2, 'الاسم الأول مطلوب'),
@@ -47,6 +48,7 @@ export default function RegisterInterestModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { addToast } = useToastStore()
 
   const {
     register,
@@ -71,13 +73,16 @@ export default function RegisterInterestModal({
 
       if (response.success) {
         setIsSuccess(true)
+        addToast('تم التسجيل بنجاح! سنتواصل معك قريباً', 'success')
         reset()
         setTimeout(() => {
           onClose()
           setIsSuccess(false)
         }, 2000)
       } else {
-        setError(response.error || 'حدث خطأ. يرجى المحاولة مرة أخرى.')
+        const errorMsg = response.error || 'حدث خطأ. يرجى المحاولة مرة أخرى.'
+        setError(errorMsg)
+        addToast(errorMsg, 'error')
       }
     } catch {
       setError('حدث خطأ. يرجى المحاولة مرة أخرى.')

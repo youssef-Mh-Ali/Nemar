@@ -12,9 +12,11 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { Badge } from '@mui/material'
+import { LayoutGrid, List, SlidersHorizontal, Search as SearchIcon } from 'lucide-react'
 import UnitCard from '../components/search/UnitCard'
 import FilterDrawer from '../components/search/FilterDrawer'
 import DesktopFilters from '../components/search/DesktopFilters'
+import SearchAutocomplete from '../components/search/SearchAutocomplete'
 import { useAppStore } from '../lib/store'
 import { searchUnits } from '../lib/api-client'
 import { Unit } from '../lib/types'
@@ -67,45 +69,55 @@ export default function Search() {
         }}
       >
         <Container maxWidth="xl" sx={{ py: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-            <Box>
-              <Typography variant="h6" fontWeight="semibold">
-                البحث عن وحدة
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {isLoading ? 'جاري البحث...' : `${units.length} وحدة`}
-              </Typography>
-            </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+              <Box>
+                <Typography variant="h6" fontWeight="semibold">
+                  البحث عن وحدة
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {isLoading ? 'جاري البحث...' : `${units.length} وحدة`}
+                </Typography>
+              </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {/* View Toggle - Desktop */}
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={(_, newMode) => newMode && setViewMode(newMode)}
-                size="small"
-                sx={{ display: { xs: 'none', md: 'flex' } }}
-              >
-                <ToggleButton value="grid">
-                  <LayoutGrid size={16} />
-                </ToggleButton>
-                <ToggleButton value="list">
-                  <List size={16} />
-                </ToggleButton>
-              </ToggleButtonGroup>
-
-              {/* Filter Button - Mobile */}
-              <Badge badgeContent={activeFiltersCount} color="primary">
-                <Button
-                  variant="outlined"
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {/* View Toggle - Desktop */}
+                <ToggleButtonGroup
+                  value={viewMode}
+                  exclusive
+                  onChange={(_, newMode) => newMode && setViewMode(newMode)}
                   size="small"
-                  onClick={() => setFilterDrawerOpen(true)}
-                  startIcon={<SlidersHorizontal size={16} />}
-                  sx={{ display: { xs: 'flex', md: 'none' } }}
+                  sx={{ display: { xs: 'none', md: 'flex' } }}
                 >
-                  تصفية
-                </Button>
-              </Badge>
+                  <ToggleButton value="grid">
+                    <LayoutGrid size={16} />
+                  </ToggleButton>
+                  <ToggleButton value="list">
+                    <List size={16} />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
+                {/* Filter Button - Mobile */}
+                <Badge badgeContent={activeFiltersCount} color="primary">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setFilterDrawerOpen(true)}
+                    startIcon={<SlidersHorizontal size={16} />}
+                    sx={{ display: { xs: 'flex', md: 'none' } }}
+                  >
+                    تصفية
+                  </Button>
+                </Badge>
+              </Box>
+            </Box>
+            <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              <SearchAutocomplete
+                onSelect={(value) => {
+                  // Handle search selection
+                  console.log('Search selected:', value)
+                }}
+              />
             </Box>
           </Box>
         </Container>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Box, Container, Typography, Card, CardContent, CardMedia, Chip, Grid, Skeleton, Link as MuiLink } from '@mui/material'
+import { Box, Container, Typography, Card, CardContent, Chip, Grid, Skeleton, Link as MuiLink } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
 import { getProjects } from '../../lib/api-client'
 import type { Project } from '../../lib/types'
+import LazyImage from '../ui/LazyImage'
 
 interface ProjectWithAvailability extends Project {
   hasAvailability: boolean
@@ -102,20 +103,19 @@ export default function ProjectsGrid() {
                       },
                     }}
                   >
-                    <Box sx={{ position: 'relative', height: { xs: 192, md: 224 }, overflow: 'hidden' }}>
-                      <CardMedia
-                        component="img"
-                        image={project.coverImageUrl}
-                        alt={project.nameAr}
-                        sx={{
-                          height: '100%',
-                          objectFit: 'cover',
-                          transition: 'transform 0.5s',
-                          '&:hover': {
-                            transform: 'scale(1.05)',
-                          },
-                        }}
-                      />
+                        <Box sx={{ position: 'relative', height: { xs: 192, md: 224 }, overflow: 'hidden' }}>
+                          <LazyImage
+                            src={project.coverImageUrl}
+                            alt={project.nameAr}
+                            objectFit="cover"
+                            sx={{
+                              height: '100%',
+                              transition: 'transform 0.5s',
+                              '&:hover': {
+                                transform: 'scale(1.05)',
+                              },
+                            }}
+                          />
                       {/* Availability Badge */}
                       <Chip
                         label={

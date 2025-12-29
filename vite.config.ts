@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/*.png', 'BinSaedanLogo.png', 'BinSaedanLogo-White.png'],
+      includeAssets: ['favicon.ico', 'icons/*.png', 'BinSaedanLogo.png', 'BinSaedanLogo-White.png', 'appicon.png'],
       manifest: {
         name: 'فيصل بن سعيدان | Faisal Bin Saedan Properties',
         short_name: 'Bin Saedan',
@@ -21,13 +21,13 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/BinSaedanLogo.png',
+            src: '/appicon.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/BinSaedanLogo.png',
+            src: '/appicon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

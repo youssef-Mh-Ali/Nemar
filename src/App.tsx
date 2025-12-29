@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Community from './pages/Community'
 import Contact from './pages/Contact'
 import Offline from './pages/Offline'
+import Toast from './components/ui/Toast'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuthStore()
@@ -16,25 +17,28 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="search" element={<Search />} />
-        <Route path="unit/:id" element={<UnitDetails />} />
-        <Route path="contact" element={<Contact />} />
-        <Route
-          path="community"
-          element={
-            <ProtectedRoute>
-              <Community />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
-      <Route path="/login" element={<Login />} />
-      <Route path="/offline" element={<Offline />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="search" element={<Search />} />
+          <Route path="unit/:id" element={<UnitDetails />} />
+          <Route path="contact" element={<Contact />} />
+          <Route
+            path="community"
+            element={
+              <ProtectedRoute>
+                <Community />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/offline" element={<Offline />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Toast />
+    </>
   )
 }
 

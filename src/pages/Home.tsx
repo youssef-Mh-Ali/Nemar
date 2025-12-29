@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Box, Container, Typography, Button, Grid } from '@mui/material'
+import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { motion } from 'framer-motion'
 import HeroSection from '../components/home/HeroSection'
@@ -47,41 +48,56 @@ export default function Home() {
                 {
                   title: 'جودة البناء',
                   description: 'نلتزم بأعلى معايير الجودة في البناء والتشطيب',
-                  icon: '🏗️',
+                  icon: Construction,
                 },
                 {
                   title: 'مواقع استراتيجية',
                   description: 'نختار أفضل المواقع لضمان استثمار مستقبلي ناجح',
-                  icon: '📍',
+                  icon: LocationOn,
                 },
                 {
                   title: 'خدمة ما بعد البيع',
                   description: 'نقدم خدمات متكاملة لعملائنا حتى بعد التسليم',
-                  icon: '🤝',
+                  icon: Handshake,
                 },
-              ].map((item, index) => (
-                // -expect-error - MUI v7 Grid API
-<Grid item={true} xs={12} md={4} key={item.title}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Box sx={{ textAlign: 'center', p: 3 }}>
-                      <Typography variant="h2" sx={{ mb: 2 }}>
-                        {item.icon}
-                      </Typography>
-                      <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                        {item.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {item.description}
-                      </Typography>
-                    </Box>
-                  </motion.div>
-                </Grid>
-              ))}
+              ].map((item, index) => {
+                const IconComponent = item.icon
+                return (
+                  // -expect-error - MUI v7 Grid API
+                  <Grid item={true} xs={12} md={4} key={item.title}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Box sx={{ textAlign: 'center', p: 3 }}>
+                        <Box
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 80,
+                            height: 80,
+                            borderRadius: '50%',
+                            bgcolor: 'primary.main',
+                            color: 'white',
+                            mb: 2,
+                          }}
+                        >
+                          <IconComponent sx={{ fontSize: 40 }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                          {item.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {item.description}
+                        </Typography>
+                      </Box>
+                    </motion.div>
+                  </Grid>
+                )
+              })}
             </Grid>
           </motion.div>
         </Container>

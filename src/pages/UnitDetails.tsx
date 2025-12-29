@@ -13,10 +13,13 @@ import {
   Paper,
   CircularProgress,
 } from '@mui/material'
-import { ArrowRight, Heart, Share2, ChevronLeft, ChevronRight, Bed, Bath, Maximize, Calendar } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Bed, Bath, Maximize, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
 import UnitCard from '../components/search/UnitCard'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
+import ImageGallery from '../components/ui/ImageGallery'
+import FavoriteButton from '../components/ui/FavoriteButton'
+import ShareButton from '../components/ui/ShareButton'
 import { getUnit } from '../lib/api-client'
 import { useAuthStore } from '../lib/store'
 import { Unit } from '../lib/types'
@@ -30,6 +33,7 @@ export default function UnitDetails() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
   useEffect(() => {
     async function loadUnit() {
@@ -134,13 +138,15 @@ export default function UnitDetails() {
             >
               رجوع
             </Button>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton size="small">
-                <Heart size={20} />
-              </IconButton>
-              <IconButton size="small">
-                <Share2 size={20} />
-              </IconButton>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <FavoriteButton unitId={unit.id} size="small" />
+              <ShareButton
+                url={`${window.location.origin}/unit/${unit.id}`}
+                title={unit.projectNameAr}
+                text={`اكتشف ${unit.unitNumber} في ${unit.projectNameAr}`}
+                image={unit.images[0]}
+                size="small"
+              />
             </Box>
           </Box>
         </Container>
@@ -149,6 +155,7 @@ export default function UnitDetails() {
       <Container maxWidth="lg">
         {/* Gallery */}
         <Box
+          onClick={() => setIsGalleryOpen(true)}
           sx={{
             position: 'relative',
             aspectRatio: { xs: '16/10', md: '16/9' },
@@ -157,6 +164,7 @@ export default function UnitDetails() {
             overflow: 'hidden',
             mb: 3,
             mt: 2,
+            cursor: 'pointer',
           }}
         >
           <Box
@@ -377,6 +385,15 @@ export default function UnitDetails() {
         unitId={unit.id}
         projectName={unit.projectNameAr}
       />
+
+      {/* Image Gallery */}
+      {isGalleryOpen && (
+        <ImageGallery
+          images={unit.images}
+          initialIndex={activeImageIndex}
+          onClose={() => setIsGalleryOpen(false)}
+        />
+      )}
     </Box>
   )
 }

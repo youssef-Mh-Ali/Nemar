@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
-import { Card, CardContent, CardMedia, Chip, Box, Typography, Divider } from '@mui/material'
+import { Card, CardContent, Chip, Box, Typography, Divider } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Bed, Bath, Maximize, Calendar } from 'lucide-react'
 import { Unit } from '../../lib/types'
+import FavoriteButton from '../ui/FavoriteButton'
+import LazyImage from '../ui/LazyImage'
 
 interface UnitCardProps {
   unit: Unit
@@ -59,29 +61,26 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
         }}
       >
         <Box sx={{ position: 'relative', height: { xs: 176, md: 192 }, overflow: 'hidden' }}>
-          <CardMedia
-            component="img"
-            image={unit.images[0] || '/placeholder.jpg'}
+          <LazyImage
+            src={unit.images[0] || '/placeholder.jpg'}
             alt={`Unit ${unit.unitNumber}`}
+            objectFit="cover"
             sx={{
               height: '100%',
-              objectFit: 'cover',
               transition: 'transform 0.5s',
               '&:hover': {
                 transform: 'scale(1.05)',
               },
             }}
           />
-          <Chip
-            label={statusLabels[unit.status]}
-            color={statusColors[unit.status]}
-            size="small"
-            sx={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-            }}
-          />
+          <Box sx={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 0.5, zIndex: 2 }}>
+            <FavoriteButton unitId={unit.id} size="small" />
+            <Chip
+              label={statusLabels[unit.status]}
+              color={statusColors[unit.status]}
+              size="small"
+            />
+          </Box>
           <Box
             sx={{
               position: 'absolute',
