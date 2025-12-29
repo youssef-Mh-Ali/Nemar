@@ -27,17 +27,35 @@ export default function HeroSection() {
 
   useEffect(() => {
     async function loadFeaturedVideo() {
+      console.log('[Hero Section] Loading featured video...')
       try {
         const response = await getFeaturedVideo()
-        if (response.success && response.data && response.data.videoUrl) {
-          setFeaturedVideo(response.data)
-          // Auto-play video when it loads
-          setIsVideoPlaying(true)
+        console.log('[Hero Section] Video fetch response:', response)
+        
+        if (response.success && response.data) {
+          console.log('[Hero Section] ✅ Video data received:', {
+            hasVideoUrl: !!response.data.videoUrl,
+            videoUrl: response.data.videoUrl,
+            hasCoverImage: !!response.data.coverImageUrl,
+            projectName: response.data.projectNameAr,
+          })
+          
+          if (response.data.videoUrl) {
+            setFeaturedVideo(response.data)
+            // Auto-play video when it loads
+            setIsVideoPlaying(true)
+            console.log('[Hero Section] ✅ Video set and marked for playback')
+          } else {
+            console.warn('[Hero Section] ⚠️ No video URL in response data')
+          }
+        } else {
+          console.warn('[Hero Section] ⚠️ No video data in response:', response)
         }
       } catch (error) {
-        console.error('Error loading featured video:', error)
+        console.error('[Hero Section] ❌ Error loading featured video:', error)
       } finally {
         setIsLoading(false)
+        console.log('[Hero Section] Loading complete')
       }
     }
     loadFeaturedVideo()
@@ -46,7 +64,15 @@ export default function HeroSection() {
   // Auto-play video when it becomes available
   useEffect(() => {
     if (featuredVideo && featuredVideo.videoUrl && !isLoading) {
+      console.log('[Hero Section] ✅ Video available, setting to play:', featuredVideo.videoUrl)
       setIsVideoPlaying(true)
+    } else {
+      console.log('[Hero Section] Video not ready:', {
+        hasFeaturedVideo: !!featuredVideo,
+        hasVideoUrl: !!featuredVideo?.videoUrl,
+        isLoading,
+        isVideoPlaying,
+      })
     }
   }, [featuredVideo, isLoading])
 
@@ -88,6 +114,7 @@ export default function HeroSection() {
             component="iframe"
             src={(() => {
               let videoUrl = featuredVideo.videoUrl.trim()
+              console.log('[Hero Section] Processing video URL for iframe:', videoUrl)
               
               // For YouTube embeds, ensure autoplay and mute parameters
               if (videoUrl.includes('youtube.com/embed/') || videoUrl.includes('youtu.be/') || videoUrl.includes('youtube.com/watch')) {
@@ -97,13 +124,16 @@ export default function HeroSection() {
                 if (videoUrl.includes('/embed/')) {
                   // Already an embed URL: https://www.youtube.com/embed/VIDEO_ID
                   videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
+                  console.log('[Hero Section] Extracted video ID from embed URL:', videoId)
                 } else if (videoUrl.includes('youtu.be/')) {
                   // Short URL: https://youtu.be/VIDEO_ID?si=...
                   const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
                   videoId = match?.[1] || ''
+                  console.log('[Hero Section] Extracted video ID from short URL:', videoId, 'from:', videoUrl)
                 } else if (videoUrl.includes('youtube.com/watch')) {
                   // Watch URL: https://www.youtube.com/watch?v=VIDEO_ID
                   videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
+                  console.log('[Hero Section] Extracted video ID from watch URL:', videoId)
                 }
                 
                 if (videoId) {
@@ -121,24 +151,34 @@ export default function HeroSection() {
                     modestbranding: '1',
                   })
                   videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+                  console.log('[Hero Section] ✅ Built YouTube embed URL:', videoUrl)
                 } else {
-                  console.warn('Could not extract YouTube video ID from:', videoUrl)
+                  console.warn('[Hero Section] ⚠️ Could not extract YouTube video ID from:', videoUrl)
                 }
               } else if (videoUrl.includes('instagram.com')) {
                 // Instagram embeds - add autoplay if supported
                 if (!videoUrl.includes('autoplay')) {
                   videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'autoplay=1&muted=1'
+                  console.log('[Hero Section] Added autoplay to Instagram URL:', videoUrl)
                 }
               } else {
                 // For other video sources, ensure autoplay and mute
                 const separator = videoUrl.includes('?') ? '&' : '?'
                 if (!videoUrl.includes('autoplay')) {
                   videoUrl += `${separator}autoplay=1&muted=1&loop=1`
+                  console.log('[Hero Section] Added autoplay to video URL:', videoUrl)
                 }
               }
               
+              console.log('[Hero Section] ✅ Final iframe src URL:', videoUrl)
               return videoUrl
             })()}
+            onLoad={() => {
+              console.log('[Hero Section] ✅ Video iframe loaded successfully')
+            }}
+            onError={(e) => {
+              console.error('[Hero Section] ❌ Video iframe failed to load:', e)
+            }}
             sx={{
               position: 'absolute',
               inset: 0,

@@ -20,6 +20,7 @@ let tokenExpiry: number = 0;
 export async function getAccessToken(): Promise<SalesforceToken> {
   // Return cached token if still valid (with 5 min buffer)
   if (cachedToken && Date.now() < tokenExpiry - 300000) {
+    console.log('[Salesforce Auth] Using cached access token');
     return cachedToken;
   }
 
@@ -27,35 +28,63 @@ export async function getAccessToken(): Promise<SalesforceToken> {
   const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET;
   const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL;
 
+  console.log('[Salesforce Auth] Attempting authentication...', {
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    hasTokenUrl: !!tokenUrl,
+    tokenUrl: tokenUrl,
+  });
+
   if (!clientId || !clientSecret || !tokenUrl) {
+    console.error('[Salesforce Auth] ❌ FAILED: Credentials not configured', {
+      clientId: !!clientId,
+      clientSecret: !!clientSecret,
+      tokenUrl: !!tokenUrl,
+    });
     throw new Error("Salesforce credentials not configured");
   }
 
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  });
+  try {
+    const response = await fetch(tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Salesforce auth error:", error);
-    throw new Error(`Failed to authenticate with Salesforce: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("[Salesforce Auth] ❌ FAILED:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: error,
+      });
+      throw new Error(`Failed to authenticate with Salesforce: ${response.status}`);
+    }
+
+    const token: SalesforceToken = await response.json();
+    
+    console.log('[Salesforce Auth] ✅ SUCCESS:', {
+      instanceUrl: token.instance_url,
+      tokenType: token.token_type,
+      expiresIn: token.expires_in,
+      scope: token.scope,
+    });
+    
+    // Cache the token (default 2 hour expiry if not specified)
+    cachedToken = token;
+    tokenExpiry = Date.now() + (token.expires_in || 7200) * 1000;
+
+    return token;
+  } catch (error) {
+    console.error('[Salesforce Auth] ❌ ERROR:', error);
+    throw error;
   }
-
-  const token: SalesforceToken = await response.json();
-  
-  // Cache the token (default 2 hour expiry if not specified)
-  cachedToken = token;
-  tokenExpiry = Date.now() + (token.expires_in || 7200) * 1000;
-
-  return token;
 }
 
 /**
@@ -90,8 +119,19 @@ export async function salesforceRequest<T>(
  * Query Salesforce using SOQL
  */
 export async function salesforceQuery<T>(soql: string): Promise<{ records: T[] }> {
+  console.log('[Salesforce Query] Executing SOQL:', soql);
   const encodedQuery = encodeURIComponent(soql);
-  return salesforceRequest(`/services/data/v59.0/query?q=${encodedQuery}`);
+  try {
+    const result = await salesforceRequest<{ records: T[] }>(`/services/data/v59.0/query?q=${encodedQuery}`);
+    console.log('[Salesforce Query] ✅ SUCCESS:', {
+      recordCount: result.records?.length || 0,
+      records: result.records,
+    });
+    return result;
+  } catch (error) {
+    console.error('[Salesforce Query] ❌ FAILED:', error);
+    throw error;
+  }
 }
 
 /**

@@ -71,14 +71,23 @@ export async function getProject(id: string) {
 }
 
 export async function getFeaturedVideo() {
+  console.log('[Hero Video] Starting to fetch featured video...')
+  
   try {
     // Check if Salesforce credentials are configured
     const clientId = import.meta.env.VITE_SALESFORCE_CLIENT_ID
     const clientSecret = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET
     const tokenUrl = import.meta.env.VITE_SALESFORCE_TOKEN_URL
 
+    console.log('[Hero Video] Checking Salesforce credentials...', {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      hasTokenUrl: !!tokenUrl,
+    })
+
     if (!clientId || !clientSecret || !tokenUrl) {
       // Credentials not configured, skip Salesforce and go to fallback
+      console.warn('[Hero Video] ⚠️ Salesforce credentials not configured, using fallback')
       throw new Error('Salesforce credentials not configured')
     }
 
@@ -90,23 +99,36 @@ export async function getFeaturedVideo() {
                   ORDER BY CreatedDate DESC 
                   LIMIT 1`
     
+    console.log('[Hero Video] Querying Salesforce for hero video record...')
     const result = await salesforceQuery<PWAContent>(soql)
     
     if (result.records && result.records.length > 0) {
       const content = result.records[0]
+      console.log('[Hero Video] ✅ Found Salesforce record:', {
+        id: content.Id,
+        name: content.Name,
+        type: content.Type__c,
+        location: content.Location__c,
+        contentUrl: content.Content_URL__c,
+      })
+      
       // Extract video URL - handle Instagram embeds and direct video URLs
       let videoUrl = (content.Content_URL__c || '').trim()
       
       if (!videoUrl) {
+        console.warn('[Hero Video] ⚠️ No video URL in Salesforce record')
         // No video URL in record, fall through to API endpoint
         throw new Error('No video URL in Salesforce record')
       }
+      
+      console.log('[Hero Video] Processing video URL:', videoUrl)
       
       // If it's an Instagram URL, convert to embed format
       if (videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/')) {
         const reelId = videoUrl.match(/\/reel\/([^/?]+)/)?.[1] || videoUrl.match(/\/p\/([^/?]+)/)?.[1]
         if (reelId) {
           videoUrl = `https://www.instagram.com/reel/${reelId}/embed/`
+          console.log('[Hero Video] Converted Instagram URL to embed:', videoUrl)
         }
       }
       
@@ -116,14 +138,17 @@ export async function getFeaturedVideo() {
       if (videoUrl.includes('youtube.com/watch')) {
         // Format: https://www.youtube.com/watch?v=VIDEO_ID
         videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
+        console.log('[Hero Video] Extracted YouTube video ID from watch URL:', videoId)
       } else if (videoUrl.includes('youtu.be/')) {
         // Format: https://youtu.be/VIDEO_ID?si=...
         // Extract video ID from path (before ? or /)
         const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
         videoId = match?.[1] || ''
+        console.log('[Hero Video] Extracted YouTube video ID from short URL:', videoId, 'from:', videoUrl)
       } else if (videoUrl.includes('youtube.com/embed/')) {
         // Format: https://www.youtube.com/embed/VIDEO_ID
         videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
+        console.log('[Hero Video] Extracted YouTube video ID from embed URL:', videoId)
       }
       
       if (videoId) {
@@ -141,6 +166,9 @@ export async function getFeaturedVideo() {
           modestbranding: '1',
         })
         videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+        console.log('[Hero Video] ✅ Built YouTube embed URL:', videoUrl)
+      } else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        console.warn('[Hero Video] ⚠️ Could not extract YouTube video ID from URL:', videoUrl)
       }
       
       // Try to extract thumbnail from Instagram or use default
@@ -150,21 +178,26 @@ export async function getFeaturedVideo() {
         coverImageUrl = ''
       } else if (videoUrl.includes('youtube.com')) {
         // Extract YouTube video ID for thumbnail
-        const videoId = videoUrl.match(/embed\/([^?]+)/)?.[1] || videoUrl.match(/[?&]v=([^&]+)/)?.[1]
-        if (videoId) {
-          coverImageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+        const thumbVideoId = videoUrl.match(/embed\/([^?]+)/)?.[1] || videoUrl.match(/[?&]v=([^&]+)/)?.[1] || videoId
+        if (thumbVideoId) {
+          coverImageUrl = `https://img.youtube.com/vi/${thumbVideoId}/maxresdefault.jpg`
+          console.log('[Hero Video] Generated YouTube thumbnail URL:', coverImageUrl)
         }
       }
       
+      const videoData = {
+        projectId: '',
+        projectName: content.Name,
+        projectNameAr: content.Name,
+        videoUrl: videoUrl,
+        coverImageUrl: coverImageUrl,
+      }
+      
+      console.log('[Hero Video] ✅ Returning video data:', videoData)
+      
       return {
         success: true,
-        data: {
-          projectId: '',
-          projectName: content.Name,
-          projectNameAr: content.Name,
-          videoUrl: videoUrl,
-          coverImageUrl: coverImageUrl,
-        },
+        data: videoData,
       } as ApiResponse<{
         projectId: string
         projectName: string
@@ -172,9 +205,12 @@ export async function getFeaturedVideo() {
         videoUrl: string
         coverImageUrl: string
       }>
+    } else {
+      console.warn('[Hero Video] ⚠️ No records found in Salesforce query result')
     }
     
     // Fallback to API endpoint if no Salesforce record found
+    console.log('[Hero Video] No Salesforce record found, trying API endpoint fallback...')
     const fallback = await fetcher<{
       projectId: string
       projectName: string
@@ -185,6 +221,7 @@ export async function getFeaturedVideo() {
     
     // If API endpoint also fails, return empty data (no video)
     if (!fallback.success) {
+      console.warn('[Hero Video] ⚠️ API endpoint also failed, returning empty video data')
       return {
         success: true,
         data: {
@@ -197,14 +234,13 @@ export async function getFeaturedVideo() {
       }
     }
     
+    console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
     return fallback
   } catch (error) {
-    // Only log if it's not a credentials error (expected in production without env vars)
-    if (!(error instanceof Error && error.message.includes('credentials not configured'))) {
-      console.error('Error fetching featured video from Salesforce:', error)
-    }
+    console.error('[Hero Video] ❌ ERROR fetching from Salesforce:', error)
     
     // Fallback to API endpoint on error
+    console.log('[Hero Video] Attempting API endpoint fallback...')
     const fallback = await fetcher<{
       projectId: string
       projectName: string
@@ -215,6 +251,7 @@ export async function getFeaturedVideo() {
     
     // If API endpoint also fails, return empty data (no video)
     if (!fallback.success) {
+      console.warn('[Hero Video] ⚠️ API endpoint fallback also failed, returning empty video data')
       return {
         success: true,
         data: {
@@ -227,6 +264,7 @@ export async function getFeaturedVideo() {
       }
     }
     
+    console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
     return fallback
   }
 }
