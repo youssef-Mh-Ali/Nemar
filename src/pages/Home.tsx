@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Box, Container, Typography, Button } from '@mui/material'
+import { Box, Container, Typography, Button, Grid } from '@mui/material'
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { motion } from 'framer-motion'
 import HeroSection from '../components/home/HeroSection'
+import ProjectsGrid from '../components/home/ProjectsGrid'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
 export default function Home() {
