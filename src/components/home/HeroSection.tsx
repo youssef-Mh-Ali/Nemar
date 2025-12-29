@@ -113,64 +113,10 @@ export default function HeroSection() {
           <Box
             component="iframe"
             src={(() => {
-              let videoUrl = featuredVideo.videoUrl.trim()
-              console.log('[Hero Section] Processing video URL for iframe:', videoUrl)
-              
-              // For YouTube embeds, ensure autoplay and mute parameters
-              if (videoUrl.includes('youtube.com/embed/') || videoUrl.includes('youtu.be/') || videoUrl.includes('youtube.com/watch')) {
-                // Extract video ID from various YouTube URL formats
-                let videoId = ''
-                
-                if (videoUrl.includes('/embed/')) {
-                  // Already an embed URL: https://www.youtube.com/embed/VIDEO_ID
-                  videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
-                  console.log('[Hero Section] Extracted video ID from embed URL:', videoId)
-                } else if (videoUrl.includes('youtu.be/')) {
-                  // Short URL: https://youtu.be/VIDEO_ID?si=...
-                  const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
-                  videoId = match?.[1] || ''
-                  console.log('[Hero Section] Extracted video ID from short URL:', videoId, 'from:', videoUrl)
-                } else if (videoUrl.includes('youtube.com/watch')) {
-                  // Watch URL: https://www.youtube.com/watch?v=VIDEO_ID
-                  videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
-                  console.log('[Hero Section] Extracted video ID from watch URL:', videoId)
-                }
-                
-                if (videoId) {
-                  // Build YouTube embed URL with autoplay and mute
-                  const params = new URLSearchParams({
-                    autoplay: '1',
-                    mute: '1',
-                    loop: '1',
-                    playlist: videoId, // Required for looping
-                    controls: '0',
-                    showinfo: '0',
-                    playsinline: '1',
-                    enablejsapi: '1',
-                    rel: '0',
-                    modestbranding: '1',
-                  })
-                  videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
-                  console.log('[Hero Section] ✅ Built YouTube embed URL:', videoUrl)
-                } else {
-                  console.warn('[Hero Section] ⚠️ Could not extract YouTube video ID from:', videoUrl)
-                }
-              } else if (videoUrl.includes('instagram.com')) {
-                // Instagram embeds - add autoplay if supported
-                if (!videoUrl.includes('autoplay')) {
-                  videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'autoplay=1&muted=1'
-                  console.log('[Hero Section] Added autoplay to Instagram URL:', videoUrl)
-                }
-              } else {
-                // For other video sources, ensure autoplay and mute
-                const separator = videoUrl.includes('?') ? '&' : '?'
-                if (!videoUrl.includes('autoplay')) {
-                  videoUrl += `${separator}autoplay=1&muted=1&loop=1`
-                  console.log('[Hero Section] Added autoplay to video URL:', videoUrl)
-                }
-              }
-              
-              console.log('[Hero Section] ✅ Final iframe src URL:', videoUrl)
+              // Video URL is already processed by the API client
+              // Just use it directly as it should already be in embed format
+              const videoUrl = featuredVideo.videoUrl.trim()
+              console.log('[Hero Section] Using processed video URL for iframe:', videoUrl)
               return videoUrl
             })()}
             onLoad={() => {
@@ -188,9 +134,10 @@ export default function HeroSection() {
               pointerEvents: 'none',
               zIndex: 1,
             }}
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
             allowFullScreen
             loading="eager"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
           />
         )}
         {/* Gradient Overlay */}

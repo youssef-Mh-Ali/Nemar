@@ -96,7 +96,7 @@ export async function getFeaturedVideo() {
         contentUrl: content.Content_URL__c,
       })
       
-      // Extract video URL - handle Instagram embeds and direct video URLs
+      // Extract video URL - handle Instagram, YouTube, Google Drive, and direct video URLs
       let videoUrl = (content.Content_URL__c || '').trim()
       
       if (!videoUrl) {
@@ -107,66 +107,102 @@ export async function getFeaturedVideo() {
       
       console.log('[Hero Video] Processing video URL:', videoUrl)
       
-      // If it's an Instagram URL, convert to embed format
+      // Handle Instagram URLs (reels and posts)
       if (videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/')) {
-        const reelId = videoUrl.match(/\/reel\/([^/?]+)/)?.[1] || videoUrl.match(/\/p\/([^/?]+)/)?.[1]
-        if (reelId) {
-          videoUrl = `https://www.instagram.com/reel/${reelId}/embed/`
-          console.log('[Hero Video] Converted Instagram URL to embed:', videoUrl)
+        // Extract reel/post ID from URL
+        // Format: https://www.instagram.com/reel/Cmrhr2QjzLj/?utm_source=...
+        // Format: https://www.instagram.com/p/ABC123/?utm_source=...
+        const reelMatch = videoUrl.match(/\/reel\/([^/?]+)/)
+        const postMatch = videoUrl.match(/\/p\/([^/?]+)/)
+        const contentId = reelMatch?.[1] || postMatch?.[1]
+        
+        if (contentId) {
+          const contentType = reelMatch ? 'reel' : 'p'
+          videoUrl = `https://www.instagram.com/${contentType}/${contentId}/embed/`
+          console.log('[Hero Video] ✅ Converted Instagram URL to embed:', videoUrl)
+        } else {
+          console.warn('[Hero Video] ⚠️ Could not extract Instagram reel/post ID from URL:', videoUrl)
+        }
+      }
+      // Handle Google Drive URLs
+      else if (videoUrl.includes('drive.google.com')) {
+        // Extract file ID from various Google Drive URL formats
+        // Format: https://drive.google.com/file/d/FILE_ID/view
+        // Format: https://drive.google.com/open?id=FILE_ID
+        // Format: https://drive.google.com/uc?id=FILE_ID
+        let fileId = ''
+        
+        const fileIdMatch = videoUrl.match(/\/file\/d\/([^/]+)/)
+        const openIdMatch = videoUrl.match(/[?&]id=([^&]+)/)
+        const ucIdMatch = videoUrl.match(/\/uc\?id=([^&]+)/)
+        
+        fileId = fileIdMatch?.[1] || openIdMatch?.[1] || ucIdMatch?.[1] || ''
+        
+        if (fileId) {
+          // Convert to embeddable preview URL
+          videoUrl = `https://drive.google.com/file/d/${fileId}/preview`
+          console.log('[Hero Video] ✅ Converted Google Drive URL to embed:', videoUrl)
+        } else {
+          console.warn('[Hero Video] ⚠️ Could not extract Google Drive file ID from URL:', videoUrl)
+        }
+      }
+      // Handle YouTube URLs
+      else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        let videoId = ''
+        
+        if (videoUrl.includes('youtube.com/watch')) {
+          // Format: https://www.youtube.com/watch?v=VIDEO_ID
+          videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
+          console.log('[Hero Video] Extracted YouTube video ID from watch URL:', videoId)
+        } else if (videoUrl.includes('youtu.be/')) {
+          // Format: https://youtu.be/VIDEO_ID?si=...
+          const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
+          videoId = match?.[1] || ''
+          console.log('[Hero Video] Extracted YouTube video ID from short URL:', videoId, 'from:', videoUrl)
+        } else if (videoUrl.includes('youtube.com/embed/')) {
+          // Format: https://www.youtube.com/embed/VIDEO_ID
+          videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
+          console.log('[Hero Video] Extracted YouTube video ID from embed URL:', videoId)
+        }
+        
+        if (videoId) {
+          // Build YouTube embed URL with autoplay and mute
+          const params = new URLSearchParams({
+            autoplay: '1',
+            mute: '1',
+            loop: '1',
+            playlist: videoId, // Required for looping
+            controls: '0',
+            showinfo: '0',
+            playsinline: '1',
+            enablejsapi: '1',
+            rel: '0',
+            modestbranding: '1',
+          })
+          videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+          console.log('[Hero Video] ✅ Built YouTube embed URL:', videoUrl)
+        } else {
+          console.warn('[Hero Video] ⚠️ Could not extract YouTube video ID from URL:', videoUrl)
         }
       }
       
-      // For YouTube URLs, convert to embed format with autoplay and mute
-      let videoId = ''
-      
-      if (videoUrl.includes('youtube.com/watch')) {
-        // Format: https://www.youtube.com/watch?v=VIDEO_ID
-        videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
-        console.log('[Hero Video] Extracted YouTube video ID from watch URL:', videoId)
-      } else if (videoUrl.includes('youtu.be/')) {
-        // Format: https://youtu.be/VIDEO_ID?si=...
-        // Extract video ID from path (before ? or /)
-        const match = videoUrl.match(/youtu\.be\/([^/?&]+)/)
-        videoId = match?.[1] || ''
-        console.log('[Hero Video] Extracted YouTube video ID from short URL:', videoId, 'from:', videoUrl)
-      } else if (videoUrl.includes('youtube.com/embed/')) {
-        // Format: https://www.youtube.com/embed/VIDEO_ID
-        videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
-        console.log('[Hero Video] Extracted YouTube video ID from embed URL:', videoId)
-      }
-      
-      if (videoId) {
-        // Build YouTube embed URL with autoplay and mute
-        const params = new URLSearchParams({
-          autoplay: '1',
-          mute: '1',
-          loop: '1',
-          playlist: videoId, // Required for looping
-          controls: '0',
-          showinfo: '0',
-          playsinline: '1',
-          enablejsapi: '1',
-          rel: '0',
-          modestbranding: '1',
-        })
-        videoUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
-        console.log('[Hero Video] ✅ Built YouTube embed URL:', videoUrl)
-      } else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-        console.warn('[Hero Video] ⚠️ Could not extract YouTube video ID from URL:', videoUrl)
-      }
-      
-      // Try to extract thumbnail from Instagram or use default
+      // Try to extract thumbnail/cover image
       let coverImageUrl = ''
       if (videoUrl.includes('instagram.com')) {
         // Instagram embed doesn't provide direct thumbnail, use a default gradient
         coverImageUrl = ''
-      } else if (videoUrl.includes('youtube.com')) {
+        console.log('[Hero Video] Using default gradient for Instagram cover image')
+      } else if (videoUrl.includes('youtube.com/embed/')) {
         // Extract YouTube video ID for thumbnail
-        const thumbVideoId = videoUrl.match(/embed\/([^?]+)/)?.[1] || videoUrl.match(/[?&]v=([^&]+)/)?.[1] || videoId
+        const thumbVideoId = videoUrl.match(/embed\/([^?]+)/)?.[1]
         if (thumbVideoId) {
           coverImageUrl = `https://img.youtube.com/vi/${thumbVideoId}/maxresdefault.jpg`
           console.log('[Hero Video] Generated YouTube thumbnail URL:', coverImageUrl)
         }
+      } else if (videoUrl.includes('drive.google.com')) {
+        // Google Drive doesn't provide direct thumbnail, use a default gradient
+        coverImageUrl = ''
+        console.log('[Hero Video] Using default gradient for Google Drive cover image')
       }
       
       const videoData = {
