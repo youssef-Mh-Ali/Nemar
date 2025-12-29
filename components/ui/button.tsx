@@ -1,12 +1,12 @@
 "use client";
 
-import { forwardRef, ButtonHTMLAttributes } from "react";
-import { motion } from "framer-motion";
+import { forwardRef } from "react";
+import { motion, HTMLMotionProps } from "framer-motion";
 
 type ButtonVariant = "primary" | "secondary" | "accent" | "outline" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
