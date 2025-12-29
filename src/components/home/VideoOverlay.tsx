@@ -20,10 +20,14 @@ export default function VideoOverlay() {
       sx={{
         position: 'absolute',
         inset: 0,
-        zIndex: 2,
+        zIndex: 3,
         pointerEvents: 'none',
-        // Dark overlay gradient
-        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7))',
+        // Dark overlay gradient - darker for better text readability
+        // Using multiple layers for better coverage
+        background: [
+          'linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.85))',
+          'radial-gradient(circle at center, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6))',
+        ].join(', '),
       }}
     >
       {/* Animated floating particles */}

@@ -78,7 +78,9 @@ export function useCoverScale(
       const scaleY = containerHeight / baseHeight
       
       // Use the larger scale to ensure coverage (cover behavior)
-      const newScale = Math.max(scaleX, scaleY)
+      // Add a small buffer to ensure no gaps appear, especially on mobile
+      const minScale = Math.max(scaleX, scaleY)
+      const newScale = Math.max(minScale * 1.02, 1.0) // At least 2% buffer, minimum scale of 1.0
 
       // Calculate actual dimensions after scaling
       const scaledWidth = baseWidth * newScale
@@ -131,6 +133,18 @@ export function useCoverScale(
       setTranslateY(newTranslateY)
       setBaseWidth(baseWidth)
       setBaseHeight(baseHeight)
+      
+      // Debug logging (can be removed in production)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[VideoCover] Scale calculation:', {
+          container: { width: containerWidth, height: containerHeight },
+          containerAspectRatio,
+          mediaAspectRatio: aspectRatio,
+          base: { width: baseWidth, height: baseHeight },
+          scale: { x: scaleX, y: scaleY, final: newScale },
+          translate: { x: newTranslateX, y: newTranslateY },
+        })
+      }
     }
 
     // Calculate initial scale

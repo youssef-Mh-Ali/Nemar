@@ -235,6 +235,9 @@ export default function HeroSection() {
             }}
           />
         )}
+        {/* Animated Dark Overlay with React bits - always show when there's content */}
+        {(featuredVideo?.videoUrl || featuredVideo?.coverImageUrl) && <VideoOverlay />}
+        
         {featuredVideo && featuredVideo.videoUrl && (
           <>
             {/* Instagram videos use official embed method with fallback UI */}
@@ -304,10 +307,12 @@ export default function HeroSection() {
                     padding: 0,
                     background: 'transparent',
                     border: 'none',
+                    display: 'block',
                     '& iframe': {
                       width: '100% !important',
                       height: '100% !important',
                       border: 'none',
+                      display: 'block',
                     },
                   }}
                 />
@@ -382,10 +387,11 @@ export default function HeroSection() {
                     console.error('[Hero Section] ❌ Video iframe failed to load:', e)
                   }}
                   sx={{
-                          width: '100%',
-                          height: '100%',
+                    width: '100%',
+                    height: '100%',
                     border: 'none',
                     pointerEvents: 'none',
+                    display: 'block',
                   }}
                   allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-read; clipboard-write"
                   allowFullScreen
@@ -399,8 +405,6 @@ export default function HeroSection() {
             )}
           </>
         )}
-        {/* Animated Dark Overlay with React bits */}
-        <VideoOverlay />
       </Box>
 
       {/* Content */}

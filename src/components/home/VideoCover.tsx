@@ -80,8 +80,15 @@ export default function VideoCover({
           transform: `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`,
           transformOrigin: 'center center',
           // Use calculated base dimensions from the hook
+          // If base dimensions aren't ready yet, use aspect ratio-based fallback
           width: baseWidth > 0 ? `${baseWidth}px` : aspectRatio >= 1 ? `${100 * aspectRatio}vh` : '100vw',
           height: baseHeight > 0 ? `${baseHeight}px` : aspectRatio <= 1 ? `${100 / aspectRatio}vw` : '100vh',
+          // Ensure children fill the container
+          '& > *': {
+            width: '100% !important',
+            height: '100% !important',
+            display: 'block',
+          },
         }}
       >
         {children}
