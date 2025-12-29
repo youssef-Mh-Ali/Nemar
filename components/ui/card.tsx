@@ -1,11 +1,12 @@
 "use client";
 
-import { HTMLAttributes, forwardRef } from "react";
+import { HTMLAttributes, forwardRef, ReactNode } from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 
 interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, keyof HTMLMotionProps<"div">> {
   hoverable?: boolean;
   padding?: "none" | "sm" | "md" | "lg";
+  children?: ReactNode;
 }
 
 const paddingSizes = {
@@ -46,7 +47,7 @@ export const CardHeader = ({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => (
   <div className={`mb-4 ${className}`}>{children}</div>
 );
@@ -56,7 +57,7 @@ export const CardTitle = ({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => (
   <h3 className={`text-lg font-semibold text-[var(--color-text)] ${className}`}>
     {children}
@@ -68,7 +69,7 @@ export const CardDescription = ({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => (
   <p className={`text-sm text-[var(--color-text-muted)] mt-1 ${className}`}>
     {children}
@@ -80,7 +81,7 @@ export const CardContent = ({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => <div className={className}>{children}</div>;
 
 export const CardFooter = ({
@@ -88,10 +89,9 @@ export const CardFooter = ({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => (
   <div className={`mt-4 pt-4 border-t border-[var(--color-border-light)] ${className}`}>
     {children}
   </div>
 );
-
