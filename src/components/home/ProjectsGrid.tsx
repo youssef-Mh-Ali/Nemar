@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Box, Container, Typography, Card, CardContent, CardMedia, Chip, Grid, Skeleton, Link as MuiLink } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
