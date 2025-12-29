@@ -254,7 +254,7 @@ export default function HeroSection() {
                 />
               )
             ) : (
-              /* YouTube and Google Drive videos use iframe with zoom to fill */
+              /* YouTube and Google Drive videos use iframe with zoom to fill - no black bars */
               <Box
                 sx={{
                   position: 'absolute',
@@ -283,24 +283,25 @@ export default function HeroSection() {
                   }}
                   sx={{
                     position: 'absolute',
-                    // Center the iframe
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    // Scale to fill - use a larger scale to ensure no black bars
-                    // Calculate scale based on container aspect ratio vs 16:9 video ratio
-                    minWidth: '100%',
-                    minHeight: '100%',
-                    width: '177.78vh', // 16:9 aspect ratio based on viewport height
-                    height: '56.25vw', // 16:9 aspect ratio based on viewport width
-                    // Use the larger dimension to ensure full coverage
-                    '@media (orientation: portrait)': {
-                      width: '177.78vh',
-                      height: '100vh',
-                    },
-                    '@media (orientation: landscape)': {
+                    // Scale video to fill container - use aspect ratio math to ensure no black bars
+                    // For 16:9 videos, we need to scale based on container dimensions
+                    width: '177.78vh', // 16:9 ratio: height * 16/9 = width
+                    height: '100vh',
+                    minWidth: '100vw',
+                    minHeight: '56.25vw', // 16:9 ratio: width * 9/16 = height
+                    // Ensure video always covers the container
+                    '@media (max-aspect-ratio: 16/9)': {
+                      // Container is taller than 16:9 - scale by width
                       width: '100vw',
                       height: '56.25vw',
+                    },
+                    '@media (min-aspect-ratio: 16/9)': {
+                      // Container is wider than 16:9 - scale by height
+                      width: '177.78vh',
+                      height: '100vh',
                     },
                     border: 'none',
                     pointerEvents: 'none',
