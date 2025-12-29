@@ -58,7 +58,9 @@ export default function HeroSection() {
             sx={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: `url(${featuredVideo.coverImageUrl})`,
+              backgroundImage: featuredVideo.coverImageUrl 
+                ? `url(${featuredVideo.coverImageUrl})`
+                : 'linear-gradient(135deg, #1a365d 0%, #2c5282 100%)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
@@ -67,7 +69,9 @@ export default function HeroSection() {
         {isVideoPlaying && featuredVideo && (
           <Box
             component="iframe"
-            src={`${featuredVideo.videoUrl}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+            src={featuredVideo.videoUrl.includes('?') 
+              ? featuredVideo.videoUrl 
+              : `${featuredVideo.videoUrl}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
             sx={{
               position: 'absolute',
               inset: 0,
@@ -76,7 +80,7 @@ export default function HeroSection() {
               border: 'none',
               pointerEvents: 'none',
             }}
-            allow="autoplay; encrypted-media"
+            allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
           />
         )}
