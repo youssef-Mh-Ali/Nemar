@@ -136,30 +136,6 @@ export default function Login() {
                   {isSubmitting ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
                 </Button>
               </form>
-
-              <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: 'divider' }}>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2, textAlign: 'center' }}>
-                  للتجربة، استخدم البيانات التالية:
-                </Typography>
-                <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      اسم المستخدم:
-                    </Typography>
-                    <Typography variant="caption" fontWeight="bold" color="primary.main">
-                      demo
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      كلمة المرور:
-                    </Typography>
-                    <Typography variant="caption" fontWeight="bold" color="primary.main">
-                      demo123
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
             </CardContent>
           </Card>
 
