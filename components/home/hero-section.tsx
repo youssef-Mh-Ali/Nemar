@@ -91,7 +91,7 @@ export function HeroSection() {
 
           {/* Main Heading */}
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-            مجتمعك،
+            مجتمعك
             <br />
             <span className="text-[var(--color-accent)]">بأسلوب جديد</span>
           </h1>
