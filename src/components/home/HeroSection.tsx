@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
 import VideoCover from './VideoCover'
 import VideoOverlay from './VideoOverlay'
+import ColorBends from '../reactbits/ColorBends'
 
 // Type declaration for Instagram embed API
 declare global {
@@ -237,7 +238,33 @@ export default function HeroSection() {
             }}
           />
         )}
-        {/* Animated Dark Overlay with React bits - always show when there's content */}
+        {/* ReactBits ColorBends overlay using brand palette */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 2,
+            pointerEvents: 'none',
+            opacity: { xs: 0.4, md: 0.55 },
+            mixBlendMode: 'screen',
+          }}
+        >
+          <ColorBends
+            rotation={45}
+            speed={0.2}
+            colors={['#5227FF', '#FF9FFC', '#7CFF67']}
+            transparent
+            autoRotate={0}
+            scale={1}
+            frequency={1}
+            warpStrength={1}
+            mouseInfluence={1}
+            parallax={0.5}
+            noise={0.1}
+          />
+        </Box>
+
+        {/* Animated dark overlay for readability */}
         {(featuredVideo?.videoUrl || featuredVideo?.coverImageUrl) && <VideoOverlay />}
         
         {featuredVideo && featuredVideo.videoUrl && (
@@ -526,4 +553,3 @@ export default function HeroSection() {
     </Box>
   )
 }
-
