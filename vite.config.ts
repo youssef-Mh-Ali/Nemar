@@ -68,7 +68,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src'
-    }
+    },
+    dedupe: ['three']
+  },
+  optimizeDeps: {
+    include: ['three']
   },
   build: {
     outDir: 'dist',
