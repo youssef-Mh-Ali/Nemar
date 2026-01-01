@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Snackbar, Alert, IconButton, Button, Box } from '@mui/material'
+import { Snackbar, Alert, IconButton, Button, Box, Avatar } from '@mui/material'
 import { Close, Download } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function InstallBanner() {
+  const { t } = useTranslation()
   const { installPromptEvent, isInstallable, showInstallBanner, setInstallPrompt, dismissInstallBanner } =
     useAppStore()
   const [isInstalled, setIsInstalled] = useState(() => 
@@ -63,6 +65,7 @@ export default function InstallBanner() {
     >
       <Alert
         severity="info"
+        icon={false}
         action={
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             <Button
@@ -70,11 +73,29 @@ export default function InstallBanner() {
               size="small"
               onClick={handleInstall}
               startIcon={<Download />}
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: 'white',
+                fontWeight: 500,
+                textTransform: 'none',
+                borderRadius: '6px',
+                px: 1.5,
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                }
+              }}
             >
-              تثبيت
+              {t('installBanner.install')}
             </Button>
-            <IconButton size="small" onClick={dismissInstallBanner} sx={{ color: 'white' }}>
+            <IconButton 
+              size="small" 
+              onClick={dismissInstallBanner} 
+              sx={{ 
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                }
+              }}
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -82,12 +103,36 @@ export default function InstallBanner() {
         sx={{
           bgcolor: 'primary.main',
           color: 'white',
-          '& .MuiAlert-icon': { color: 'white' },
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          minWidth: { xs: 'auto', sm: '400px' },
+          maxWidth: { xs: 'calc(100vw - 32px)', sm: '500px' },
+          '& .MuiAlert-message': {
+            width: '100%',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 2,
+          },
         }}
       >
-        <Box sx={{ fontWeight: 500, mb: 0.5 }}>تجربة أفضل مع التطبيق</Box>
-        <Box sx={{ fontSize: '0.875rem', opacity: 0.9 }}>
-          قم بتثبيت تطبيق فيصل بن سعيدان للوصول السريع
+        <Avatar
+          src="/appicon.png"
+          alt="Bin Saedan App Icon"
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: '10px',
+            border: '2px solid rgba(255, 255, 255, 0.2)',
+            flexShrink: 0,
+          }}
+        />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ fontWeight: 600, mb: 0.5, fontSize: '0.95rem' }}>
+            {t('installBanner.title')}
+          </Box>
+          <Box sx={{ fontSize: '0.875rem', opacity: 0.95, lineHeight: 1.5 }}>
+            {t('installBanner.description')}
+          </Box>
         </Box>
       </Alert>
     </Snackbar>

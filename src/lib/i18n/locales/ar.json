@@ -96,7 +96,9 @@
     "noUnitsDescription": "لم يتم تسجيل أي وحدات باسمك",
     "exploreUnits": "استكشف الوحدات",
     "newCase": "طلب جديد",
-    "activeCases": "طلبات نشطة"
+    "activeCases": "طلبات نشطة",
+    "unitsCount": "وحداتي",
+    "casesCount": "طلباتي"
   },
   "contact": {
     "title": "تواصل معنا",
@@ -117,6 +119,7 @@
     "workingHoursValue": "الأحد - الخميس، 9 ص - 5 م",
     "followUs": "تابعنا",
     "mapPlaceholder": "الخريطة ستظهر هنا",
+    "mapTitle": "موقع المكتب",
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
     "firstNamePlaceholder": "أحمد",
@@ -169,19 +172,6 @@
     "tiktok": "تيك توك",
     "success": "تم المشاركة بنجاح"
   },
-  "community": {
-    "welcome": "مرحباً",
-    "welcomeMessage": "مرحباً بك في مجتمع فيصل بن سعيدان",
-    "myUnits": "وحداتي",
-    "myCases": "طلباتي",
-    "noUnits": "لا توجد وحدات",
-    "noUnitsDescription": "لم يتم تسجيل أي وحدات باسمك",
-    "exploreUnits": "استكشف الوحدات",
-    "newCase": "طلب جديد",
-    "activeCases": "طلبات نشطة",
-    "unitsCount": "وحداتي",
-    "casesCount": "طلباتي"
-  },
   "calculator": {
     "title": "حاسبة التمويل",
     "unitPrice": "سعر الوحدة",
@@ -196,6 +186,11 @@
     "totalAmount": "إجمالي المبلغ",
     "close": "إغلاق",
     "print": "طباعة"
+  },
+  "installBanner": {
+    "title": "تجربة أفضل مع التطبيق",
+    "description": "قم بتثبيت تطبيق فيصل بن سعيدان للوصول السريع",
+    "install": "تثبيت"
   }
 }
 

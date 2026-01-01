@@ -106,6 +106,7 @@
     "workingHoursValue": "Sunday - Thursday, 9 AM - 5 PM",
     "followUs": "Follow Us",
     "mapPlaceholder": "Map will appear here",
+    "mapTitle": "Office Location",
     "firstName": "First Name",
     "lastName": "Last Name",
     "firstNamePlaceholder": "Ahmed",
@@ -185,6 +186,11 @@
     "totalAmount": "Total Amount",
     "close": "Close",
     "print": "Print"
+  },
+  "installBanner": {
+    "title": "Better experience with the app",
+    "description": "Install Faisal Bin Saedan app for quick access",
+    "install": "Install"
   }
 }
 
