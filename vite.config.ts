@@ -68,27 +68,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src'
-    },
-    dedupe: ['three'],
-    preserveSymlinks: false
-  },
-  optimizeDeps: {
-    include: ['three'],
-    esbuildOptions: {
-      target: 'es2020'
     }
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    commonjsOptions: {
-      include: [/three/, /node_modules/],
-      transformMixedEsModules: true
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
+    sourcemap: false
   }
 })
