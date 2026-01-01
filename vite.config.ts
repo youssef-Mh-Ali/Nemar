@@ -73,7 +73,10 @@ export default defineConfig({
     preserveSymlinks: false
   },
   optimizeDeps: {
-    include: ['three']
+    include: ['three'],
+    esbuildOptions: {
+      target: 'es2020'
+    }
   },
   build: {
     outDir: 'dist',
