@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # SPA redirects - all routes go to index.html
 [[redirects]]

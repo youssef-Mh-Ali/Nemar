@@ -69,7 +69,8 @@ export default defineConfig({
     alias: {
       '@': '/src'
     },
-    dedupe: ['three']
+    dedupe: ['three'],
+    preserveSymlinks: false
   },
   optimizeDeps: {
     include: ['three']
