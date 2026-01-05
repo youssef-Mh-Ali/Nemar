@@ -3,7 +3,12 @@ import { Language } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useState, MouseEvent } from 'react'
 
-export default function LanguageToggle() {
+interface LanguageToggleProps {
+  sx?: object
+  color?: 'inherit' | 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
+}
+
+export default function LanguageToggle({ sx, color = 'inherit' }: LanguageToggleProps) {
   const { i18n } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -32,7 +37,7 @@ export default function LanguageToggle() {
   return (
     <>
       <Tooltip title="اللغة / Language">
-        <IconButton onClick={handleClick} size="small" sx={{ color: 'text.secondary' }}>
+        <IconButton onClick={handleClick} size="small" sx={sx} color={color}>
           <Language />
         </IconButton>
       </Tooltip>

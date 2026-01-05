@@ -12,25 +12,28 @@ import {
   IconButton,
   Alert,
 } from '@mui/material'
-import { Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { login } from '../lib/api-client'
 import { useAuthStore } from '../lib/store'
-
-const schema = z.object({
-  username: z.string().min(1, 'اسم المستخدم مطلوب'),
-  password: z.string().min(1, 'كلمة المرور مطلوبة'),
-})
-
-type FormData = z.infer<typeof schema>
+import LanguageToggle from '../components/ui/LanguageToggle'
 
 export default function Login() {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { setAuth, setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const schema = z.object({
+    username: z.string().min(1, t('login.usernameRequired')),
+    password: z.string().min(1, t('login.passwordRequired')),
+  })
+
+  type FormData = z.infer<typeof schema>
 
   const {
     register,
@@ -51,24 +54,27 @@ export default function Login() {
         setAuth(response.data.user, response.data.token)
         navigate('/community')
       } else {
-        setError(response.error || 'حدث خطأ في تسجيل الدخول')
+        setError(response.error || t('login.errorGeneric'))
       }
     } catch {
-      setError('حدث خطأ. يرجى المحاولة مرة أخرى.')
+      setError(t('login.errorGeneric'))
     } finally {
       setLoading(false)
     }
   }
 
+  const isRtl = i18n.language === 'ar'
+
   return (
     <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
-          <ArrowRight size={20} />
+          {isRtl ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
           <Typography variant="body2" color="text.secondary">
-            العودة للرئيسية
+            {t('login.backToHome')}
           </Typography>
         </Link>
+        <LanguageToggle />
       </Box>
 
       <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', alignItems: 'center', py: 4 }}>
@@ -77,7 +83,7 @@ export default function Login() {
             <Box
               component="img"
               src="/BinSaedanLogo.png"
-              alt="فيصل بن سعيدان"
+              alt={t('home.title')}
               sx={{
                 height: 64,
                 width: 'auto',
@@ -86,10 +92,10 @@ export default function Login() {
               }}
             />
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              تسجيل الدخول
+              {t('login.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              ادخل إلى حسابك للوصول لمجتمعك
+              {t('login.subtitle')}
             </Typography>
           </Box>
 
@@ -98,8 +104,8 @@ export default function Login() {
               <form onSubmit={handleSubmit(onSubmit)}>
                 <TextField
                   {...register('username')}
-                  label="اسم المستخدم"
-                  placeholder="أدخل اسم المستخدم"
+                  label={t('login.username')}
+                  placeholder={t('login.username')}
                   fullWidth
                   error={!!errors.username}
                   helperText={errors.username?.message}
@@ -108,9 +114,9 @@ export default function Login() {
 
                 <TextField
                   {...register('password')}
-                  label="كلمة المرور"
+                  label={t('login.password')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="أدخل كلمة المرور"
+                  placeholder={t('login.password')}
                   fullWidth
                   error={!!errors.password}
                   helperText={errors.password?.message}
@@ -133,16 +139,16 @@ export default function Login() {
                 )}
 
                 <Button type="submit" variant="contained" fullWidth size="large" disabled={isSubmitting}>
-                  {isSubmitting ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+                  {isSubmitting ? t('login.submitting') : t('login.submit')}
                 </Button>
               </form>
             </CardContent>
           </Card>
 
           <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 3 }}>
-            ليس لديك حساب؟{' '}
+            {t('login.noAccount')}{' '}
             <Link to="/contact" style={{ color: 'inherit', textDecoration: 'underline' }}>
-              تواصل معنا
+              {t('login.contactUs')}
             </Link>
           </Typography>
         </Box>

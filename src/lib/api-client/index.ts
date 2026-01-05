@@ -48,10 +48,10 @@ export async function detectVideoAspectRatio(
   videoElement?: HTMLVideoElement
 ): Promise<number | null> {
   // Only detect for native video URLs
-  const isNativeVideo = /\.(mp4|webm|ogg|m3u8|mov|avi)(\?|$)/i.test(videoUrl) || 
-                        videoUrl.startsWith('blob:') ||
-                        videoUrl.startsWith('data:video/')
-  
+  const isNativeVideo = /\.(mp4|webm|ogg|m3u8|mov|avi)(\?|$)/i.test(videoUrl) ||
+    videoUrl.startsWith('blob:') ||
+    videoUrl.startsWith('data:video/')
+
   if (!isNativeVideo) {
     console.log('[Video Detection] Not a native video URL, skipping detection:', videoUrl)
     return null
@@ -82,10 +82,10 @@ export async function detectVideoAspectRatio(
 
     const handleLoadedMetadata = () => {
       if (resolved) return
-      
+
       const width = video.videoWidth
       const height = video.videoHeight
-      
+
       if (width && height) {
         const aspectRatio = width / height
         console.log('[Video Detection] ✅ Detected aspect ratio:', {
@@ -115,7 +115,7 @@ export async function detectVideoAspectRatio(
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true })
     video.addEventListener('error', handleError, { once: true })
-    
+
     // Set video source
     if (!videoElement) {
       video.preload = 'metadata'
@@ -127,7 +127,7 @@ export async function detectVideoAspectRatio(
       video.style.height = '1px'
       document.body.appendChild(video)
     }
-    
+
     video.src = videoUrl
     video.load()
   })
@@ -145,8 +145,118 @@ interface PWAContent {
 
 // Projects
 export async function getProjects() {
+  const CACHE_KEY = 'binsaedan_projects_cache'
+  const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+  // Check cache
+  try {
+    const cached = sessionStorage.getItem(CACHE_KEY)
+    if (cached) {
+      const { timestamp, data } = JSON.parse(cached)
+      if (Date.now() - timestamp < CACHE_TTL) {
+        console.log('[Projects] Returning cached data')
+        return { success: true, data }
+      }
+    }
+  } catch (e) {
+    console.warn('[Projects] Cache parse error', e)
+    sessionStorage.removeItem(CACHE_KEY)
+  }
+
+  try {
+    // Try to fetch from Salesforce first
+    console.log('[Projects] Fetching projects from Salesforce...')
+
+    // 1. Fetch Projects
+    const projectsQuery = `SELECT Id, Name, Name_Ar__c, Location__c, Location_Ar__c, 
+                          Cover_Image_URL__c, Featured_Video_URL__c, Status__c, 
+                          Description__c, Description_Ar__c 
+                          FROM Project__c 
+                          ORDER BY Name ASC`
+
+    const projectsResult = await salesforceQuery<any>(projectsQuery)
+
+    if (projectsResult.records && projectsResult.records.length > 0) {
+      const sfProjects = projectsResult.records
+      const projectIds = sfProjects.map((p) => `'${p.Id}'`).join(',')
+
+      // 2. Fetch Phases for these projects
+      console.log('[Projects] Fetching phases...')
+      const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
+                          FROM Phase__c 
+                          WHERE Project__c IN (${projectIds})`
+
+      const phasesResult = await salesforceQuery<any>(phasesQuery)
+      const sfPhases = phasesResult.records || []
+
+      // 3. Fetch Availability (Phases that have available units)
+      // We group by Phase__c to get distinct phases with available units
+      console.log('[Projects] Fetching availability data...')
+      const availabilityQuery = `SELECT Phase__c 
+                                FROM Unit__c 
+                                WHERE Project__c IN (${projectIds}) 
+                                AND Status__c IN ('Available', 'On-Hold') 
+                                GROUP BY Phase__c`
+
+      const availabilityResult = await salesforceQuery<any>(availabilityQuery)
+      const availablePhaseIds = new Set((availabilityResult.records || []).map((r: any) => r.Phase__c))
+
+      // Transform to application format
+      const mappedProjects = sfProjects.map((p) => {
+        // Get phases for this project
+        const projectPhases = sfPhases.filter((phase) => phase.Project__c === p.Id)
+
+        // Map phases and determine availability based on Unit data (availablePhaseIds)
+        const mappedPhases = projectPhases.map((phase) => ({
+          id: phase.Id,
+          projectId: phase.Project__c,
+          name: phase.Name,
+          nameAr: phase.Name_Ar__c,
+          // Phase is available if it is in the availablePhaseIds set (derived from Units)
+          status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
+          // We can't get exact count without another query, but for now we know it's > 0 if available
+          availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
+        }))
+
+        const availablePhasesCount = mappedPhases.filter((ph: any) => ph.status === 'Available').length
+
+        return {
+          id: p.Id,
+          name: p.Name,
+          nameAr: p.Name_Ar__c || p.Name,
+          location: p.Location__c,
+          locationAr: p.Location_Ar__c || p.Location__c,
+          coverImageUrl: p.Cover_Image_URL__c || '',
+          featuredVideoUrl: p.Featured_Video_URL__c || '',
+          status: p.Status__c || 'Active',
+          description: p.Description__c,
+          descriptionAr: p.Description_Ar__c,
+          phases: mappedPhases,
+          // UI Helpers
+          hasAvailability: availablePhasesCount > 0,
+          availablePhasesCount: availablePhasesCount,
+        }
+      })
+
+      console.log('[Projects] ✅ Loaded from Salesforce:', mappedProjects.length)
+
+      // Cache success result
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        timestamp: Date.now(),
+        data: mappedProjects
+      }))
+
+      return {
+        success: true,
+        data: mappedProjects,
+      }
+    }
+  } catch (error) {
+    console.warn('[Projects] ⚠️ Failed to load from Salesforce, falling back to mocks:', error)
+  }
+
   const result = await fetcher<(Project & { hasAvailability: boolean })[]>('/api/projects')
-  
+
   // If API endpoint fails, return mock data as fallback
   if (!result.success || !result.data || result.data.length === 0) {
     // Transform mock projects to include availability info
@@ -155,13 +265,13 @@ export async function getProjects() {
       hasAvailability: project.phases.some((phase) => phase.status === 'Available'),
       availablePhasesCount: project.phases.filter((phase) => phase.status === 'Available').length,
     }))
-    
+
     return {
       success: true,
       data: projectsWithAvailability,
     }
   }
-  
+
   return result
 }
 
@@ -171,7 +281,7 @@ export async function getProject(id: string) {
 
 export async function getFeaturedVideo() {
   console.log('[Hero Video] Starting to fetch featured video via Netlify Function...')
-  
+
   try {
     // Query Salesforce for PWA Content with Location = 'Homepage Hero Section' and Type = 'Video'
     // This now uses Netlify Functions, so secrets are kept server-side
@@ -181,10 +291,10 @@ export async function getFeaturedVideo() {
                   AND Type__c = 'Video' 
                   ORDER BY CreatedDate DESC 
                   LIMIT 1`
-    
+
     console.log('[Hero Video] Querying Salesforce for hero video record via Netlify Function...')
     const result = await salesforceQuery<PWAContent>(soql)
-    
+
     if (result.records && result.records.length > 0) {
       const content = result.records[0]
       console.log('[Hero Video] ✅ Found Salesforce record:', {
@@ -194,18 +304,18 @@ export async function getFeaturedVideo() {
         location: content.Location__c,
         contentUrl: content.Content_URL__c,
       })
-      
+
       // Extract video URL - handle Instagram, YouTube, Google Drive, and direct video URLs
       let videoUrl = (content.Content_URL__c || '').trim()
-      
+
       if (!videoUrl) {
         console.warn('[Hero Video] ⚠️ No video URL in Salesforce record')
         // No video URL in record, fall through to API endpoint
         throw new Error('No video URL in Salesforce record')
       }
-      
+
       console.log('[Hero Video] Processing video URL:', videoUrl)
-      
+
       // Parse aspect ratio from Salesforce field (Priority 1)
       let aspectRatio: number | undefined = undefined
       if (content.Aspect_Ratio__c) {
@@ -220,7 +330,7 @@ export async function getFeaturedVideo() {
           console.warn('[Hero Video] ⚠️ Invalid aspect ratio format:', content.Aspect_Ratio__c)
         }
       }
-      
+
       // Handle Instagram URLs (reels and posts)
       // Instagram uses official embed script, so we keep the original URL
       // The HeroSection component will handle the Instagram embed differently
@@ -238,15 +348,15 @@ export async function getFeaturedVideo() {
         // Format: https://drive.google.com/open?id=FILE_ID
         // Format: https://drive.google.com/uc?id=FILE_ID
         let fileId = ''
-        
+
         // Primary pattern: /file/d/FILE_ID/ (works for /view, /preview, etc.)
         const fileIdMatch = videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
         // Fallback patterns
         const openIdMatch = videoUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/)
         const ucIdMatch = videoUrl.match(/\/uc\?id=([a-zA-Z0-9_-]+)/)
-        
+
         fileId = fileIdMatch?.[1] || openIdMatch?.[1] || ucIdMatch?.[1] || ''
-        
+
         if (fileId) {
           // Convert to embeddable preview URL with autoplay
           // Google Drive preview supports autoplay via URL parameter
@@ -263,7 +373,7 @@ export async function getFeaturedVideo() {
       // Handle YouTube URLs
       else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
         let videoId = ''
-        
+
         if (videoUrl.includes('youtube.com/watch')) {
           // Format: https://www.youtube.com/watch?v=VIDEO_ID
           videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1] || ''
@@ -278,7 +388,7 @@ export async function getFeaturedVideo() {
           videoId = videoUrl.match(/embed\/([^?&]+)/)?.[1] || ''
           console.log('[Hero Video] Extracted YouTube video ID from embed URL:', videoId)
         }
-        
+
         if (videoId) {
           // Build YouTube embed URL with autoplay and mute
           const params = new URLSearchParams({
@@ -299,7 +409,7 @@ export async function getFeaturedVideo() {
           console.warn('[Hero Video] ⚠️ Could not extract YouTube video ID from URL:', videoUrl)
         }
       }
-      
+
       // Try to extract thumbnail/cover image
       let coverImageUrl = ''
       if (videoUrl.includes('instagram.com')) {
@@ -318,7 +428,7 @@ export async function getFeaturedVideo() {
         coverImageUrl = ''
         console.log('[Hero Video] Using default gradient for Google Drive cover image')
       }
-      
+
       const videoData = {
         projectId: '',
         projectName: content.Name,
@@ -327,9 +437,9 @@ export async function getFeaturedVideo() {
         coverImageUrl: coverImageUrl,
         aspectRatio: aspectRatio,
       }
-      
+
       console.log('[Hero Video] ✅ Returning video data:', videoData)
-      
+
       return {
         success: true,
         data: videoData,
@@ -344,7 +454,7 @@ export async function getFeaturedVideo() {
     } else {
       console.warn('[Hero Video] ⚠️ No records found in Salesforce query result')
     }
-    
+
     // Fallback to API endpoint if no Salesforce record found
     console.log('[Hero Video] No Salesforce record found, trying API endpoint fallback...')
     const fallback = await fetcher<{
@@ -355,7 +465,7 @@ export async function getFeaturedVideo() {
       coverImageUrl: string
       aspectRatio?: number
     }>('/api/projects/featured-video')
-    
+
     // If API endpoint also fails, return empty data (no video)
     if (!fallback.success) {
       console.warn('[Hero Video] ⚠️ API endpoint also failed, returning empty video data')
@@ -371,12 +481,12 @@ export async function getFeaturedVideo() {
         },
       }
     }
-    
+
     console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
     return fallback
   } catch (error) {
     console.error('[Hero Video] ❌ ERROR fetching from Salesforce:', error)
-    
+
     // Fallback to API endpoint on error
     console.log('[Hero Video] Attempting API endpoint fallback...')
     const fallback = await fetcher<{
@@ -387,7 +497,7 @@ export async function getFeaturedVideo() {
       coverImageUrl: string
       aspectRatio?: number
     }>('/api/projects/featured-video')
-    
+
     // If API endpoint also fails, return empty data (no video)
     if (!fallback.success) {
       console.warn('[Hero Video] ⚠️ API endpoint fallback also failed, returning empty video data')
@@ -403,7 +513,7 @@ export async function getFeaturedVideo() {
         },
       }
     }
-    
+
     console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
     return fallback
   }
@@ -421,7 +531,7 @@ export async function searchUnits(filters?: UnitFilters) {
   }
   const query = params.toString() ? `?${params.toString()}` : ''
   const result = await fetcher<Unit[]>(`/api/units${query}`)
-  
+
   // Fallback to mock data if API fails or returns no data
   if (!result.success || !result.data || result.data.length === 0) {
     return {
@@ -429,13 +539,13 @@ export async function searchUnits(filters?: UnitFilters) {
       data: searchMockUnits(filters || {}),
     }
   }
-  
+
   return result
 }
 
 export async function getUnit(id: string) {
   const result = await fetcher<{ unit: Unit; relatedUnits: Unit[] }>(`/api/units/${id}`)
-  
+
   // Fallback to mock data if API fails
   if (!result.success || !result.data) {
     const unit = getUnitById(id)
@@ -453,7 +563,7 @@ export async function getUnit(id: string) {
       error: 'Unit not found',
     }
   }
-  
+
   return result
 }
 
@@ -530,7 +640,7 @@ export async function createCase(
  */
 export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKeywords?: string }> {
   console.log('[Office Map] Starting to fetch office map iframe URL via Netlify Function...')
-  
+
   try {
     const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c 
                   FROM PWA_Content__c 
@@ -538,16 +648,16 @@ export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKe
                   AND Type__c = 'iframe element url' 
                   ORDER BY CreatedDate DESC 
                   LIMIT 1`
-    
+
     console.log('[Office Map] Querying Salesforce for office map record via Netlify Function...')
     const result = await salesforceQuery<PWAContent>(soql)
-    
+
     if (result.records && result.records.length > 0) {
       const content = result.records[0]
       // Get URL exactly as stored, ensuring no double encoding
       let mapUrl = (content.Content_URL__c || '').trim()
       const metaKeywords = content.Meta_keywords__c || undefined
-      
+
       // Ensure URL is properly formatted (no extra encoding)
       if (mapUrl) {
         // Decode if it's double-encoded, then use as-is
@@ -561,11 +671,11 @@ export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKe
           // If decoding fails, use original URL - it's already correct
         }
       }
-      
+
       if (mapUrl) {
         // Validate Google Maps embed URL
         const isGoogleMapsEmbed = mapUrl.includes('google.com/maps/embed')
-        
+
         if (isGoogleMapsEmbed) {
           // Check if URL has a 'pb' parameter and if it appears complete
           const pbMatch = mapUrl.match(/[?&]pb=([^&]*)/)
@@ -580,7 +690,7 @@ export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKe
               })
             }
           }
-          
+
           // Ensure URL is properly encoded
           try {
             // Validate URL format
@@ -590,7 +700,7 @@ export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKe
             return { mapUrl: null, metaKeywords }
           }
         }
-        
+
         console.log('[Office Map] ✅ Found Salesforce record with map URL:', {
           id: content.Id,
           name: content.Name,

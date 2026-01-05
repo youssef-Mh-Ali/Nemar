@@ -22,6 +22,7 @@ import CaseList from '../components/community/CaseList'
 import { useAuthStore } from '../lib/store'
 import { getMyUnits, getCases } from '../lib/api-client'
 import { Unit, Case } from '../lib/types'
+import LanguageToggle from '../components/ui/LanguageToggle'
 
 export default function Community() {
   const { t } = useTranslation()
@@ -118,9 +119,12 @@ export default function Community() {
                 </Typography>
               </Box>
             </Box>
-            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-              {t('community.welcomeMessage')}
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', maxWidth: '600px' }}>
+                {t('community.welcomeMessage')}
+              </Typography>
+              <LanguageToggle sx={{ color: 'white' }} />
+            </Box>
           </motion.div>
         </Container>
       </Box>

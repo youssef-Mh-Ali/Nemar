@@ -15,26 +15,10 @@ import { Close, CheckCircle } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { createCase } from '../../lib/api-client'
 import { useAuthStore } from '../../lib/store'
 import { Unit } from '../../lib/types'
-
-const schema = z.object({
-  unitId: z.string().optional(),
-  subject: z.string().min(5, 'الموضوع مطلوب (5 أحرف على الأقل)'),
-  category: z.enum(['Maintenance', 'Inquiry', 'Complaint', 'Documentation', 'Other']),
-  description: z.string().min(10, 'الوصف مطلوب (10 أحرف على الأقل)'),
-})
-
-type FormData = z.infer<typeof schema>
-
-const categoryOptions = [
-  { value: 'Maintenance', label: 'صيانة' },
-  { value: 'Inquiry', label: 'استفسار' },
-  { value: 'Complaint', label: 'شكوى' },
-  { value: 'Documentation', label: 'مستندات' },
-  { value: 'Other', label: 'أخرى' },
-]
 
 interface CaseFormProps {
   isOpen: boolean
@@ -44,10 +28,20 @@ interface CaseFormProps {
 }
 
 export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseFormProps) {
+  const { t, i18n } = useTranslation()
   const { token } = useAuthStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const schema = z.object({
+    unitId: z.string().optional(),
+    subject: z.string().min(5, t('cases.form.validation.subjectRequired')),
+    category: z.enum(['Maintenance', 'Inquiry', 'Complaint', 'Documentation', 'Other']),
+    description: z.string().min(10, t('cases.form.validation.descriptionRequired')),
+  })
+
+  type FormData = z.infer<typeof schema>
 
   const {
     register,
@@ -60,6 +54,14 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
       category: 'Inquiry',
     },
   })
+
+  const categoryOptions = [
+    { value: 'Maintenance', label: t('cases.category.maintenance') },
+    { value: 'Inquiry', label: t('cases.category.inquiry') },
+    { value: 'Complaint', label: t('cases.category.complaint') },
+    { value: 'Documentation', label: t('cases.category.documentation') },
+    { value: 'Other', label: t('cases.category.other') },
+  ]
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
@@ -85,10 +87,10 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
           setIsSuccess(false)
         }, 1500)
       } else {
-        setError(response.error || 'حدث خطأ. يرجى المحاولة مرة أخرى.')
+        setError(response.error || t('cases.form.error'))
       }
     } catch {
-      setError('حدث خطأ. يرجى المحاولة مرة أخرى.')
+      setError(t('cases.form.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -108,9 +110,9 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>
-            <Typography variant="h6">فتح طلب جديد</Typography>
+            <Typography variant="h6">{t('cases.title')}</Typography>
             <Typography variant="body2" color="text.secondary">
-              سيتم الرد عليك في أقرب وقت
+              {t('cases.subtitle')}
             </Typography>
           </Box>
           <Button onClick={handleClose} disabled={isSubmitting} sx={{ minWidth: 'auto', p: 1 }}>
@@ -124,10 +126,10 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
             <Typography variant="h6" gutterBottom>
-              تم إنشاء الطلب بنجاح!
+              {t('cases.form.successTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              سيتم التواصل معك قريباً
+              {t('cases.form.successMessage')}
             </Typography>
           </Box>
         ) : (
@@ -137,15 +139,15 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                 <TextField
                   {...register('unitId')}
                   select
-                  label="الوحدة المتعلقة"
+                  label={t('cases.form.unit')}
                   fullWidth
                   error={!!errors.unitId}
                   helperText={errors.unitId?.message}
                 >
-                  <MenuItem value="">اختر وحدة (اختياري)</MenuItem>
+                  <MenuItem value="">{t('cases.form.chooseUnit')}</MenuItem>
                   {units.map((u) => (
                     <MenuItem key={u.id} value={u.id}>
-                      {u.unitNumber} - {u.projectNameAr}
+                      {u.unitNumber} - {i18n.language === 'ar' ? u.projectNameAr : u.projectName}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -154,7 +156,7 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
               <TextField
                 {...register('category')}
                 select
-                label="نوع الطلب"
+                label={t('cases.form.type')}
                 fullWidth
                 error={!!errors.category}
                 helperText={errors.category?.message}
@@ -168,8 +170,8 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
 
               <TextField
                 {...register('subject')}
-                label="الموضوع"
-                placeholder="مثال: صيانة التكييف"
+                label={t('cases.form.subject')}
+                placeholder={t('cases.form.subjectPlaceholder')}
                 fullWidth
                 error={!!errors.subject}
                 helperText={errors.subject?.message}
@@ -177,8 +179,8 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
 
               <TextField
                 {...register('description')}
-                label="التفاصيل"
-                placeholder="اشرح طلبك بالتفصيل..."
+                label={t('cases.form.details')}
+                placeholder={t('cases.form.detailsPlaceholder')}
                 fullWidth
                 multiline
                 rows={4}
@@ -193,10 +195,10 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
 
             <DialogActions sx={{ px: 0, pt: 2 }}>
               <Button onClick={handleClose} disabled={isSubmitting}>
-                إلغاء
+                {t('cases.form.cancel')}
               </Button>
               <Button type="submit" variant="contained" disabled={isSubmitting}>
-                {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                {isSubmitting ? t('cases.form.submitting') : t('cases.form.submit')}
               </Button>
             </DialogActions>
           </form>

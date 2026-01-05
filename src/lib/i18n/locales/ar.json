@@ -228,6 +228,60 @@
     "close": "إغلاق",
     "print": "طباعة"
   },
+  "login": {
+    "title": "تسجيل الدخول",
+    "subtitle": "ادخل إلى حسابك للوصول لمجتمعك",
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "submitting": "جاري تسجيل الدخول...",
+    "errorGeneric": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "backToHome": "العودة للرئيسية",
+    "noAccount": "ليس لديك حساب؟",
+    "contactUs": "تواصل معنا",
+    "usernameRequired": "اسم المستخدم مطلوب",
+    "passwordRequired": "كلمة المرور مطلوبة"
+  },
+  "cases": {
+    "title": "فتح طلب جديد",
+    "subtitle": "سيتم الرد عليك في أقرب وقت",
+    "form": {
+      "unit": "الوحدة المتعلقة",
+      "chooseUnit": "اختر وحدة (اختياري)",
+      "type": "نوع الطلب",
+      "subject": "الموضوع",
+      "subjectPlaceholder": "مثال: صيانة التكييف",
+      "details": "التفاصيل",
+      "detailsPlaceholder": "اشرح طلبك بالتفصيل...",
+      "submit": "إرسال الطلب",
+      "submitting": "جاري الإرسال...",
+      "cancel": "إلغاء",
+      "successTitle": "تم إنشاء الطلب بنجاح!",
+      "successMessage": "سيتم التواصل معك قريباً",
+      "error": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      "validation": {
+        "subjectRequired": "الموضوع مطلوب (5 أحرف على الأقل)",
+        "descriptionRequired": "الوصف مطلوب (10 أحرف على الأقل)"
+      }
+    },
+    "status": {
+      "new": "جديد",
+      "inProgress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "closed": "مغلق"
+    },
+    "category": {
+      "maintenance": "صيانة",
+      "inquiry": "استفسار",
+      "complaint": "شكوى",
+      "documentation": "مستندات",
+      "other": "أخرى"
+    },
+    "empty": {
+      "title": "لا توجد طلبات",
+      "description": "يمكنك فتح طلب جديد من الزر أعلاه"
+    }
+  },
   "installBanner": {
     "title": "تجربة أفضل مع التطبيق",
     "description": "قم بتثبيت تطبيق فيصل بن سعيدان للوصول السريع",

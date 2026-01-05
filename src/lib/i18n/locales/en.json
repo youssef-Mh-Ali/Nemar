@@ -228,6 +228,60 @@
     "close": "Close",
     "print": "Print"
   },
+  "login": {
+    "title": "Login",
+    "subtitle": "Login to your account to access your community",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Login",
+    "submitting": "Logging in...",
+    "errorGeneric": "An error occurred. Please try again.",
+    "backToHome": "Back to Home",
+    "noAccount": "Don't have an account?",
+    "contactUs": "Contact Us",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required"
+  },
+  "cases": {
+    "title": "New Case",
+    "subtitle": "You will be contacted as soon as possible",
+    "form": {
+      "unit": "Related Unit",
+      "chooseUnit": "Choose Unit (Optional)",
+      "type": "Case Type",
+      "subject": "Subject",
+      "subjectPlaceholder": "Example: AC Maintenance",
+      "details": "Details",
+      "detailsPlaceholder": "Explain your request in detail...",
+      "submit": "Submit Case",
+      "submitting": "Submitting...",
+      "cancel": "Cancel",
+      "successTitle": "Case Created Successfully!",
+      "successMessage": "We will contact you soon",
+      "error": "An error occurred. Please try again.",
+      "validation": {
+        "subjectRequired": "Subject is required (min 5 chars)",
+        "descriptionRequired": "Description is required (min 10 chars)"
+      }
+    },
+    "status": {
+      "new": "New",
+      "inProgress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "category": {
+      "maintenance": "Maintenance",
+      "inquiry": "Inquiry",
+      "complaint": "Complaint",
+      "documentation": "Documentation",
+      "other": "Other"
+    },
+    "empty": {
+      "title": "No Cases",
+      "description": "You can open a new case from the button above"
+    }
+  },
   "installBanner": {
     "title": "Better experience with the app",
     "description": "Install Faisal Bin Saedan app for quick access",
