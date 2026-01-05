@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Autocomplete, TextField, Box, Typography, Chip, IconButton } from '@mui/material'
 import { Search, X, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useToastStore } from '../../lib/store/toast-store'
 
 interface SearchSuggestion {
@@ -14,19 +15,20 @@ interface SearchAutocompleteProps {
   placeholder?: string
 }
 
-const POPULAR_SEARCHES: SearchSuggestion[] = [
-  { id: '1', label: 'شقق للبيع في الرياض', type: 'popular' },
-  { id: '2', label: 'فلل في جدة', type: 'popular' },
-  { id: '3', label: 'وحدات سكنية', type: 'popular' },
-  { id: '4', label: 'مشاريع جديدة', type: 'popular' },
-]
-
-export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث عن مشروع أو مرحلة...' }: SearchAutocompleteProps) {
+export default function SearchAutocomplete({ onSelect, placeholder }: SearchAutocompleteProps) {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState('')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [recentSearches, setRecentSearches] = useState<SearchSuggestion[]>([])
-  const { addToast } = useToastStore()
-  const debounceTimer = useRef<NodeJS.Timeout>()
+  const { addToast } = useToastStore((state) => state)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const POPULAR_SEARCHES: SearchSuggestion[] = [
+    { id: '1', label: t('search.autocomplete.popular1'), type: 'popular' },
+    { id: '2', label: t('search.autocomplete.popular2'), type: 'popular' },
+    { id: '3', label: t('search.autocomplete.popular3'), type: 'popular' },
+    { id: '4', label: t('search.autocomplete.popular4'), type: 'popular' },
+  ]
 
   useEffect(() => {
     // Load recent searches from localStorage
@@ -60,7 +62,7 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
   const clearRecentSearches = () => {
     setRecentSearches([])
     localStorage.removeItem('binsaedan-recent-searches')
-    addToast('تم مسح البحث السابق', 'success')
+    addToast(t('search.autocomplete.clearedRecent'), 'success')
   }
 
   useEffect(() => {
@@ -76,8 +78,8 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
     debounceTimer.current = setTimeout(() => {
       // Mock search - replace with actual API call
       const mockResults: SearchSuggestion[] = [
-        { id: 'p1', label: `مشروع ${inputValue}`, type: 'project' },
-        { id: 'ph1', label: `مرحلة ${inputValue}`, type: 'phase' },
+        { id: 'p1', label: `${t('search.autocomplete.mockProject')} ${inputValue}`, type: 'project' },
+        { id: 'ph1', label: `${t('search.autocomplete.mockPhase')} ${inputValue}`, type: 'phase' },
       ]
       setSuggestions([...mockResults, ...recentSearches.filter((s) => s.label.toLowerCase().includes(inputValue.toLowerCase()))])
     }, 300)
@@ -87,7 +89,7 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
         clearTimeout(debounceTimer.current)
       }
     }
-  }, [inputValue, recentSearches])
+  }, [inputValue, recentSearches, t]) // Added t to deps
 
   const handleSelect = (value: string | SearchSuggestion | null) => {
     if (!value) return
@@ -114,7 +116,7 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder={placeholder}
+          placeholder={placeholder || t('search.autocomplete.placeholder')}
           InputProps={{
             ...params.InputProps,
             startAdornment: <Search size={20} style={{ marginRight: 8, color: '#666' }} />,
@@ -149,7 +151,7 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
               {suggestion.label}
             </Typography>
             {suggestion.type === 'popular' && (
-              <Chip label="شائع" size="small" sx={{ fontSize: '0.7rem', height: 20 }} />
+              <Chip label={t('search.autocomplete.popular')} size="small" sx={{ fontSize: '0.7rem', height: 20 }} />
             )}
           </Box>
         )
@@ -162,12 +164,12 @@ export default function SearchAutocomplete({ onSelect, placeholder = 'ابحث �
       noOptionsText={
         <Box sx={{ p: 2, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            لا توجد نتائج
+            {t('search.noResults')}
           </Typography>
           {recentSearches.length > 0 && (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
               <Typography variant="caption" color="text.secondary">
-                البحث السابق:
+                {t('search.autocomplete.recentSearch')}
               </Typography>
               <IconButton size="small" onClick={clearRecentSearches}>
                 <X size={16} />

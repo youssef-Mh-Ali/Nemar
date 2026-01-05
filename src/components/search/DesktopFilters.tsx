@@ -1,34 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, Typography, TextField, MenuItem, Button, Stack, Box } from '@mui/material'
 import { Refresh } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
 import { getProjects } from '../../lib/api-client'
 import { Project, Phase } from '../../lib/types'
 
-const bedroomOptions = [
-  { value: '', label: 'الكل' },
-  { value: '1', label: '1 غرفة' },
-  { value: '2', label: '2 غرف' },
-  { value: '3', label: '3 غرف' },
-  { value: '4', label: '4 غرف' },
-  { value: '5', label: '5+ غرف' },
-]
-
-const statusOptions = [
-  { value: '', label: 'الكل' },
-  { value: 'Available', label: 'متاح' },
-  { value: 'Reserved', label: 'محجوز' },
-  { value: 'Sold', label: 'مباع' },
-]
-
-const yearOptions = [
-  { value: '', label: 'الكل' },
-  { value: '2025', label: '2025' },
-  { value: '2026', label: '2026' },
-  { value: '2027', label: '2027' },
-]
-
 export default function DesktopFilters() {
+  const { t, i18n } = useTranslation()
   const { filters, setFilters, clearFilters } = useAppStore()
   const [projects, setProjects] = useState<Project[]>([])
   const [phases, setPhases] = useState<Phase[]>([])
@@ -52,14 +31,37 @@ export default function DesktopFilters() {
     }
   }, [filters.projectId, projects])
 
+  const bedroomOptions = [
+    { value: '', label: t('search.options.all') },
+    { value: '1', label: t('search.options.oneRoom') },
+    { value: '2', label: t('search.options.twoRooms') },
+    { value: '3', label: t('search.options.threeRooms') },
+    { value: '4', label: t('search.options.fourRooms') },
+    { value: '5', label: t('search.options.fivePlusRooms') },
+  ]
+
+  const statusOptions = [
+    { value: '', label: t('search.options.all') },
+    { value: 'Available', label: t('search.options.available') },
+    { value: 'Reserved', label: t('search.options.reserved') },
+    { value: 'Sold', label: t('search.options.sold') },
+  ]
+
+  const yearOptions = [
+    { value: '', label: t('search.options.all') },
+    { value: '2025', label: '2025' },
+    { value: '2026', label: '2026' },
+    { value: '2027', label: '2027' },
+  ]
+
   const projectOptions = [
-    { value: '', label: 'جميع المشاريع' },
-    ...projects.map((p) => ({ value: p.id, label: p.nameAr })),
+    { value: '', label: t('search.options.allProjects') },
+    ...projects.map((p) => ({ value: p.id, label: i18n.language.startsWith('ar') ? p.nameAr : p.name })),
   ]
 
   const phaseOptions = [
-    { value: '', label: 'جميع المراحل' },
-    ...phases.map((p) => ({ value: p.id, label: p.nameAr })),
+    { value: '', label: t('search.options.allPhases') },
+    ...phases.map((p) => ({ value: p.id, label: i18n.language.startsWith('ar') ? p.nameAr : p.name })),
   ]
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== undefined)
@@ -69,7 +71,7 @@ export default function DesktopFilters() {
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h6" fontWeight="semibold">
-            تصفية النتائج
+            {t('search.filterResults')}
           </Typography>
           {hasActiveFilters && (
             <Button
@@ -78,7 +80,7 @@ export default function DesktopFilters() {
               onClick={clearFilters}
               sx={{ fontSize: '0.875rem' }}
             >
-              إعادة تعيين
+              {t('search.reset')}
             </Button>
           )}
         </Box>
@@ -86,7 +88,7 @@ export default function DesktopFilters() {
         <Stack spacing={2}>
           <TextField
             select
-            label="المشروع"
+            label={t('search.project')}
             value={filters.projectId || ''}
             onChange={(e) =>
               setFilters({
@@ -107,7 +109,7 @@ export default function DesktopFilters() {
           {filters.projectId && (
             <TextField
               select
-              label="المرحلة"
+              label={t('search.phase')}
               value={filters.phaseId || ''}
               onChange={(e) => setFilters({ ...filters, phaseId: e.target.value || undefined })}
               fullWidth
@@ -122,7 +124,7 @@ export default function DesktopFilters() {
 
           <TextField
             select
-            label="عدد الغرف"
+            label={t('search.bedrooms')}
             value={filters.bedrooms?.toString() || ''}
             onChange={(e) =>
               setFilters({
@@ -141,7 +143,7 @@ export default function DesktopFilters() {
 
           <TextField
             select
-            label="الحالة"
+            label={t('search.status')}
             value={filters.status || ''}
             onChange={(e) =>
               setFilters({
@@ -160,7 +162,7 @@ export default function DesktopFilters() {
 
           <TextField
             select
-            label="سنة التسليم"
+            label={t('search.deliveryYear')}
             value={filters.deliveryYear?.toString() || ''}
             onChange={(e) =>
               setFilters({

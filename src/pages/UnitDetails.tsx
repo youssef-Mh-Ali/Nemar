@@ -9,16 +9,16 @@ import {
   CardContent,
   Grid,
   Chip,
-  IconButton,
   Paper,
   CircularProgress,
 } from '@mui/material'
-import { ArrowRight, ChevronLeft, ChevronRight, Bed, Bath, Maximize, Calendar } from 'lucide-react'
+import { ArrowRight, Bed, Bath, Maximize, Calendar, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import ImageGallery from '../components/ui/ImageGallery'
+import ImageCarousel from '../components/ui/ImageCarousel'
 import FavoriteButton from '../components/ui/FavoriteButton'
 import ShareButton from '../components/ui/ShareButton'
 import { getUnit } from '../lib/api-client'
@@ -33,7 +33,6 @@ export default function UnitDetails() {
   const [unit, setUnit] = useState<Unit | null>(null)
   const [relatedUnits, setRelatedUnits] = useState<Unit[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
@@ -71,17 +70,6 @@ export default function UnitDetails() {
     })
   }
 
-  const nextImage = () => {
-    if (unit) {
-      setActiveImageIndex((prev) => (prev + 1) % unit.images.length)
-    }
-  }
-
-  const prevImage = () => {
-    if (unit) {
-      setActiveImageIndex((prev) => (prev === 0 ? unit.images.length - 1 : prev - 1))
-    }
-  }
 
   if (isLoading) {
     return (
@@ -155,93 +143,70 @@ export default function UnitDetails() {
       </Paper>
 
       <Container maxWidth="lg">
-        {/* Gallery */}
+        {/* Image Carousel */}
         <Box
-          onClick={() => setIsGalleryOpen(true)}
           sx={{
             position: 'relative',
-            aspectRatio: { xs: '16/10', md: '16/9' },
-            bgcolor: 'primary.dark',
-            borderRadius: { xs: 0, md: 2 },
-            overflow: 'hidden',
-            mb: 3,
+            mb: 4,
             mt: 2,
-            cursor: 'pointer',
           }}
         >
           <Box
-            component="img"
-            src={unit.images[activeImageIndex]}
-            alt={`Unit ${unit.unitNumber}`}
+            onClick={() => setIsGalleryOpen(true)}
             sx={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+              cursor: 'pointer',
+              '&:hover .carousel-overlay': {
+                opacity: 1,
+              },
             }}
-          />
-          {unit.images.length > 1 && (
-            <>
-              <IconButton
-                onClick={prevImage}
+          >
+            <ImageCarousel images={unit.images} height={{ xs: '50vh', md: '65vh' }} />
+            <Box
+              className="carousel-overlay"
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                bgcolor: 'rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                zIndex: 1,
+                pointerEvents: 'none',
+                borderRadius: { xs: 0, md: 2 },
+              }}
+            >
+              <Typography
+                variant="body1"
                 sx={{
-                  position: 'absolute',
-                  left: 16,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  bgcolor: 'rgba(0,0,0,0.5)',
                   color: 'white',
-                  '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
+                  fontWeight: 600,
+                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: 2,
                 }}
               >
-                <ChevronRight />
-              </IconButton>
-              <IconButton
-                onClick={nextImage}
-                sx={{
-                  position: 'absolute',
-                  right: 16,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  bgcolor: 'rgba(0,0,0,0.5)',
-                  color: 'white',
-                  '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
-                }}
-              >
-                <ChevronLeft />
-              </IconButton>
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 16,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  display: 'flex',
-                  gap: 1,
-                }}
-              >
-                {unit.images.map((_, index) => (
-                  <Box
-                    key={index}
-                    onClick={() => setActiveImageIndex(index)}
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      bgcolor: index === activeImageIndex ? 'white' : 'rgba(255,255,255,0.5)',
-                      cursor: 'pointer',
-                    }}
-                  />
-                ))}
-              </Box>
-            </>
-          )}
+                {i18n.language === 'ar' ? 'انقر لعرض المعرض' : 'Click to view gallery'}
+              </Typography>
+            </Box>
+          </Box>
           <Chip
             label={statusLabels[unit.status]}
             color={statusColors[unit.status]}
             sx={{
               position: 'absolute',
-              top: 16,
-              right: 16,
+              top: { xs: 16, md: 20 },
+              left: { xs: 16, md: 20 },
+              zIndex: 4,
+              fontWeight: 600,
+              fontSize: { xs: '0.75rem', md: '0.875rem' },
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
             }}
           />
         </Box>
@@ -254,68 +219,129 @@ export default function UnitDetails() {
             transition={{ delay: 0.1 }}
           >
             {/* Header */}
-            <Box sx={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', mb: 2 }}>
-              <Box>
-                <Chip label={unit.unitNumber} sx={{ mb: 1 }} />
-                <Typography variant="h4" fontWeight="bold" color="primary.main">
-                  {formatPrice(unit.price)}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Project & Location */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, color: 'text.secondary' }}>
-              <Typography variant="body2">
+            <Box sx={{ mb: 3 }}>
+              <Chip
+                label={unit.unitNumber}
+                sx={{
+                  mb: 2,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  height: 32,
+                }}
+              />
+              <Typography
+                variant="h3"
+                fontWeight="bold"
+                color="primary.main"
+                sx={{ mb: 1, fontSize: { xs: '2rem', md: '2.5rem' } }}
+              >
+                {formatPrice(unit.price)}
+              </Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
                 {unit.projectNameAr} • {unit.phaseNameAr}
               </Typography>
             </Box>
 
             {/* Specs Grid */}
-            <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Grid container spacing={4}>
+            <Card
+              sx={{
+                mb: 4,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                borderRadius: 2,
+              }}
+            >
+              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                <Grid container spacing={3}>
                   <Grid size={{ xs: 6, md: 3 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Bed size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary" display="block">
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Bed size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                         {t('unit.bedroomsLabel')}
                       </Typography>
-                      <Typography variant="h6" fontWeight="semibold">
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
                         {unit.bedrooms}
                       </Typography>
                     </Box>
                   </Grid>
                   {unit.bathrooms && (
                     <Grid size={{ xs: 6, md: 3 }}>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Bath size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
-                        <Typography variant="caption" color="text.secondary" display="block">
+                      <Box
+                        sx={{
+                          textAlign: 'center',
+                          p: 2,
+                          borderRadius: 2,
+                          bgcolor: 'grey.50',
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            bgcolor: 'grey.100',
+                            transform: 'translateY(-2px)',
+                          },
+                        }}
+                      >
+                        <Bath size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                           {t('unit.bathroomsLabel')}
                         </Typography>
-                        <Typography variant="h6" fontWeight="semibold">
+                        <Typography variant="h5" fontWeight="bold" color="primary.main">
                           {unit.bathrooms}
                         </Typography>
                       </Box>
                     </Grid>
                   )}
                   <Grid size={{ xs: 6, md: 3 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Maximize size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary" display="block">
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Maximize size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                         {t('unit.areaLabel')}
                       </Typography>
-                      <Typography variant="h6" fontWeight="semibold">
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
                         {unit.area} {t('unit.areaUnit')}
                       </Typography>
                     </Box>
                   </Grid>
                   <Grid size={{ xs: 6, md: 3 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Calendar size={24} color="#1a365d" style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary" display="block">
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Calendar size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                         {t('unit.deliveryLabel')}
                       </Typography>
-                      <Typography variant="h6" fontWeight="semibold">
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
                         {formatDate(unit.deliveryDate)}
                       </Typography>
                     </Box>
@@ -325,25 +351,119 @@ export default function UnitDetails() {
             </Card>
 
             {/* Description */}
-            {(i18n.language === 'ar' ? unit.descriptionAr : unit.descriptionEn) && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" fontWeight="semibold" gutterBottom>
+            {(i18n.language === 'ar' ? unit.descriptionAr : unit.description) && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
                   {t('unit.description')}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                  {i18n.language === 'ar' ? unit.descriptionAr : unit.descriptionEn}
+                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                  {i18n.language === 'ar' ? unit.descriptionAr : unit.description}
                 </Typography>
               </Box>
             )}
 
+            {/* Floor Plan */}
+            {unit.floorPlan && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {i18n.language === 'ar' ? 'الخريطة' : 'Floor Plan'}
+                </Typography>
+                <Card>
+                  <Box
+                    component="img"
+                    src={unit.floorPlan}
+                    alt="Floor Plan"
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      display: 'block',
+                    }}
+                  />
+                </Card>
+              </Box>
+            )}
+
+            {/* 3D View */}
+            {unit.sketchupEmbedUrl && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {i18n.language === 'ar' ? 'عرض ثلاثي الأبعاد' : '3D View'}
+                </Typography>
+                <Card>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: '100%',
+                      paddingBottom: '56.25%', // 16:9 aspect ratio
+                      overflow: 'hidden',
+                      bgcolor: 'grey.100',
+                    }}
+                  >
+                    <Box
+                      component="iframe"
+                      src={unit.sketchupEmbedUrl}
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
+                        display: 'block',
+                      }}
+                      allowFullScreen
+                      title="3D Unit View"
+                    />
+                  </Box>
+                </Card>
+              </Box>
+            )}
+
+            {/* Amenities */}
+            {unit.amenities && unit.amenities.length > 0 && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 3 }}>
+                  {i18n.language === 'ar' ? 'المرافق' : 'Amenities'}
+                </Typography>
+                <Grid container spacing={2}>
+                  {unit.amenities.map((amenity, index) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 1,
+                          bgcolor: 'grey.50',
+                          border: '1px solid',
+                          borderColor: 'grey.200',
+                        }}
+                      >
+                        <Check size={20} color="#1a365d" style={{ flexShrink: 0 }} />
+                        <Typography variant="body2" color="text.primary">
+                          {amenity}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+
             {/* CTAs */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 4 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 4, mt: 4 }}>
               <Button
                 variant="contained"
                 size="large"
                 fullWidth
                 onClick={() => setIsRegisterModalOpen(true)}
                 disabled={unit.status === 'Sold'}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'semibold',
+                }}
               >
                 {unit.status === 'Sold' ? t('unit.sold') : t('unit.registerInterest')}
               </Button>
@@ -387,7 +507,7 @@ export default function UnitDetails() {
       {isGalleryOpen && (
         <ImageGallery
           images={unit.images}
-          initialIndex={activeImageIndex}
+          initialIndex={0}
           onClose={() => setIsGalleryOpen(false)}
         />
       )}

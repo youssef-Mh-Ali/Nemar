@@ -59,7 +59,48 @@
     "filters": "تصفية",
     "viewGrid": "عرض شبكي",
     "viewList": "عرض قائمة",
-    "filter": "تصفية"
+    "filter": "تصفية",
+    "filterResults": "تصفية النتائج",
+    "reset": "إعادة تعيين",
+    "project": "المشروع",
+    "phase": "المرحلة",
+    "bedrooms": "عدد الغرف",
+    "status": "الحالة",
+    "deliveryYear": "سنة التسليم",
+    "priceRange": "نطاق السعر",
+    "applyFilters": "تطبيق الفلاتر",
+    "autocomplete": {
+      "placeholder": "ابحث عن مشروع أو مرحلة...",
+      "popular1": "شقق للبيع في الرياض",
+      "popular2": "فلل في جدة",
+      "popular3": "وحدات سكنية",
+      "popular4": "مشاريع جديدة",
+      "clearedRecent": "تم مسح البحث السابق",
+      "mockProject": "مشروع",
+      "mockPhase": "مرحلة",
+      "popular": "شائع",
+      "recentSearch": "البحث السابق:"
+    },
+    "options": {
+      "all": "الكل",
+      "allProjects": "جميع المشاريع",
+      "allPhases": "جميع المراحل",
+      "oneRoom": "1 غرفة",
+      "twoRooms": "2 غرف",
+      "threeRooms": "3 غرف",
+      "fourRooms": "4 غرف",
+      "fivePlusRooms": "5+ غرف",
+      "available": "متاح",
+      "reserved": "محجوز",
+      "sold": "مباع",
+      "price": {
+        "opt1": "أقل من مليون ريال",
+        "opt2": "1 - 2 مليون ريال",
+        "opt3": "2 - 3 مليون ريال",
+        "opt4": "3 - 5 مليون ريال",
+        "opt5": "أكثر من 5 مليون ريال"
+      }
+    }
   },
   "unit": {
     "details": "تفاصيل الوحدة",
@@ -193,4 +234,3 @@
     "install": "تثبيت"
   }
 }
-

@@ -14,7 +14,7 @@ interface UnitCardProps {
 
 export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
   const { t, i18n } = useTranslation()
-  
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
@@ -107,7 +107,7 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
           </Typography>
 
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {i18n.language === 'ar' ? unit.projectNameAr : unit.projectNameEn} • {i18n.language === 'ar' ? unit.phaseNameAr : unit.phaseNameEn}
+            {i18n.language.startsWith('ar') ? unit.projectNameAr : unit.projectName} • {i18n.language.startsWith('ar') ? unit.phaseNameAr : unit.phaseName}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, fontSize: '0.75rem', color: 'text.secondary' }}>

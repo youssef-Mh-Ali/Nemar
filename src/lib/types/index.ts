@@ -36,6 +36,8 @@ export interface Unit {
   deliveryDate: string;
   images: string[];
   floorPlan?: string;
+  sketchupEmbedUrl?: string;
+  amenities?: string[];
   description?: string;
   descriptionAr?: string;
   projectName?: string;

@@ -59,7 +59,48 @@
     "filters": "Filters",
     "viewGrid": "Grid View",
     "viewList": "List View",
-    "filter": "Filter"
+    "filter": "Filter",
+    "filterResults": "Filter Results",
+    "reset": "Reset",
+    "project": "Project",
+    "phase": "Phase",
+    "bedrooms": "Number of Rooms",
+    "status": "Status",
+    "deliveryYear": "Delivery Year",
+    "priceRange": "Price Range",
+    "applyFilters": "Apply Filters",
+    "autocomplete": {
+      "placeholder": "Search for a project or phase...",
+      "popular1": "Apartments for sale in Riyadh",
+      "popular2": "Villas in Jeddah",
+      "popular3": "Residential Units",
+      "popular4": "New Projects",
+      "clearedRecent": "Recent search history cleared",
+      "mockProject": "Project",
+      "mockPhase": "Phase",
+      "popular": "Popular",
+      "recentSearch": "Recent Searches:"
+    },
+    "options": {
+      "all": "All",
+      "allProjects": "All Projects",
+      "allPhases": "All Phases",
+      "oneRoom": "1 Room",
+      "twoRooms": "2 Rooms",
+      "threeRooms": "3 Rooms",
+      "fourRooms": "4 Rooms",
+      "fivePlusRooms": "5+ Rooms",
+      "available": "Available",
+      "reserved": "Reserved",
+      "sold": "Sold",
+      "price": {
+        "opt1": "Less than 1 Million SAR",
+        "opt2": "1 - 2 Million SAR",
+        "opt3": "2 - 3 Million SAR",
+        "opt4": "3 - 5 Million SAR",
+        "opt5": "More than 5 Million SAR"
+      }
+    }
   },
   "unit": {
     "details": "Unit Details",
@@ -193,4 +234,3 @@
     "install": "Install"
   }
 }
-

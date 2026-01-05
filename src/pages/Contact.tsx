@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -16,8 +16,34 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Twitter, Instagram, Linkedin, MessageCircle, Video } from 'lucide-react'
-import { createLead } from '../lib/api-client'
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Instagram, Linkedin, MessageCircle, Video } from 'lucide-react'
+import { createLead, getOfficeMapUrl } from '../lib/api-client'
+
+// Custom X (Twitter) icon component
+const XIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+)
+
+// Custom TikTok icon component
+const TikTokIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+  </svg>
+)
 
 type FormData = z.infer<ReturnType<typeof getSchema>>
 
@@ -33,6 +59,9 @@ export default function Contact() {
   const { t } = useTranslation()
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mapUrl, setMapUrl] = useState<string | null>(null)
+  const [mapMetaKeywords, setMapMetaKeywords] = useState<string | undefined>(undefined)
+  const [isLoadingMap, setIsLoadingMap] = useState(true)
 
   const {
     register,
@@ -42,6 +71,23 @@ export default function Contact() {
   } = useForm<FormData>({
     resolver: zodResolver(getSchema(t)),
   })
+
+  // Fetch office map URL from Salesforce
+  useEffect(() => {
+    const fetchMapUrl = async () => {
+      setIsLoadingMap(true)
+      try {
+        const result = await getOfficeMapUrl()
+        setMapUrl(result.mapUrl)
+        setMapMetaKeywords(result.metaKeywords)
+      } catch (error) {
+        console.error('Failed to fetch office map URL:', error)
+      } finally {
+        setIsLoadingMap(false)
+      }
+    }
+    fetchMapUrl()
+  }, [])
 
   const onSubmit = async (data: FormData) => {
     setError(null)
@@ -288,19 +334,19 @@ export default function Contact() {
                   {[
                     { 
                       icon: Instagram, 
-                      href: 'https://www.instagram.com/faisalsaedanco?igshid=NzZlODBkYWE4Ng%3D%3D', 
+                      href: 'https://www.instagram.com/faisalsaedanco', 
                       label: t('share.instagram'),
                       color: '#E4405F'
                     },
                     { 
-                      icon: Twitter, 
+                      icon: XIcon, 
                       href: 'https://x.com/faisalsaedanco', 
                       label: t('share.twitter'),
                       color: '#000000'
                     },
                     { 
                       icon: Linkedin, 
-                      href: 'https://www.linkedin.com/company/faisal-binsaedan/posts/?feedView=all', 
+                      href: 'https://www.linkedin.com/company/faisal-binsaedan', 
                       label: t('share.linkedin'),
                       color: '#0077B5'
                     },
@@ -317,7 +363,7 @@ export default function Contact() {
                       color: '#FFFC00'
                     },
                     { 
-                      icon: Video, 
+                      icon: TikTokIcon, 
                       href: 'https://www.tiktok.com/@faisalbinsaedan.c', 
                       label: t('share.tiktok'),
                       color: '#000000'
@@ -352,26 +398,65 @@ export default function Contact() {
                 </Box>
               </Box>
 
-              {/* Map Placeholder */}
+              {/* Map */}
               <Box
                 sx={{
                   mt: 3,
                   aspectRatio: '16/9',
                   bgcolor: 'grey.100',
                   borderRadius: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  overflow: 'hidden',
                   border: 1,
                   borderColor: 'divider',
+                  position: 'relative',
                 }}
               >
-                <Box sx={{ textAlign: 'center' }}>
-                  <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
-                  <Typography variant="caption" color="text.secondary">
-                    {t('contact.mapPlaceholder')}
-                  </Typography>
-                </Box>
+                {isLoadingMap ? (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center' }}>
+                      <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {t('contact.mapPlaceholder')}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : mapUrl ? (
+                  <iframe
+                    src={mapUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={mapMetaKeywords || t('contact.mapTitle') || 'Office Location'}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center' }}>
+                      <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {t('contact.mapPlaceholder')}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
               </Box>
             </motion.div>
           </Grid>

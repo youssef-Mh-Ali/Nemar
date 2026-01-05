@@ -1,6 +1,7 @@
 import { Project, Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
 import { salesforceQuery } from '../salesforce/client'
 import { mockProjects } from '../mock-data/projects'
+import { mockUnits, searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -419,11 +420,41 @@ export async function searchUnits(filters?: UnitFilters) {
     })
   }
   const query = params.toString() ? `?${params.toString()}` : ''
-  return fetcher<Unit[]>(`/api/units${query}`)
+  const result = await fetcher<Unit[]>(`/api/units${query}`)
+  
+  // Fallback to mock data if API fails or returns no data
+  if (!result.success || !result.data || result.data.length === 0) {
+    return {
+      success: true,
+      data: searchMockUnits(filters || {}),
+    }
+  }
+  
+  return result
 }
 
 export async function getUnit(id: string) {
-  return fetcher<{ unit: Unit; relatedUnits: Unit[] }>(`/api/units/${id}`)
+  const result = await fetcher<{ unit: Unit; relatedUnits: Unit[] }>(`/api/units/${id}`)
+  
+  // Fallback to mock data if API fails
+  if (!result.success || !result.data) {
+    const unit = getUnitById(id)
+    if (unit) {
+      return {
+        success: true,
+        data: {
+          unit,
+          relatedUnits: getRelatedUnits(id, 3),
+        },
+      }
+    }
+    return {
+      success: false,
+      error: 'Unit not found',
+    }
+  }
+  
+  return result
 }
 
 // Leads
@@ -490,4 +521,96 @@ export async function createCase(
     body: JSON.stringify(data),
     headers,
   })
+}
+
+/**
+ * Fetch Google Maps iframe URL from Salesforce PWA Content
+ * Location: 'HQ Office'
+ * Type: 'iframe element url'
+ */
+export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKeywords?: string }> {
+  console.log('[Office Map] Starting to fetch office map iframe URL via Netlify Function...')
+  
+  try {
+    const soql = `SELECT Id, Name, Content_URL__c, Type__c, Location__c, Meta_keywords__c 
+                  FROM PWA_Content__c 
+                  WHERE Location__c = 'HQ Office' 
+                  AND Type__c = 'iframe element url' 
+                  ORDER BY CreatedDate DESC 
+                  LIMIT 1`
+    
+    console.log('[Office Map] Querying Salesforce for office map record via Netlify Function...')
+    const result = await salesforceQuery<PWAContent>(soql)
+    
+    if (result.records && result.records.length > 0) {
+      const content = result.records[0]
+      // Get URL exactly as stored, ensuring no double encoding
+      let mapUrl = (content.Content_URL__c || '').trim()
+      const metaKeywords = content.Meta_keywords__c || undefined
+      
+      // Ensure URL is properly formatted (no extra encoding)
+      if (mapUrl) {
+        // Decode if it's double-encoded, then use as-is
+        try {
+          const decoded = decodeURIComponent(mapUrl)
+          // Only use decoded if it's different and still a valid URL
+          if (decoded !== mapUrl && decoded.includes('google.com/maps/embed')) {
+            mapUrl = decoded
+          }
+        } catch {
+          // If decoding fails, use original URL - it's already correct
+        }
+      }
+      
+      if (mapUrl) {
+        // Validate Google Maps embed URL
+        const isGoogleMapsEmbed = mapUrl.includes('google.com/maps/embed')
+        
+        if (isGoogleMapsEmbed) {
+          // Check if URL has a 'pb' parameter and if it appears complete
+          const pbMatch = mapUrl.match(/[?&]pb=([^&]*)/)
+          if (pbMatch) {
+            const pbValue = pbMatch[1]
+            // Google Maps pb parameters typically end with specific patterns
+            // If it seems truncated (doesn't end properly), log a warning
+            if (pbValue.length < 50 || !pbValue.includes('!')) {
+              console.warn('[Office Map] ⚠️ Google Maps pb parameter appears truncated:', {
+                pbLength: pbValue.length,
+                urlLength: mapUrl.length,
+              })
+            }
+          }
+          
+          // Ensure URL is properly encoded
+          try {
+            // Validate URL format
+            new URL(mapUrl)
+          } catch (urlError) {
+            console.error('[Office Map] ❌ Invalid URL format:', urlError)
+            return { mapUrl: null, metaKeywords }
+          }
+        }
+        
+        console.log('[Office Map] ✅ Found Salesforce record with map URL:', {
+          id: content.Id,
+          name: content.Name,
+          location: content.Location__c,
+          urlLength: mapUrl.length,
+          isGoogleMapsEmbed,
+          mapUrlPreview: mapUrl.substring(0, 150) + (mapUrl.length > 150 ? '...' : ''),
+          metaKeywords,
+        })
+        return { mapUrl, metaKeywords }
+      } else {
+        console.warn('[Office Map] ⚠️ No map URL in Salesforce record')
+        return { mapUrl: null, metaKeywords }
+      }
+    } else {
+      console.warn('[Office Map] ⚠️ No records found in Salesforce query result')
+      return { mapUrl: null }
+    }
+  } catch (error) {
+    console.error('[Office Map] ❌ ERROR fetching from Salesforce:', error)
+    return { mapUrl: null }
+  }
 }
