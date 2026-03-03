@@ -306,6 +306,8 @@
       }
     },
     "ownershipRights": "Ownership Rights",
+    "priceUSD": "$5,000",
+    "priceSAR": "18,750 SAR",
     "perMonth": "/mo",
     "viewDemo": "View Demo Website",
     "demoDesc": "Experience the full capabilities of the platform",

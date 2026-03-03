@@ -187,8 +187,11 @@ const BrokerLanding = () => {
                                 <Typography variant="overline" fontWeight="700" letterSpacing={2}>
                                     {t('brokerLanding.ownershipRights')}
                                 </Typography>
-                                <Typography variant="h2" fontWeight="900" my={1} sx={{ direction: 'ltr' }}>
-                                    $110<Typography component="span" variant="h5" fontWeight="400">{t('brokerLanding.perMonth')}</Typography>
+                                <Typography variant="h2" fontWeight="900" mt={1} sx={{ direction: 'ltr' }}>
+                                    {t('brokerLanding.priceUSD')}<Typography component="span" variant="h5" fontWeight="400" sx={{ ml: 0.5 }}>{t('brokerLanding.perMonth')}</Typography>
+                                </Typography>
+                                <Typography variant="h6" fontWeight="600" mb={2} sx={{ opacity: 0.9, color: 'rgba(10, 10, 10, 0.7)' }}>
+                                    ≈ {t('brokerLanding.priceSAR')}
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
                                     <Button
@@ -205,7 +208,7 @@ const BrokerLanding = () => {
                                         }}
                                         startIcon={<Phone size={18} />}
                                     >
-                                        <Box component="span" sx={{ direction: 'ltr', display: 'inline-block' }}>
+                                        <Box component="span" sx={{ direction: 'ltr', display: 'inline-block', ml: -0.5 }}>
                                             +20 106 923 9231
                                         </Box>
                                     </Button>
@@ -221,7 +224,11 @@ const BrokerLanding = () => {
                                             borderRadius: '100px',
                                             padding: '12px 32px',
                                             fontWeight: 700,
-                                            '&:hover': { bgcolor: '#128C7E' }
+                                            '&:hover': { bgcolor: '#128C7E' },
+                                            '& .MuiButton-startIcon': {
+                                                marginRight: isRtl ? 0 : 1,
+                                                marginLeft: isRtl ? 1 : 0
+                                            }
                                         }}
                                         startIcon={<MessageCircle size={18} />}
                                     >
