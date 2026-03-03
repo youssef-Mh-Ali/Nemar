@@ -204,13 +204,15 @@ const BrokerLanding = () => {
                                             borderRadius: '100px',
                                             padding: '12px 32px',
                                             fontWeight: 700,
-                                            '&:hover': { bgcolor: '#1a1a1a' }
+                                            '&:hover': { bgcolor: '#1a1a1a' },
+                                            '& .MuiButton-startIcon': {
+                                                marginRight: isRtl ? 0 : 1,
+                                                marginLeft: isRtl ? 1 : 0
+                                            }
                                         }}
                                         startIcon={<Phone size={18} />}
                                     >
-                                        <Box component="span" sx={{ direction: 'ltr', display: 'inline-block', ml: -0.5 }}>
-                                            +20 106 923 9231
-                                        </Box>
+                                        {t('brokerLanding.callNow')}
                                     </Button>
                                     <Button
                                         component="a"
