@@ -196,7 +196,7 @@ const BrokerLanding = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
                                     <Button
                                         component="a"
-                                        href="tel:+201069239231"
+                                        href="tel:+201223951352"
                                         variant="contained"
                                         sx={{
                                             bgcolor: '#0a0a0a',
@@ -216,7 +216,7 @@ const BrokerLanding = () => {
                                     </Button>
                                     <Button
                                         component="a"
-                                        href="https://wa.me/201069239231"
+                                        href="https://wa.me/201223951352"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         variant="contained"
