@@ -187,8 +187,8 @@ const BrokerLanding = () => {
                                 <Typography variant="overline" fontWeight="700" letterSpacing={2}>
                                     {t('brokerLanding.ownershipRights')}
                                 </Typography>
-                                <Typography variant="h2" fontWeight="900" mt={1} sx={{ direction: 'ltr' }}>
-                                    {t('brokerLanding.priceUSD')}<Typography component="span" variant="h5" fontWeight="400" sx={{ ml: 0.5 }}>{t('brokerLanding.perMonth')}</Typography>
+                                <Typography variant="h2" fontWeight="900" mt={1} sx={{ direction: 'ltr', display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
+                                    {t('brokerLanding.priceUSD')}<Typography component="span" variant="h5" fontWeight="400">{t('brokerLanding.perMonth')}</Typography>
                                 </Typography>
                                 <Typography variant="h6" fontWeight="600" mb={2} sx={{ opacity: 0.9, color: 'rgba(10, 10, 10, 0.7)' }}>
                                     ≈ {t('brokerLanding.priceSAR')}
