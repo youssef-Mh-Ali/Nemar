@@ -286,5 +286,30 @@
     "title": "Better experience with the app",
     "description": "Install Faisal Bin Saedan app for quick access",
     "install": "Install"
+  },
+  "brokerLanding": {
+    "badge": "Premium Real Estate Domain",
+    "title": "Owned & Managed by Professional Brokers",
+    "description": "This premium digital asset is strategically positioned for the real estate market. Fully integrated with Salesforce, automated lead capturing, and PWA capabilities.",
+    "features": {
+      "salesforce": {
+        "title": "Salesforce CRM",
+        "desc": "Integrated workflows for real estate management."
+      },
+      "pwa": {
+        "title": "PWA Technology",
+        "desc": "Mobile-first experience for field agents."
+      },
+      "ready": {
+        "title": "Ready to Deploy",
+        "desc": "Full-stack solution for property listing."
+      }
+    },
+    "ownershipRights": "Ownership Rights",
+    "perMonth": "/mo",
+    "viewDemo": "View Demo Website",
+    "demoDesc": "Experience the full capabilities of the platform",
+    "copyright": "Broker Property Management. All rights reserved.",
+    "whatsapp": "Chat on WhatsApp"
   }
 }

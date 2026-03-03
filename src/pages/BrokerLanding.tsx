@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Phone, CheckCircle2, Building2, Layout, Database } from 'lucide-react'
+import { Phone, CheckCircle2, Building2, Layout, Database, MessageCircle } from 'lucide-react'
 import { Box, Container, Typography, Button, Grid, styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
+import LanguageToggle from '../components/ui/LanguageToggle'
 
 const HeroSection = styled(Box)(({ theme }) => ({
     minHeight: '100vh',
@@ -84,22 +86,24 @@ const OwnershipCard = styled(Box)(({ theme }) => ({
 }))
 
 const BrokerLanding = () => {
+    const { t, i18n } = useTranslation()
+    const isRtl = i18n.language.startsWith('ar')
 
     const features = [
         {
             icon: <Database style={{ color: '#d4af37' }} />,
-            title: "Salesforce CRM",
-            desc: "Integrated workflows for real estate management."
+            title: t('brokerLanding.features.salesforce.title'),
+            desc: t('brokerLanding.features.salesforce.desc')
         },
         {
             icon: <Layout style={{ color: '#d4af37' }} />,
-            title: "PWA Technology",
-            desc: "Mobile-first experience for field agents."
+            title: t('brokerLanding.features.pwa.title'),
+            desc: t('brokerLanding.features.pwa.desc')
         },
         {
             icon: <CheckCircle2 style={{ color: '#d4af37' }} />,
-            title: "Ready to Deploy",
-            desc: "Full-stack solution for property listing."
+            title: t('brokerLanding.features.ready.title'),
+            desc: t('brokerLanding.features.ready.desc')
         }
     ]
 
@@ -116,8 +120,12 @@ const BrokerLanding = () => {
                     >
                         <GoldBadge>
                             <Building2 size={16} />
-                            <span>Premium Real Estate Domain</span>
+                            <span>{t('brokerLanding.badge')}</span>
                         </GoldBadge>
+
+                        <Box sx={{ position: 'absolute', top: 20, right: isRtl ? 'auto' : 20, left: isRtl ? 20 : 'auto' }}>
+                            <LanguageToggle />
+                        </Box>
 
                         <Typography
                             variant="h1"
@@ -131,7 +139,7 @@ const BrokerLanding = () => {
                                 lineHeight: 1.1
                             }}
                         >
-                            Owned & Managed by Professional Brokers
+                            {t('brokerLanding.title')}
                         </Typography>
 
                         <Typography
@@ -143,8 +151,7 @@ const BrokerLanding = () => {
                                 lineHeight: 1.6
                             }}
                         >
-                            This premium digital asset is strategically positioned for the real estate market.
-                            Fully integrated with Salesforce, automated lead capturing, and PWA capabilities.
+                            {t('brokerLanding.description')}
                         </Typography>
 
                         <Grid container spacing={3} sx={{ mb: 8 }}>
@@ -178,28 +185,49 @@ const BrokerLanding = () => {
                         >
                             <OwnershipCard>
                                 <Typography variant="overline" fontWeight="700" letterSpacing={2}>
-                                    Ownership Rights
+                                    {t('brokerLanding.ownershipRights')}
                                 </Typography>
-                                <Typography variant="h2" fontWeight="900" my={1}>
-                                    $110<Typography component="span" variant="h5" fontWeight="400">/mo</Typography>
+                                <Typography variant="h2" fontWeight="900" my={1} sx={{ direction: 'ltr' }}>
+                                    $110<Typography component="span" variant="h5" fontWeight="400">{t('brokerLanding.perMonth')}</Typography>
                                 </Typography>
-                                <Button
-                                    component="a"
-                                    href="tel:+201069239231"
-                                    variant="contained"
-                                    sx={{
-                                        mt: 2,
-                                        bgcolor: '#0a0a0a',
-                                        color: 'white',
-                                        borderRadius: '100px',
-                                        padding: '12px 32px',
-                                        fontWeight: 700,
-                                        '&:hover': { bgcolor: '#1a1a1a' }
-                                    }}
-                                    startIcon={<Phone size={18} />}
-                                >
-                                    +20 106 923 9231
-                                </Button>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
+                                    <Button
+                                        component="a"
+                                        href="tel:+201069239231"
+                                        variant="contained"
+                                        sx={{
+                                            bgcolor: '#0a0a0a',
+                                            color: 'white',
+                                            borderRadius: '100px',
+                                            padding: '12px 32px',
+                                            fontWeight: 700,
+                                            '&:hover': { bgcolor: '#1a1a1a' }
+                                        }}
+                                        startIcon={<Phone size={18} />}
+                                    >
+                                        <Box component="span" sx={{ direction: 'ltr', display: 'inline-block' }}>
+                                            +20 106 923 9231
+                                        </Box>
+                                    </Button>
+                                    <Button
+                                        component="a"
+                                        href="https://wa.me/201069239231"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        variant="contained"
+                                        sx={{
+                                            bgcolor: '#25D366',
+                                            color: 'white',
+                                            borderRadius: '100px',
+                                            padding: '12px 32px',
+                                            fontWeight: 700,
+                                            '&:hover': { bgcolor: '#128C7E' }
+                                        }}
+                                        startIcon={<MessageCircle size={18} />}
+                                    >
+                                        {t('brokerLanding.whatsapp')}
+                                    </Button>
+                                </Box>
                             </OwnershipCard>
 
                             <Box display="flex" flexDirection="column" gap={2}>
@@ -221,10 +249,10 @@ const BrokerLanding = () => {
                                         }
                                     }}
                                 >
-                                    View Demo Website
+                                    {t('brokerLanding.viewDemo')}
                                 </Button>
                                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic' }}>
-                                    Experience the full capabilities of the platform
+                                    {t('brokerLanding.demoDesc')}
                                 </Typography>
                             </Box>
                         </Box>
@@ -244,7 +272,7 @@ const BrokerLanding = () => {
                 }}
             >
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)' }}>
-                    &copy; {new Date().getFullYear()} Broker Property Management. All rights reserved.
+                    &copy; {new Date().getFullYear()} {t('brokerLanding.copyright')}
                 </Typography>
             </Box>
         </HeroSection>
