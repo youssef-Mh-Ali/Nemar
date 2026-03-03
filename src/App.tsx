@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Community from './pages/Community'
 import Contact from './pages/Contact'
 import Offline from './pages/Offline'
+import BrokerLanding from './pages/BrokerLanding'
 import Toast from './components/ui/Toast'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<BrokerLanding />} />
+        <Route path="/demo" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
           <Route path="unit/:id" element={<UnitDetails />} />

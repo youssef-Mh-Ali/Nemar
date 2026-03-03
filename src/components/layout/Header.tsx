@@ -11,10 +11,10 @@ export default function Header() {
   const { t } = useTranslation()
 
   const navItems = [
-    { path: '/', label: t('common.home') },
-    { path: '/search', label: t('common.search') },
-    { path: '/community', label: t('common.community') },
-    { path: '/contact', label: t('common.contact') },
+    { path: '/demo', label: t('common.home') },
+    { path: '/demo/search', label: t('common.search') },
+    { path: '/demo/community', label: t('common.community') },
+    { path: '/demo/contact', label: t('common.contact') },
   ]
 
   return (
@@ -28,7 +28,7 @@ export default function Header() {
       className="safe-top"
     >
       <Toolbar sx={{ justifyContent: 'space-between', minHeight: '64px !important' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+        <Link to="/demo" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <Box
             component="img"
             src="/BinSaedanLogo.png"
@@ -59,55 +59,55 @@ export default function Header() {
           ))}
         </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LanguageToggle />
-              {user ? (
-                <>
-                  <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
-                    {user.firstName}
-                  </Box>
-                  <IconButton onClick={clearAuth} size="small" title={t('common.logout')}>
-                    <LogOut size={20} />
-                  </IconButton>
-                </>
-              ) : (
-                <Button 
-                  component={Link} 
-                  to="/login" 
-                  variant="outlined" 
-                  size="small" 
-                  startIcon={<User size={18} />}
-                  sx={{
-                    px: { xs: 1.5, sm: 2 },
-                    py: { xs: 0.75, sm: 0.875 },
-                    minWidth: { xs: 'auto', sm: 'auto' },
-                    gap: 0.5,
-                    borderRadius: 1.5,
-                    borderWidth: 1.5,
-                    fontWeight: 500,
-                    '& .MuiButton-startIcon': {
-                      margin: 0,
-                      marginRight: { xs: 0, sm: 0.5 },
-                      display: 'flex',
-                      alignItems: 'center',
-                    },
-                    '&:hover': {
-                      borderWidth: 1.5,
-                    },
-                  }}
-                >
-                  <Box 
-                    component="span" 
-                    sx={{ 
-                      display: { xs: 'none', sm: 'inline' },
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {t('common.login')}
-                  </Box>
-                </Button>
-              )}
-            </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LanguageToggle />
+          {user ? (
+            <>
+              <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
+                {user.firstName}
+              </Box>
+              <IconButton onClick={clearAuth} size="small" title={t('common.logout')}>
+                <LogOut size={20} />
+              </IconButton>
+            </>
+          ) : (
+            <Button
+              component={Link}
+              to="/login"
+              variant="outlined"
+              size="small"
+              startIcon={<User size={18} />}
+              sx={{
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 0.75, sm: 0.875 },
+                minWidth: { xs: 'auto', sm: 'auto' },
+                gap: 0.5,
+                borderRadius: 1.5,
+                borderWidth: 1.5,
+                fontWeight: 500,
+                '& .MuiButton-startIcon': {
+                  margin: 0,
+                  marginRight: { xs: 0, sm: 0.5 },
+                  display: 'flex',
+                  alignItems: 'center',
+                },
+                '&:hover': {
+                  borderWidth: 1.5,
+                },
+              }}
+            >
+              <Box
+                component="span"
+                sx={{
+                  display: { xs: 'none', sm: 'inline' },
+                  lineHeight: 1.5,
+                }}
+              >
+                {t('common.login')}
+              </Box>
+            </Button>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   )
