@@ -8,11 +8,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/*.png', 'BinSaedanLogo.png', 'BinSaedanLogo-White.png', 'appicon.png'],
+      includeAssets: ['favicon.ico', 'icons/*.png', 'RiymarLogo.png', 'RiymarLogo-White.png', 'appicon.png'],
       manifest: {
-        name: 'فيصل بن سعيدان | Faisal Bin Saedan Properties',
-        short_name: 'Bin Saedan',
-        description: 'اكتشف أرقى المشاريع العقارية مع مجموعة فيصل بن سعيدان',
+        name: 'ريمار | RIYMAR Properties',
+        short_name: 'Riymar',
+        description: 'اكتشف أرقى المشاريع العقارية مع ريمار',
         theme_color: '#1a365d',
         background_color: '#fafafa',
         display: 'standalone',

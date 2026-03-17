@@ -1,7 +1,8 @@
 import { Project, Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
 import { salesforceQuery } from '../salesforce/client'
+import { salesforceQuery } from '../salesforce/client'
 import { mockProjects } from '../mock-data/projects'
-import { mockUnits, searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
+import { searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -576,11 +577,24 @@ export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'source'>
 }
 
 // Auth
-export async function login(username: string, password: string) {
-  return fetcher<{ user: AuthUser; token: string }>('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ username, password }),
-  })
+export async function login(username: string, _password: string) {
+  // Always login as Aamer Galal regardless of credentials
+  const mockedUser: AuthUser = {
+    id: 'user-aamer-galal',
+    username: username || 'aamer',
+    firstName: 'Aamer',
+    lastName: 'Galal',
+    email: 'aamer.galal@example.com',
+    phone: '+966500000000'
+  }
+
+  return {
+    success: true,
+    data: {
+      user: mockedUser,
+      token: 'mock-jwt-token-aamer-galal',
+    },
+  } as ApiResponse<{ user: AuthUser; token: string }>
 }
 
 export async function getCurrentUser(token?: string) {
@@ -596,12 +610,63 @@ export async function logout() {
 }
 
 // My Units
-export async function getMyUnits(token?: string) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-  return fetcher<Unit[]>('/api/my-units', { headers })
+export async function getMyUnits(_token?: string) {
+  // Return mocked units for Aamer Galal based on user request
+  const mockOwnedUnits: Unit[] = [
+    {
+      id: "owned-unit-1",
+      projectId: "future-city",
+      phaseId: "fc-phase-1",
+      unitNumber: "V-101 (Fully Paid)",
+      price: 3500000,
+      bedrooms: 5,
+      bathrooms: 6,
+      area: 450,
+      status: "Reserved",
+      deliveryDate: "2026-12-01",
+      images: [
+        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
+      ],
+      projectName: "Future City",
+      projectNameAr: "مدينة المستقبل",
+      phaseName: "Phase 1 - Residential Villas",
+      phaseNameAr: "المرحلة الأولى - فلل سكنية",
+      paymentPlan: {
+        percentagePaid: 100,
+        status: "Fully Paid"
+      }
+    },
+    {
+      id: "owned-unit-2",
+      projectId: "riyadh-grove",
+      phaseId: "rg-phase-1",
+      unitNumber: "A-501 (Installments)",
+      price: 1200000,
+      bedrooms: 3,
+      bathrooms: 3,
+      area: 165,
+      status: "Reserved",
+      deliveryDate: "2025-08-01",
+      images: [
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
+      ],
+      projectName: "Riyadh Grove",
+      projectNameAr: "رياض غروف",
+      phaseName: "Phase 1 - Luxury Apartments",
+      phaseNameAr: "المرحلة الأولى - شقق فاخرة",
+      paymentPlan: {
+        percentagePaid: 60,
+        installmentsRemaining: 8,
+        hasMaintenanceCheque: true,
+        status: "Partial"
+      }
+    }
+  ];
+
+  return {
+    success: true,
+    data: mockOwnedUnits
+  } as ApiResponse<Unit[]>
 }
 
 // Cases

@@ -77,8 +77,8 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Image
-              src="/BinSaedanLogo.png"
-              alt="فيصل بن سعيدان"
+              src="/RiymarLogo.png"
+              alt="ريمار"
               width={200}
               height={60}
               className="h-14 w-auto mx-auto mb-4"

@@ -14,8 +14,8 @@ export default function OfflinePage() {
       <div className="text-center max-w-md">
         {/* Logo */}
         <Image
-          src="/BinSaedanLogo.png"
-          alt="فيصل بن سعيدان"
+          src="/RiymarLogo.png"
+          alt="ريمار"
           width={180}
           height={50}
           className="h-12 w-auto mx-auto mb-8"
@@ -42,7 +42,7 @@ export default function OfflinePage() {
 
         {/* Footer */}
         <p className="text-xs text-[var(--color-text-muted)] mt-8">
-          فيصل بن سعيدان | Faisal Bin Saedan
+          ريمار | Riymar Properties
         </p>
       </div>
     </div>

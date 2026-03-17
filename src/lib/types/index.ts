@@ -44,6 +44,12 @@ export interface Unit {
   projectNameAr?: string;
   phaseName?: string;
   phaseNameAr?: string;
+  paymentPlan?: {
+    percentagePaid: number;
+    installmentsRemaining?: number;
+    hasMaintenanceCheque?: boolean;
+    status: "Fully Paid" | "Partial";
+  };
 }
 
 export interface Lead {
@@ -110,6 +116,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
 }
 
 export interface LoginCredentials {

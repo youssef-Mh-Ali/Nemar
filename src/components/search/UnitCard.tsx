@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Card, CardContent, Chip, Box, Typography, Divider } from '@mui/material'
+import { Card, CardContent, Chip, Box, Typography, Divider, LinearProgress } from '@mui/material'
 import { motion } from 'framer-motion'
-import { Bed, Bath, Maximize, Calendar } from 'lucide-react'
+import { Bed, Bath, Maximize, Calendar, Receipt } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Unit } from '../../lib/types'
 import FavoriteButton from '../ui/FavoriteButton'
@@ -109,6 +109,38 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {i18n.language.startsWith('ar') ? unit.projectNameAr : unit.projectName} • {i18n.language.startsWith('ar') ? unit.phaseNameAr : unit.phaseName}
           </Typography>
+
+          {unit.paymentPlan && (
+            <Box sx={{ mb: 2, p: 1.5, bgcolor: 'primary.50', borderRadius: 1, border: '1px solid', borderColor: 'primary.100' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="subtitle2" color="primary.main" fontWeight="bold">
+                  {unit.paymentPlan.status === 'Fully Paid' ? (i18n.language === 'ar' ? ' مدفوعة بالكامل' : 'Fully Paid') : (i18n.language === 'ar' ? 'خطة الدفع' : 'Payment Plan')}
+                </Typography>
+                <Typography variant="body2" color="primary.main">
+                  {unit.paymentPlan.percentagePaid}%
+                </Typography>
+              </Box>
+              <LinearProgress 
+                variant="determinate" 
+                value={unit.paymentPlan.percentagePaid} 
+                sx={{ height: 6, borderRadius: 3, mb: 1, bgcolor: 'primary.100' }} 
+              />
+              <Box sx={{ display: 'flex', gap: 2, fontSize: '0.75rem', mt: 1 }}>
+                {unit.paymentPlan.installmentsRemaining !== undefined && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                    <Calendar size={14} />
+                    <Typography variant="caption">{unit.paymentPlan.installmentsRemaining} {i18n.language === 'ar' ? 'أقساط متبقية' : 'Installments remaining'}</Typography>
+                  </Box>
+                )}
+                {unit.paymentPlan.hasMaintenanceCheque && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'warning.main' }}>
+                    <Receipt size={14} />
+                    <Typography variant="caption">{i18n.language === 'ar' ? 'شيك صيانة معلق' : 'Pending maintenance cheque'}</Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, fontSize: '0.75rem', color: 'text.secondary' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

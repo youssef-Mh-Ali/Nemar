@@ -74,8 +74,8 @@ export default function CommunityPage() {
           >
             {/* Logo */}
             <Image
-              src="/BinSaedanLogo-White.png"
-              alt="فيصل بن سعيدان"
+              src="/RiymarLogo-White.png"
+              alt="ريمار"
               width={160}
               height={45}
               className="h-10 w-auto mb-6"
@@ -92,7 +92,7 @@ export default function CommunityPage() {
               </div>
             </div>
             <p className="text-white/80">
-              مرحباً بك في مجتمع فيصل بن سعيدان
+              مرحباً بك في مجتمع ريمار
             </p>
           </motion.div>
         </div>

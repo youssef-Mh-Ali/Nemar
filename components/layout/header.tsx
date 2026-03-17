@@ -24,8 +24,8 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/BinSaedanLogo.png"
-            alt="فيصل بن سعيدان"
+            src="/RiymarLogo.png"
+            alt="ريمار"
             width={140}
             height={40}
             className="h-10 w-auto"

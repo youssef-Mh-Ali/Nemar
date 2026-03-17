@@ -80,8 +80,8 @@ export function HeroSection() {
             className="mb-8"
           >
             <Image
-              src="/BinSaedanLogo-White.png"
-              alt="فيصل بن سعيدان"
+              src="/RiymarLogo-White.png"
+              alt="ريمار"
               width={280}
               height={80}
               className="h-16 md:h-20 w-auto mx-auto"

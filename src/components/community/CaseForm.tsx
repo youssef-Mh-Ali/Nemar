@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -8,15 +7,10 @@ import {
   Button,
   Box,
   Typography,
-  Alert,
   MenuItem,
 } from '@mui/material'
-import { Close, CheckCircle } from '@mui/icons-material'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { Close } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
-import { createCase } from '../../lib/api-client'
 import { useAuthStore } from '../../lib/store'
 import { Unit } from '../../lib/types'
 
@@ -24,86 +18,26 @@ interface CaseFormProps {
   isOpen: boolean
   onClose: () => void
   units: Unit[]
-  onSuccess: () => void
+  onSuccess?: () => void
 }
 
-export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseFormProps) {
+export default function CaseForm({ isOpen, onClose, units }: CaseFormProps) {
   const { t, i18n } = useTranslation()
-  const { token } = useAuthStore()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const schema = z.object({
-    unitId: z.string().optional(),
-    subject: z.string().min(5, t('cases.form.validation.subjectRequired')),
-    category: z.enum(['Maintenance', 'Inquiry', 'Complaint', 'Documentation', 'Other']),
-    description: z.string().min(10, t('cases.form.validation.descriptionRequired')),
-  })
-
-  type FormData = z.infer<typeof schema>
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      category: 'Inquiry',
-    },
-  })
-
-  const categoryOptions = [
-    { value: 'Maintenance', label: t('cases.category.maintenance') },
-    { value: 'Inquiry', label: t('cases.category.inquiry') },
-    { value: 'Complaint', label: t('cases.category.complaint') },
-    { value: 'Documentation', label: t('cases.category.documentation') },
-    { value: 'Other', label: t('cases.category.other') },
-  ]
-
-  const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true)
-    setError(null)
-
-    try {
-      const response = await createCase(
-        {
-          unitId: data.unitId || undefined,
-          subject: data.subject,
-          category: data.category,
-          description: data.description,
-        },
-        token || undefined
-      )
-
-      if (response.success) {
-        setIsSuccess(true)
-        reset()
-        setTimeout(() => {
-          onSuccess()
-          onClose()
-          setIsSuccess(false)
-        }, 1500)
-      } else {
-        setError(response.error || t('cases.form.error'))
-      }
-    } catch {
-      setError(t('cases.form.error'))
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  const { user } = useAuthStore()
 
   const handleClose = () => {
-    if (!isSubmitting) {
-      onClose()
-      setError(null)
-      setIsSuccess(false)
-      reset()
-    }
+    onClose()
   }
+
+  const categoryOptions = [
+    { value: 'electricity request', label: i18n.language === 'ar' ? 'طلب كهرباء' : 'Electricity request' },
+    { value: 'gardening request', label: i18n.language === 'ar' ? 'طلب بستنة' : 'Gardening request' },
+    { value: 'house keeping request', label: i18n.language === 'ar' ? 'طلب تنظيف منزلي' : 'House keeping request' },
+    { value: 'car cleaning request', label: i18n.language === 'ar' ? 'طلب تنظيف سيارة' : 'Car cleaning request' },
+    { value: 'payment plan change', label: i18n.language === 'ar' ? 'طلب تغيير خطة الدفع' : 'Payment plan change' },
+    { value: 'leasing', label: i18n.language === 'ar' ? 'طلب تأجير' : 'Leasing request' },
+    { value: 'other', label: i18n.language === 'ar' ? 'أخرى' : 'Other' },
+  ]
 
   return (
     <Dialog open={isOpen} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -115,94 +49,79 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
               {t('cases.subtitle')}
             </Typography>
           </Box>
-          <Button onClick={handleClose} disabled={isSubmitting} sx={{ minWidth: 'auto', p: 1 }}>
+          <Button onClick={handleClose} sx={{ minWidth: 'auto', p: 1 }}>
             <Close />
           </Button>
         </Box>
       </DialogTitle>
 
       <DialogContent>
-        {isSuccess ? (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              {t('cases.form.successTitle')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('cases.form.successMessage')}
-            </Typography>
-          </Box>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              {units.length > 0 && (
-                <TextField
-                  {...register('unitId')}
-                  select
-                  label={t('cases.form.unit')}
-                  fullWidth
-                  error={!!errors.unitId}
-                  helperText={errors.unitId?.message}
-                >
-                  <MenuItem value="">{t('cases.form.chooseUnit')}</MenuItem>
-                  {units.map((u) => (
-                    <MenuItem key={u.id} value={u.id}>
-                      {u.unitNumber} - {i18n.language === 'ar' ? u.projectNameAr : u.projectName}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
+        {/*
+          Web-to-Case Form
+          Posts directly to Salesforce endpoint as per user requirement.
+        */}
+        <form action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DdM00000rH4of" method="POST">
+          <input type="hidden" name="orgid" value="00DdM00000rH4of" />
+          <input type="hidden" name="retURL" value="https://realestatesf.netlify.app" />
 
+          {/* Hidden inputs to capture user details automatically */}
+          <input type="hidden" name="name" value={`${user?.firstName || ''} ${user?.lastName || ''}`} />
+          <input type="hidden" name="email" value={user?.email || ''} />
+          <input type="hidden" name="phone" value={user?.phone || ''} />
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            {units.length > 0 && (
               <TextField
-                {...register('category')}
                 select
-                label={t('cases.form.type')}
+                label={t('cases.form.unit')}
                 fullWidth
-                error={!!errors.category}
-                helperText={errors.category?.message}
+                name="00NdM00000somethingCustomMaybe" // Assuming custom mapping or keeping in description if standard isn't available
+                defaultValue=""
               >
-                {categoryOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
+                <MenuItem value="">{t('cases.form.chooseUnit')}</MenuItem>
+                {units.map((u) => (
+                  <MenuItem key={u.id} value={u.id}>
+                    {u.unitNumber} - {i18n.language === 'ar' ? u.projectNameAr : u.projectName}
                   </MenuItem>
                 ))}
               </TextField>
+            )}
 
-              <TextField
-                {...register('subject')}
-                label={t('cases.form.subject')}
-                placeholder={t('cases.form.subjectPlaceholder')}
-                fullWidth
-                error={!!errors.subject}
-                helperText={errors.subject?.message}
-              />
+            <TextField
+              select
+              label={t('cases.form.type')}
+              fullWidth
+              name="subject"
+              required
+              defaultValue=""
+            >
+              {categoryOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
 
-              <TextField
-                {...register('description')}
-                label={t('cases.form.details')}
-                placeholder={t('cases.form.detailsPlaceholder')}
-                fullWidth
-                multiline
-                rows={4}
-                error={!!errors.description}
-                helperText={errors.description?.message}
-              />
+            <TextField
+              label={t('cases.form.details')}
+              placeholder={t('cases.form.detailsPlaceholder')}
+              fullWidth
+              multiline
+              rows={4}
+              name="description"
+              required
+            />
+          </Box>
 
-              {error && (
-                <Alert severity="error">{error}</Alert>
-              )}
-            </Box>
-
-            <DialogActions sx={{ px: 0, pt: 2 }}>
-              <Button onClick={handleClose} disabled={isSubmitting}>
-                {t('cases.form.cancel')}
-              </Button>
-              <Button type="submit" variant="contained" disabled={isSubmitting}>
-                {isSubmitting ? t('cases.form.submitting') : t('cases.form.submit')}
-              </Button>
-            </DialogActions>
-          </form>
-        )}
+          <DialogActions sx={{ px: 0, pt: 2 }}>
+            <Button onClick={handleClose}>
+              {t('cases.form.cancel')}
+            </Button>
+            <Button type="submit" variant="contained" name="submit">
+              {t('cases.form.submit')}
+            </Button>
+          </DialogActions>
+        </form>
       </DialogContent>
     </Dialog>
   )
