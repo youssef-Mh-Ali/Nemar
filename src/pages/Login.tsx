@@ -82,7 +82,7 @@ export default function Login() {
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box
               component="img"
-              src="/BinSaedanLogo.png"
+              src="/RiymarLogo.png"
               alt={t('home.title')}
               sx={{
                 height: 64,

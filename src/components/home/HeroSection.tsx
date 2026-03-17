@@ -425,7 +425,7 @@ export default function HeroSection() {
           >
             <Box
               component="img"
-              src="/BinSaedanLogo-White.png"
+              src="/RiymarLogo-White.png"
               alt={t('home.title')}
               sx={{
                 height: { xs: '64px', md: '80px' },

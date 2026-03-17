@@ -20,7 +20,7 @@
     "more": "المزيد"
   },
   "home": {
-    "title": "فيصل بن سعيدان",
+    "title": "ريمار",
     "subtitle": "اكتشف أرقى المشاريع العقارية",
     "heroTitle": "مجتمعك،",
     "heroSubtitle": "بأسلوب جديد",
@@ -42,7 +42,7 @@
     "registerInterest": "سجل اهتمامك الآن",
     "viewAllUnits": "عرض جميع الوحدات",
     "phone": "+966 11 234 5678",
-    "email": "info@binsaedan.com",
+    "email": "info@riymar.sa",
     "address": "الرياض، المملكة العربية السعودية",
     "phasesAvailable": "{{count}} مراحل متاحة",
     "soldOut": "مباع بالكامل",
@@ -130,7 +130,7 @@
   },
   "community": {
     "welcome": "مرحباً",
-    "welcomeMessage": "مرحباً بك في مجتمع فيصل بن سعيدان",
+    "welcomeMessage": "مرحباً بك في مجتمع ريمار",
     "myUnits": "وحداتي",
     "myCases": "طلباتي",
     "noUnits": "لا توجد وحدات",
@@ -284,7 +284,7 @@
   },
   "installBanner": {
     "title": "تجربة أفضل مع التطبيق",
-    "description": "قم بتثبيت تطبيق فيصل بن سعيدان للوصول السريع",
+    "description": "قم بتثبيت تطبيق ريمار للوصول السريع",
     "install": "تثبيت"
   },
   "brokerLanding": {

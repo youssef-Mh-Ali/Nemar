@@ -31,7 +31,7 @@ export default function Header() {
         <Link to="/demo" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <Box
             component="img"
-            src="/BinSaedanLogo.png"
+            src="/RiymarLogo.png"
             alt={t('home.title')}
             sx={{
               height: { xs: 32, sm: 40 },

@@ -20,7 +20,7 @@
     "more": "More"
   },
   "home": {
-    "title": "Faisal Bin Saedan",
+    "title": "RIYMAR",
     "subtitle": "Explore our distinguished collection of residential projects in the best locations in the Kingdom",
     "heroTitle": "Your Community,",
     "heroSubtitle": "With a New Style",
@@ -42,7 +42,7 @@
     "registerInterest": "Register Your Interest",
     "viewAllUnits": "View All Units",
     "phone": "+966 11 234 5678",
-    "email": "info@binsaedan.com",
+    "email": "info@riymar.sa",
     "address": "Riyadh, Kingdom of Saudi Arabia",
     "phasesAvailable": "{{count}} phases available",
     "soldOut": "Sold Out",
@@ -202,7 +202,7 @@
   },
   "community": {
     "welcome": "Welcome",
-    "welcomeMessage": "Welcome to Faisal Bin Saedan Community",
+    "welcomeMessage": "Welcome to RIYMAR Community",
     "myUnits": "My Units",
     "myCases": "My Cases",
     "noUnits": "No Units",
@@ -284,7 +284,7 @@
   },
   "installBanner": {
     "title": "Better experience with the app",
-    "description": "Install Faisal Bin Saedan app for quick access",
+    "description": "Install RIYMAR app for quick access",
     "install": "Install"
   },
   "brokerLanding": {

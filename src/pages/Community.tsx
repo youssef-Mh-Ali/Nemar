@@ -88,7 +88,7 @@ export default function Community() {
           >
             <Box
               component="img"
-              src="/BinSaedanLogo-White.png"
+              src="/RiymarLogo-White.png"
               alt={t('home.title')}
               sx={{
                 height: 40,
