@@ -1,0 +1,517 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Paper,
+  CircularProgress,
+} from '@mui/material'
+import { ArrowRight, Bed, Bath, Maximize, Calendar, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import UnitCard from '../components/search/UnitCard'
+import RegisterInterestModal from '../components/home/RegisterInterestModal'
+import ImageGallery from '../components/ui/ImageGallery'
+import ImageCarousel from '../components/ui/ImageCarousel'
+import FavoriteButton from '../components/ui/FavoriteButton'
+import ShareButton from '../components/ui/ShareButton'
+import { getUnit } from '../lib/api-client'
+import { useAuthStore } from '../lib/store'
+import { Unit } from '../lib/types'
+
+export default function UnitDetails() {
+  const { t, i18n } = useTranslation()
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const [unit, setUnit] = useState<Unit | null>(null)
+  const [relatedUnits, setRelatedUnits] = useState<Unit[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+
+  useEffect(() => {
+    async function loadUnit() {
+      if (!id) return
+      setIsLoading(true)
+      try {
+        const response = await getUnit(id)
+        if (response.success && response.data) {
+          setUnit(response.data.unit)
+          setRelatedUnits(response.data.relatedUnits)
+        }
+      } catch (error) {
+        console.error('Error loading unit:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadUnit()
+  }, [id])
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
+      style: 'currency',
+      currency: 'SAR',
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+    })
+  }
+
+
+  if (isLoading) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (!unit) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h5" gutterBottom>
+          الوحدة غير موجودة
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          عذراً، لم نتمكن من العثور على هذه الوحدة
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/search')}>
+          العودة للبحث
+        </Button>
+      </Container>
+    )
+  }
+
+  const statusColors: Record<Unit['status'], 'success' | 'warning' | 'error'> = {
+    Available: 'success',
+    Reserved: 'warning',
+    Sold: 'error',
+  }
+
+  const statusLabels: Record<Unit['status'], string> = {
+    Available: 'متاح',
+    Reserved: 'محجوز',
+    Sold: 'مباع',
+  }
+
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Back Button */}
+      <Paper
+        sx={{
+          position: 'sticky',
+          top: 64,
+          zIndex: 30,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
+        <Container maxWidth="lg" sx={{ py: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Button
+              startIcon={<ArrowRight />}
+              onClick={() => navigate(-1)}
+              sx={{ color: 'text.secondary' }}
+            >
+              رجوع
+            </Button>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <FavoriteButton unitId={unit.id} size="small" />
+              <ShareButton
+                url={`${window.location.origin}/unit/${unit.id}`}
+                title={unit.projectNameAr}
+                text={`اكتشف ${unit.unitNumber} في ${unit.projectNameAr}`}
+                image={unit.images[0]}
+                size="small"
+              />
+            </Box>
+          </Box>
+        </Container>
+      </Paper>
+
+      <Container maxWidth="lg">
+        {/* Image Carousel */}
+        <Box
+          sx={{
+            position: 'relative',
+            mb: 4,
+            mt: 2,
+          }}
+        >
+          <Box
+            onClick={() => setIsGalleryOpen(true)}
+            sx={{
+              cursor: 'pointer',
+              '&:hover .carousel-overlay': {
+                opacity: 1,
+              },
+            }}
+          >
+            <ImageCarousel images={unit.images} height={{ xs: '50vh', md: '65vh' }} />
+            <Box
+              className="carousel-overlay"
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                bgcolor: 'rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                zIndex: 1,
+                pointerEvents: 'none',
+                borderRadius: { xs: 0, md: 2 },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  color: 'white',
+                  fontWeight: 600,
+                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: 2,
+                }}
+              >
+                {i18n.language === 'ar' ? 'انقر لعرض المعرض' : 'Click to view gallery'}
+              </Typography>
+            </Box>
+          </Box>
+          <Chip
+            label={statusLabels[unit.status]}
+            color={statusColors[unit.status]}
+            sx={{
+              position: 'absolute',
+              top: { xs: 16, md: 20 },
+              left: { xs: 16, md: 20 },
+              zIndex: 4,
+              fontWeight: 600,
+              fontSize: { xs: '0.75rem', md: '0.875rem' },
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          />
+        </Box>
+
+        {/* Content */}
+        <Box sx={{ px: { xs: 2, md: 0 }, pb: 6 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            {/* Header */}
+            <Box sx={{ mb: 3 }}>
+              <Chip
+                label={unit.unitNumber}
+                sx={{
+                  mb: 2,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  height: 32,
+                }}
+              />
+              <Typography
+                variant="h3"
+                fontWeight="bold"
+                color="primary.main"
+                sx={{ mb: 1, fontSize: { xs: '2rem', md: '2.5rem' } }}
+              >
+                {formatPrice(unit.price)}
+              </Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
+                {unit.projectNameAr} • {unit.phaseNameAr}
+              </Typography>
+            </Box>
+
+            {/* Specs Grid */}
+            <Card
+              sx={{
+                mb: 4,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                borderRadius: 2,
+              }}
+            >
+              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 6, md: 3 }}>
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Bed size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                        {t('unit.bedroomsLabel')}
+                      </Typography>
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
+                        {unit.bedrooms}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  {unit.bathrooms && (
+                    <Grid size={{ xs: 6, md: 3 }}>
+                      <Box
+                        sx={{
+                          textAlign: 'center',
+                          p: 2,
+                          borderRadius: 2,
+                          bgcolor: 'grey.50',
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            bgcolor: 'grey.100',
+                            transform: 'translateY(-2px)',
+                          },
+                        }}
+                      >
+                        <Bath size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                          {t('unit.bathroomsLabel')}
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="primary.main">
+                          {unit.bathrooms}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                  <Grid size={{ xs: 6, md: 3 }}>
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Maximize size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                        {t('unit.areaLabel')}
+                      </Typography>
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
+                        {unit.area} {t('unit.areaUnit')}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid size={{ xs: 6, md: 3 }}>
+                    <Box
+                      sx={{
+                        textAlign: 'center',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'grey.50',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: 'grey.100',
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      <Calendar size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
+                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                        {t('unit.deliveryLabel')}
+                      </Typography>
+                      <Typography variant="h5" fontWeight="bold" color="primary.main">
+                        {formatDate(unit.deliveryDate)}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Description */}
+            {(i18n.language === 'ar' ? unit.descriptionAr : unit.description) && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {t('unit.description')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                  {i18n.language === 'ar' ? unit.descriptionAr : unit.description}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Floor Plan */}
+            {unit.floorPlan && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {i18n.language === 'ar' ? 'الخريطة' : 'Floor Plan'}
+                </Typography>
+                <Card>
+                  <Box
+                    component="img"
+                    src={unit.floorPlan}
+                    alt="Floor Plan"
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      display: 'block',
+                    }}
+                  />
+                </Card>
+              </Box>
+            )}
+
+            {/* 3D View */}
+            {unit.sketchupEmbedUrl && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {i18n.language === 'ar' ? 'عرض ثلاثي الأبعاد' : '3D View'}
+                </Typography>
+                <Card>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: '100%',
+                      paddingBottom: '56.25%', // 16:9 aspect ratio
+                      overflow: 'hidden',
+                      bgcolor: 'grey.100',
+                    }}
+                  >
+                    <Box
+                      component="iframe"
+                      src={unit.sketchupEmbedUrl}
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
+                        display: 'block',
+                      }}
+                      allowFullScreen
+                      title="3D Unit View"
+                    />
+                  </Box>
+                </Card>
+              </Box>
+            )}
+
+            {/* Amenities */}
+            {unit.amenities && unit.amenities.length > 0 && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 3 }}>
+                  {i18n.language === 'ar' ? 'المرافق' : 'Amenities'}
+                </Typography>
+                <Grid container spacing={2}>
+                  {unit.amenities.map((amenity, index) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 1,
+                          bgcolor: 'grey.50',
+                          border: '1px solid',
+                          borderColor: 'grey.200',
+                        }}
+                      >
+                        <Check size={20} color="#1a365d" style={{ flexShrink: 0 }} />
+                        <Typography variant="body2" color="text.primary">
+                          {amenity}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+
+            {/* CTAs */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 4, mt: 4 }}>
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                onClick={() => setIsRegisterModalOpen(true)}
+                disabled={unit.status === 'Sold'}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'semibold',
+                }}
+              >
+                {unit.status === 'Sold' ? t('unit.sold') : t('unit.registerInterest')}
+              </Button>
+              {user && (
+                <Button component={Link} to="/community" variant="outlined" size="large" fullWidth>
+                  {t('unit.openSupportCase')}
+                </Button>
+              )}
+            </Box>
+
+            {/* Related Units */}
+            {relatedUnits.length > 0 && (
+              <Box>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                  {t('unit.similarUnits')}
+                </Typography>
+                <Grid container spacing={2}>
+                  {relatedUnits.map((relatedUnit) => (
+                    <Grid size={{ xs: 12, sm: 6 }} key={relatedUnit.id}>
+                      <UnitCard unit={relatedUnit} />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </motion.div>
+        </Box>
+      </Container>
+
+      {/* Register Interest Modal */}
+      <RegisterInterestModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        projectId={unit.projectId}
+        phaseId={unit.phaseId}
+        unitId={unit.id}
+        projectName={unit.projectNameAr}
+      />
+
+      {/* Image Gallery */}
+      {isGalleryOpen && (
+        <ImageGallery
+          images={unit.images}
+          initialIndex={0}
+          onClose={() => setIsGalleryOpen(false)}
+        />
+      )}
+    </Box>
+  )
+}
+

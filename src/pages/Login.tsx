@@ -1,0 +1,159 @@
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import {
+  Container,
+  Box,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  InputAdornment,
+  IconButton,
+  Alert,
+} from '@mui/material'
+import { Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
+import { login } from '../lib/api-client'
+import { useAuthStore } from '../lib/store'
+import LanguageToggle from '../components/ui/LanguageToggle'
+
+export default function Login() {
+  const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
+  const { setAuth, setLoading } = useAuthStore()
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const schema = z.object({
+    username: z.string().min(1, t('login.usernameRequired')),
+    password: z.string().min(1, t('login.passwordRequired')),
+  })
+
+  type FormData = z.infer<typeof schema>
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = async (data: FormData) => {
+    setError(null)
+    setLoading(true)
+
+    try {
+      const response = await login(data.username, data.password)
+
+      if (response.success && response.data) {
+        setAuth(response.data.user, response.data.token)
+        navigate('/community')
+      } else {
+        setError(response.error || t('login.errorGeneric'))
+      }
+    } catch {
+      setError(t('login.errorGeneric'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const isRtl = i18n.language === 'ar'
+
+  return (
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Link to="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+          {isRtl ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
+          <Typography variant="body2" color="text.secondary">
+            {t('login.backToHome')}
+          </Typography>
+        </Link>
+        <LanguageToggle />
+      </Box>
+
+      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', alignItems: 'center', py: 4 }}>
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box
+              component="img"
+              src="/BinSaedanLogo.png"
+              alt={t('home.title')}
+              sx={{
+                height: 64,
+                width: 'auto',
+                mx: 'auto',
+                mb: 2,
+              }}
+            />
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              {t('login.title')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('login.subtitle')}
+            </Typography>
+          </Box>
+
+          <Card>
+            <CardContent sx={{ p: 3 }}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <TextField
+                  {...register('username')}
+                  label={t('login.username')}
+                  placeholder={t('login.username')}
+                  fullWidth
+                  error={!!errors.username}
+                  helperText={errors.username?.message}
+                  sx={{ mb: 2 }}
+                />
+
+                <TextField
+                  {...register('password')}
+                  label={t('login.password')}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('login.password')}
+                  fullWidth
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  sx={{ mb: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
+
+                <Button type="submit" variant="contained" fullWidth size="large" disabled={isSubmitting}>
+                  {isSubmitting ? t('login.submitting') : t('login.submit')}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 3 }}>
+            {t('login.noAccount')}{' '}
+            <Link to="/contact" style={{ color: 'inherit', textDecoration: 'underline' }}>
+              {t('login.contactUs')}
+            </Link>
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
+  )
+}
+

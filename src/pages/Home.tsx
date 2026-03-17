@@ -1,0 +1,198 @@
+import { useState, useEffect } from 'react'
+import { Box, Container, Typography, Button, Grid } from '@mui/material'
+import { Construction, LocationOn, Handshake } from '@mui/icons-material'
+import { Phone, Mail, MapPin } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import HeroSection from '../components/home/HeroSection'
+import ProjectsGrid from '../components/home/ProjectsGrid'
+import RegisterInterestModal from '../components/home/RegisterInterestModal'
+
+export default function Home() {
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const { t, i18n } = useTranslation()
+
+  useEffect(() => {
+    // Update HTML lang and dir attributes when language changes
+    document.documentElement.lang = i18n.language
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
+  }, [i18n.language])
+
+  return (
+    <>
+      <HeroSection />
+      <ProjectsGrid />
+
+      {/* Why Choose Us Section */}
+      <Box sx={{ py: 8, px: { xs: 2, md: 3 }, bgcolor: 'grey.50' }}>
+        <Container maxWidth="xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Box sx={{ textAlign: 'center', mb: 6 }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: 'secondary.main',
+                  fontWeight: 500,
+                  mb: 1,
+                  display: 'block',
+                }}
+              >
+                {t('home.whyChooseUs')}
+              </Typography>
+              <Typography variant="h3" fontWeight="bold" gutterBottom>
+                {t('home.legacyTitle')}
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '36rem', mx: 'auto' }}>
+                {t('home.legacyDescription')}
+              </Typography>
+            </Box>
+
+            <Grid container spacing={4}>
+              {[
+                {
+                  title: t('home.qualityTitle'),
+                  description: t('home.qualityDescription'),
+                  icon: Construction,
+                },
+                {
+                  title: t('home.locationTitle'),
+                  description: t('home.locationDescription'),
+                  icon: LocationOn,
+                },
+                {
+                  title: t('home.serviceTitle'),
+                  description: t('home.serviceDescription'),
+                  icon: Handshake,
+                },
+              ].map((item, index) => {
+                const IconComponent = item.icon
+                return (
+                  <Grid size={{ xs: 12, md: 4 }} key={item.title}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Box sx={{ textAlign: 'center', p: 3 }}>
+                        <Box
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 80,
+                            height: 80,
+                            borderRadius: '50%',
+                            bgcolor: 'primary.main',
+                            color: 'white',
+                            mb: 2,
+                          }}
+                        >
+                          <IconComponent sx={{ fontSize: 40 }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                          {item.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {item.description}
+                        </Typography>
+                      </Box>
+                    </motion.div>
+                  </Grid>
+                )
+              })}
+            </Grid>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box sx={{ py: 8, px: { xs: 2, md: 3 }, bgcolor: 'primary.main', color: 'white' }}>
+        <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Typography variant="h3" fontWeight="bold" gutterBottom>
+              {t('home.ctaTitle')}
+            </Typography>
+            <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 4, maxWidth: '42rem', mx: 'auto' }}>
+              {t('home.ctaDescription')}
+            </Typography>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              onClick={() => setIsRegisterModalOpen(true)}
+            >
+              {t('home.registerInterest')}
+            </Button>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* Contact Info */}
+      <Box sx={{ py: 6, px: { xs: 2, md: 3 } }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
+            <Box
+              component="a"
+              href="tel:+966112345678"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: 'text.secondary',
+                textDecoration: 'none',
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <Phone size={20} />
+              <Typography variant="body2" dir="ltr">
+                {t('home.phone')}
+              </Typography>
+            </Box>
+            <Box
+              component="a"
+              href={`mailto:${t('home.email')}`}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: 'text.secondary',
+                textDecoration: 'none',
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <Mail size={20} />
+              <Typography variant="body2">{t('home.email')}</Typography>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: 'text.secondary',
+              }}
+            >
+              <MapPin size={20} />
+              <Typography variant="body2">{t('home.address')}</Typography>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Register Interest Modal */}
+      <RegisterInterestModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+      />
+    </>
+  )
+}
+
