@@ -1,7 +1,7 @@
 import { Project, Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
-import { salesforceQuery } from '../salesforce/client'
+import { salesforceQuery, salesforceFetchUnits, SalesforceUnitDTO } from '../salesforce/client'
 import { mockProjects } from '../mock-data/projects'
-import { mockUnits, searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
+import { searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -520,51 +520,123 @@ export async function getFeaturedVideo() {
 }
 
 // Units
+function mapSalesforceUnit(sfUnit: SalesforceUnitDTO): Unit {
+  return {
+    id: sfUnit.id,
+    projectId: sfUnit.project?.id || '',
+    phaseId: sfUnit.phase?.id || '',
+    unitNumber: sfUnit.name,
+    externalId: sfUnit.externalId,
+    price: sfUnit.price,
+    finalPrice: sfUnit.finalPrice,
+    status: sfUnit.status as Unit['status'],
+    bedrooms: sfUnit.numberOfBedrooms,
+    bathrooms: sfUnit.numberOfBathrooms,
+    area: sfUnit.totalArea,
+    bua: sfUnit.bua,
+    floor: sfUnit.floor,
+    finishing: sfUnit.finishing,
+    usageType: sfUnit.usageType,
+    view: sfUnit.view,
+    hasGarden: sfUnit.hasGarden,
+    hasLand: sfUnit.hasLand,
+    hasRoof: sfUnit.hasRoof,
+    hasOutdoor: sfUnit.hasOutdoor,
+    gardenArea: sfUnit.gardenArea,
+    landArea: sfUnit.landArea,
+    roofArea: sfUnit.roofArea,
+    outdoorArea: sfUnit.outdoorArea,
+    eligibleForSubsidies: sfUnit.eligibleForSubsidies,
+    subsidies: sfUnit.subsidies,
+    images: sfUnit.images,
+    unitImage: sfUnit.unitImage,
+    projectName: sfUnit.project?.name,
+    phaseName: sfUnit.phase?.name,
+    buildingName: sfUnit.building?.name,
+    blockName: sfUnit.block?.name,
+    notes: sfUnit.notes,
+  }
+}
+
 export async function searchUnits(filters?: UnitFilters) {
-  const params = new URLSearchParams()
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.append(key, String(value))
+  console.log('[Units] Searching units from Salesforce...')
+
+  try {
+    const result = await salesforceFetchUnits(filters || {})
+
+    if (result.success && result.data && result.data.units) {
+      const mappedUnits = result.data.units.map(mapSalesforceUnit)
+      console.log('[Units] ✅ Loaded from Salesforce:', mappedUnits.length)
+      return {
+        success: true,
+        data: mappedUnits,
+        pagination: result.data.pagination
       }
-    })
-  }
-  const query = params.toString() ? `?${params.toString()}` : ''
-  const result = await fetcher<Unit[]>(`/api/units${query}`)
-
-  // Fallback to mock data if API fails or returns no data
-  if (!result.success || !result.data || result.data.length === 0) {
-    return {
-      success: true,
-      data: searchMockUnits(filters || {}),
     }
+  } catch (error) {
+    console.warn('[Units] ⚠️ Failed to load from Salesforce, falling back to mocks:', error)
   }
 
-  return result
+  // Fallback to mock data
+  return {
+    success: true,
+    data: searchMockUnits(filters || {}),
+  }
 }
 
 export async function getUnit(id: string) {
-  const result = await fetcher<{ unit: Unit; relatedUnits: Unit[] }>(`/api/units/${id}`)
+  console.log('[Units] Fetching unit details from Salesforce:', id)
 
-  // Fallback to mock data if API fails
-  if (!result.success || !result.data) {
-    const unit = getUnitById(id)
-    if (unit) {
+  try {
+    // We use the search endpoint with searchText matching the ID or Name
+    const result = await salesforceFetchUnits({ searchText: id, pageSize: 1 })
+
+    if (result.success && result.data && result.data.units && result.data.units.length > 0) {
+      const unit = mapSalesforceUnit(result.data.units[0])
+
+      // Get related units (same project, for example)
+      let relatedUnits: Unit[] = []
+      if (unit.projectId) {
+        const relatedResult = await salesforceFetchUnits({
+          projectId: unit.projectId,
+          pageSize: 4
+        })
+        if (relatedResult.success && relatedResult.data?.units) {
+          relatedUnits = relatedResult.data.units
+            .filter(u => u.id !== id)
+            .map(mapSalesforceUnit)
+            .slice(0, 3)
+        }
+      }
+
       return {
         success: true,
         data: {
           unit,
-          relatedUnits: getRelatedUnits(id, 3),
-        },
+          relatedUnits
+        }
       }
     }
+  } catch (error) {
+    console.warn('[Units] ⚠️ Failed to load unit from Salesforce, falling back to mocks:', error)
+  }
+
+  // Fallback to mock data
+  const unit = getUnitById(id)
+  if (unit) {
     return {
-      success: false,
-      error: 'Unit not found',
+      success: true,
+      data: {
+        unit,
+        relatedUnits: getRelatedUnits(id, 3),
+      },
     }
   }
 
-  return result
+  return {
+    success: false,
+    error: 'Unit not found',
+  }
 }
 
 // Leads

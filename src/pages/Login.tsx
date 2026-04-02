@@ -68,7 +68,7 @@ export default function Login() {
   return (
     <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
           {isRtl ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
           <Typography variant="body2" color="text.secondary">
             {t('login.backToHome')}

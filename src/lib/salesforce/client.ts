@@ -16,12 +16,78 @@ interface SalesforceCreateResult {
   error?: string
 }
 
+export interface SalesforceUnitDTO {
+  id: string;
+  name: string;
+  externalId: string;
+  status: string;
+  price: number;
+  finalPrice: number;
+  currencyCode: string;
+  unitImage: string;
+  images: string[];
+  notes: any[];
+  numberOfBedrooms: number;
+  numberOfBathrooms: number;
+  totalArea: number;
+  bua: number;
+  floor: number;
+  finishing: string;
+  usageType: string;
+  view: string;
+  hasGarden: boolean;
+  hasLand: boolean;
+  hasRoof: boolean;
+  hasOutdoor: boolean;
+  gardenArea: number;
+  landArea: number;
+  roofArea: number;
+  outdoorArea: number;
+  eligibleForSubsidies: boolean;
+  subsidies: string;
+  project?: {
+    id: string;
+    name: string;
+    city: string;
+    province: string;
+  };
+  phase?: {
+    id: string;
+    name: string;
+  };
+  building?: {
+    id: string;
+    name: string;
+  };
+  block?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface SalesforceUnitSearchResponse {
+  success: boolean;
+  data: {
+    units: SalesforceUnitDTO[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      totalCount: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+  message: string | null;
+  errorCode?: string;
+}
+
 /**
  * Query Salesforce using SOQL via Netlify Function
  */
 export async function salesforceQuery<T>(soql: string): Promise<{ records: T[] }> {
   console.log('[Salesforce Query] Executing SOQL via Netlify Function:', soql)
-  
+
   try {
     const response = await fetch('/.netlify/functions/salesforce-query', {
       method: 'POST',
@@ -65,7 +131,7 @@ export async function salesforceCreate(
   data: Record<string, unknown>
 ): Promise<{ id: string; success: boolean }> {
   console.log(`[Salesforce Create] Creating record in ${objectName} via Netlify Function:`, data)
-  
+
   try {
     const response = await fetch('/.netlify/functions/salesforce-create', {
       method: 'POST',
@@ -110,9 +176,51 @@ export async function salesforceUpdate(
   data: Record<string, unknown>
 ): Promise<void> {
   console.log(`[Salesforce Update] Updating record ${recordId} in ${objectName} via Netlify Function:`, data)
-  
+
   // For now, we'll use the create function pattern
   // In production, you might want to create a separate salesforce-update function
   // This is a placeholder that throws an error - implement if needed
   throw new Error('salesforceUpdate not yet implemented via Netlify Functions')
+}
+
+/**
+ * Fetch units from Salesforce via Netlify Function
+ */
+export async function salesforceFetchUnits(filters: Record<string, any> = {}): Promise<SalesforceUnitSearchResponse> {
+  console.log('[Salesforce Units] Fetching units with filters:', filters)
+
+  try {
+    const params = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, String(value))
+      }
+    })
+
+    const query = params.toString() ? `?${params.toString()}` : ''
+    const response = await fetch(`/.netlify/functions/salesforce-units${query}`)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('[Salesforce Units] ❌ FAILED:', response.status, errorData)
+      throw new Error(`Salesforce units fetch failed: ${errorData.error || response.statusText}`)
+    }
+
+    const result: SalesforceUnitSearchResponse = await response.json()
+
+    if (!result.success) {
+      console.error('[Salesforce Units] ❌ FAILED:', result.errorCode, result.message)
+      throw new Error(result.message || 'Salesforce units fetch failed')
+    }
+
+    console.log('[Salesforce Units] ✅ SUCCESS:', {
+      unitCount: result.data?.units?.length || 0,
+      totalCount: result.data?.pagination?.totalCount || 0,
+    })
+
+    return result
+  } catch (error) {
+    console.error('[Salesforce Units] ❌ ERROR:', error)
+    throw error
+  }
 }

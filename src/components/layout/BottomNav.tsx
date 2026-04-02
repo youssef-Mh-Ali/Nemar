@@ -9,10 +9,10 @@ export default function BottomNav() {
   const currentPath = location.pathname
 
   const navItems = [
-    { path: '/demo', label: t('common.home'), icon: Home },
-    { path: '/demo/search', label: t('common.search'), icon: Search },
-    { path: '/demo/community', label: t('common.community'), icon: Building2 },
-    { path: '/demo/contact', label: t('common.more'), icon: MoreHorizontal },
+    { path: '/', label: t('common.home'), icon: Home },
+    { path: '/search', label: t('common.search'), icon: Search },
+    { path: '/community', label: t('common.community'), icon: Building2 },
+    { path: '/contact', label: t('common.more'), icon: MoreHorizontal },
   ]
 
   return (

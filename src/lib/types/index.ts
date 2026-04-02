@@ -28,13 +28,31 @@ export interface Unit {
   projectId: string;
   phaseId: string;
   unitNumber: string;
+  externalId?: string;
   price: number;
+  finalPrice?: number;
+  status: "Available" | "Reserved" | "Sold" | "Contracted" | "On-Hold" | "Blocked";
   bedrooms: number;
   bathrooms?: number;
   area: number;
-  status: "Available" | "Reserved" | "Sold";
-  deliveryDate: string;
+  bua?: number;
+  floor?: number;
+  finishing?: string;
+  usageType?: string;
+  view?: string;
+  hasGarden?: boolean;
+  hasLand?: boolean;
+  hasRoof?: boolean;
+  hasOutdoor?: boolean;
+  gardenArea?: number;
+  landArea?: number;
+  roofArea?: number;
+  outdoorArea?: number;
+  eligibleForSubsidies?: boolean;
+  subsidies?: string;
+  deliveryDate?: string;
   images: string[];
+  unitImage?: string;
   floorPlan?: string;
   sketchupEmbedUrl?: string;
   amenities?: string[];
@@ -44,6 +62,9 @@ export interface Unit {
   projectNameAr?: string;
   phaseName?: string;
   phaseNameAr?: string;
+  buildingName?: string;
+  blockName?: string;
+  notes?: any[];
 }
 
 export interface Lead {
@@ -95,13 +116,34 @@ export type CaseStatus = "New" | "InProgress" | "Resolved" | "Closed";
 export interface UnitFilters {
   projectId?: string;
   phaseId?: string;
+  buildingId?: string;
+  blockId?: string;
+  projectName?: string;
   minPrice?: number;
   maxPrice?: number;
-  bedrooms?: number;
-  minArea?: number;
-  maxArea?: number;
+  minBedrooms?: number;
+  maxBedrooms?: number;
+  minBathrooms?: number;
+  maxBathrooms?: number;
+  minTotalArea?: number;
+  maxTotalArea?: number;
+  minBUA?: number;
+  maxBUA?: number;
   status?: Unit["status"];
-  deliveryYear?: number;
+  usageType?: string;
+  finishing?: string;
+  city?: string;
+  province?: string;
+  hasGarden?: boolean;
+  hasLand?: boolean;
+  hasRoof?: boolean;
+  hasOutdoor?: boolean;
+  eligibleForSubsidies?: boolean;
+  searchText?: string;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  page?: number;
+  pageSize?: number;
 }
 
 export interface AuthUser {

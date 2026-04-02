@@ -11,10 +11,10 @@ export default function Header() {
   const { t } = useTranslation()
 
   const navItems = [
-    { path: '/demo', label: t('common.home') },
-    { path: '/demo/search', label: t('common.search') },
-    { path: '/demo/community', label: t('common.community') },
-    { path: '/demo/contact', label: t('common.contact') },
+    { path: '/', label: t('common.home') },
+    { path: '/search', label: t('common.search') },
+    { path: '/community', label: t('common.community') },
+    { path: '/contact', label: t('common.contact') },
   ]
 
   return (
@@ -28,7 +28,7 @@ export default function Header() {
       className="safe-top"
     >
       <Toolbar sx={{ justifyContent: 'space-between', minHeight: '64px !important' }}>
-        <Link to="/demo" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <Box
             component="img"
             src="/BinSaedanLogo.png"
