@@ -65,6 +65,8 @@ export interface Unit {
   buildingName?: string;
   blockName?: string;
   notes?: any[];
+  paymentProgress?: number; // 0-100
+  paymentStatus?: string;
 }
 
 export interface Lead {

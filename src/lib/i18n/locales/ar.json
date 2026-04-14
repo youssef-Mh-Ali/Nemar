@@ -139,7 +139,12 @@
     "newCase": "طلب جديد",
     "activeCases": "طلبات نشطة",
     "unitsCount": "وحداتي",
-    "casesCount": "طلباتي"
+    "casesCount": "طلباتي",
+    "paymentPlan": "خطة الدفع",
+    "fullyPaid": "مدفوعة بالكامل",
+    "newRequest": "+ طلب جديد",
+    "noRequests": "لا توجد طلبات",
+    "deliveryDate": "التسليم: {{date}}"
   },
   "contact": {
     "title": "تواصل معنا",

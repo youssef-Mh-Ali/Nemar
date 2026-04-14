@@ -10,8 +10,9 @@ import {
   Typography,
   Alert,
   MenuItem,
+  IconButton,
 } from '@mui/material'
-import { Close, CheckCircle } from '@mui/icons-material'
+import { X, Check } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -33,6 +34,7 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const isRtl = i18n.language === 'ar'
 
   const schema = z.object({
     unitId: z.string().optional(),
@@ -106,26 +108,50 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
   }
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
+    <Dialog 
+      open={isOpen} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: 4, p: 2 }
+      }}
+    >
+      <DialogTitle sx={{ pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography variant="h6">{t('cases.title')}</Typography>
+          <Box sx={{ textAlign: isRtl ? 'right' : 'left' }}>
+            <Typography variant="h5" fontWeight="bold" color="primary.main">
+              {t('cases.title')}
+            </Typography>
             <Typography variant="body2" color="text.secondary">
               {t('cases.subtitle')}
             </Typography>
           </Box>
-          <Button onClick={handleClose} disabled={isSubmitting} sx={{ minWidth: 'auto', p: 1 }}>
-            <Close />
-          </Button>
+          <IconButton onClick={handleClose} disabled={isSubmitting} size="small">
+            <X size={20} />
+          </IconButton>
         </Box>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent sx={{ pt: 2 + ' !important' }}>
         {isSuccess ? (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
+          <Box sx={{ textAlign: 'center', py: 6 }}>
+            <Box 
+              sx={{ 
+                width: 64, 
+                height: 64, 
+                bgcolor: 'success.light', 
+                color: 'success.main', 
+                borderRadius: '50%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                margin: '0 auto 16px' 
+              }}
+            >
+              <Check size={32} />
+            </Box>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
               {t('cases.form.successTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -134,7 +160,7 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
           </Box>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
               {units.length > 0 && (
                 <TextField
                   {...register('unitId')}
@@ -143,11 +169,13 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                   fullWidth
                   error={!!errors.unitId}
                   helperText={errors.unitId?.message}
+                  variant="outlined"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 >
                   <MenuItem value="">{t('cases.form.chooseUnit')}</MenuItem>
                   {units.map((u) => (
                     <MenuItem key={u.id} value={u.id}>
-                      {u.unitNumber} - {i18n.language === 'ar' ? u.projectNameAr : u.projectName}
+                      {u.unitNumber} - {isRtl ? u.projectNameAr : u.projectName}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -160,6 +188,8 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                 fullWidth
                 error={!!errors.category}
                 helperText={errors.category?.message}
+                variant="outlined"
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               >
                 {categoryOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -175,6 +205,8 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                 fullWidth
                 error={!!errors.subject}
                 helperText={errors.subject?.message}
+                variant="outlined"
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
 
               <TextField
@@ -186,18 +218,36 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                 rows={4}
                 error={!!errors.description}
                 helperText={errors.description?.message}
+                variant="outlined"
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
 
               {error && (
-                <Alert severity="error">{error}</Alert>
+                <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
               )}
             </Box>
 
-            <DialogActions sx={{ px: 0, pt: 2 }}>
-              <Button onClick={handleClose} disabled={isSubmitting}>
+            <DialogActions sx={{ px: 0, pt: 4, pb: 1, gap: 2 }}>
+              <Button 
+                onClick={handleClose} 
+                disabled={isSubmitting}
+                sx={{ fontWeight: 'bold' }}
+              >
                 {t('cases.form.cancel')}
               </Button>
-              <Button type="submit" variant="contained" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                disabled={isSubmitting}
+                sx={{ 
+                  bgcolor: 'primary.main', 
+                  px: 4, 
+                  py: 1.25, 
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  flexGrow: 1
+                }}
+              >
                 {isSubmitting ? t('cases.form.submitting') : t('cases.form.submit')}
               </Button>
             </DialogActions>
@@ -207,4 +257,3 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
     </Dialog>
   )
 }
-

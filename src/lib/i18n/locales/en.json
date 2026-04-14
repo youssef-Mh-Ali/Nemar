@@ -211,7 +211,12 @@
     "newCase": "New Case",
     "activeCases": "Active Cases",
     "unitsCount": "My Units",
-    "casesCount": "My Cases"
+    "casesCount": "My Requests",
+    "paymentPlan": "Payment Plan",
+    "fullyPaid": "Fully Paid",
+    "newRequest": "+ New Request",
+    "noRequests": "No Requests",
+    "deliveryDate": "Delivery: {{date}}"
   },
   "calculator": {
     "title": "Finance Calculator",
