@@ -47,7 +47,8 @@
     "phasesAvailable": "{{count}} phases available",
     "soldOut": "Sold Out",
     "phases": "phases",
-    "viewUnits": "View Units"
+    "viewUnits": "View Units",
+    "cmaDescription": "Faisal bin Saedan Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests."
   },
   "search": {
     "title": "Search for a Unit",
@@ -132,6 +133,13 @@
     "title": "Contact Us",
     "description": "We're here to help. Contact us for any inquiries or feedback",
     "formTitle": "Send us a Message",
+    "profileQuestion": "What's your profile? *",
+    "profileRequired": "Please choose a profile",
+    "profileOptions": {
+      "investor": "Investor",
+      "supplier": "Supplier",
+      "operator": "Operator"
+    },
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
