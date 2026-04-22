@@ -10,9 +10,11 @@ import {
   Grid,
   Alert,
   IconButton,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material'
 import { motion } from 'framer-motion'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
@@ -48,6 +50,10 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
 type FormData = z.infer<ReturnType<typeof getSchema>>
 
 const getSchema = (t: (key: string) => string) => z.object({
+  profile: z.enum(['Investor', 'Supplier', 'Operator'], {
+    required_error: t('contact.profileRequired'),
+    invalid_type_error: t('contact.profileRequired'),
+  }),
   firstName: z.string().min(2, t('registerInterest.firstNameRequired')),
   lastName: z.string().min(2, t('registerInterest.lastNameRequired')),
   email: z.string().email(t('registerInterest.emailInvalid')),
@@ -65,11 +71,15 @@ export default function Contact() {
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(getSchema(t)),
+    defaultValues: {
+      profile: 'Investor',
+    },
   })
 
   // Fetch office map URL from Salesforce
@@ -148,8 +158,8 @@ export default function Contact() {
                     >
                       <Box sx={{ textAlign: 'center', py: 4 }}>
                         <Box sx={{ fontSize: 64, color: 'success.main', mb: 2, display: 'flex', justifyContent: 'center' }}>
-                        <CheckCircle size={64} color="#38a169" />
-                      </Box>
+                          <CheckCircle size={64} color="#38a169" />
+                        </Box>
                         <Typography variant="h6" fontWeight="semibold" gutterBottom>
                           {t('contact.messageSent')}
                         </Typography>
@@ -161,6 +171,58 @@ export default function Contact() {
                   ) : (
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid size={{ xs: 12 }}>
+                          <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+                            {t('contact.profileQuestion')}
+                          </Typography>
+                          <Controller
+                            name="profile"
+                            control={control}
+                            render={({ field }) => (
+                              <ToggleButtonGroup
+                                exclusive
+                                value={field.value}
+                                onChange={(_, next) => {
+                                  if (next) field.onChange(next)
+                                }}
+                                fullWidth
+                                sx={{
+                                  bgcolor: 'background.paper',
+                                  border: 1,
+                                  borderColor: 'divider',
+                                  borderRadius: 999,
+                                  overflow: 'hidden',
+                                  '& .MuiToggleButton-root': {
+                                    flex: 1,
+                                    py: 1.25,
+                                    border: 0,
+                                    borderRadius: 0,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    color: 'text.secondary',
+                                  },
+                                  '& .MuiToggleButton-root.Mui-selected': {
+                                    bgcolor: 'action.selected',
+                                    color: 'text.primary',
+                                  },
+                                  '& .MuiToggleButton-root.Mui-selected:hover': {
+                                    bgcolor: 'action.selected',
+                                  },
+                                }}
+                                aria-label={t('contact.profileQuestion')}
+                              >
+                                <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
+                                <ToggleButton value="Supplier">{t('contact.profileOptions.supplier')}</ToggleButton>
+                                <ToggleButton value="Operator">{t('contact.profileOptions.operator')}</ToggleButton>
+                              </ToggleButtonGroup>
+                            )}
+                          />
+                          {errors.profile?.message && (
+                            <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
+                              {errors.profile.message}
+                            </Typography>
+                          )}
+                        </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             {...register('firstName')}
@@ -332,39 +394,39 @@ export default function Contact() {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   {[
-                    { 
-                      icon: Instagram, 
-                      href: 'https://www.instagram.com/faisalsaedanco', 
+                    {
+                      icon: Instagram,
+                      href: 'https://www.instagram.com/faisalsaedanco',
                       label: t('share.instagram'),
                       color: '#E4405F'
                     },
-                    { 
-                      icon: XIcon, 
-                      href: 'https://x.com/faisalsaedanco', 
+                    {
+                      icon: XIcon,
+                      href: 'https://x.com/faisalsaedanco',
                       label: t('share.twitter'),
                       color: '#000000'
                     },
-                    { 
-                      icon: Linkedin, 
-                      href: 'https://www.linkedin.com/company/faisal-binsaedan', 
+                    {
+                      icon: Linkedin,
+                      href: 'https://www.linkedin.com/company/faisal-binsaedan',
                       label: t('share.linkedin'),
                       color: '#0077B5'
                     },
-                    { 
-                      icon: MessageCircle, 
-                      href: 'https://wa.me/966920024010', 
+                    {
+                      icon: MessageCircle,
+                      href: 'https://wa.me/966920024010',
                       label: t('share.whatsapp'),
                       color: '#25D366'
                     },
-                    { 
-                      icon: Video, 
-                      href: 'https://www.snapchat.com/@binsaedanco', 
+                    {
+                      icon: Video,
+                      href: 'https://www.snapchat.com/@binsaedanco',
                       label: t('share.snapchat'),
                       color: '#FFFC00'
                     },
-                    { 
-                      icon: TikTokIcon, 
-                      href: 'https://www.tiktok.com/@faisalbinsaedan.c', 
+                    {
+                      icon: TikTokIcon,
+                      href: 'https://www.tiktok.com/@faisalbinsaedan.c',
                       label: t('share.tiktok'),
                       color: '#000000'
                     },
@@ -380,7 +442,7 @@ export default function Contact() {
                         sx={{
                           border: 1,
                           borderColor: 'divider',
-                          '&:hover': { 
+                          '&:hover': {
                             bgcolor: 'action.hover',
                             borderColor: social.color || 'primary.main',
                             '& svg': {

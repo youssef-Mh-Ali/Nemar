@@ -75,6 +75,7 @@ export interface Lead {
   lastName: string;
   email: string;
   phone: string;
+  profile?: "Investor" | "Supplier" | "Operator";
   source: "PWA";
   interestedProjectId?: string;
   interestedPhaseId?: string;
