@@ -18,7 +18,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Instagram, Linkedin, MessageCircle, Video } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Instagram, Linkedin } from 'lucide-react'
 import { createLead, getOfficeMapUrl } from '../lib/api-client'
 
 // Custom X (Twitter) icon component
@@ -47,13 +47,35 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
+const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12.04 2C6.55 2 2.08 6.47 2.08 11.96c0 1.77.46 3.5 1.33 5.02L2 22l5.15-1.35a9.9 9.9 0 0 0 4.89 1.25h.01c5.49 0 9.96-4.47 9.96-9.96C22.01 6.47 17.54 2 12.04 2Zm0 17.99h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.06.8.82-2.98-.2-.31a8.26 8.26 0 0 1-1.26-4.4c0-4.58 3.73-8.3 8.31-8.3 4.58 0 8.31 3.72 8.31 8.3 0 4.58-3.73 8.3-8.39 8.3Zm4.82-6.2c-.26-.13-1.53-.75-1.77-.84-.24-.09-.41-.13-.58.13-.17.26-.67.84-.82 1.01-.15.17-.3.2-.56.07-.26-.13-1.08-.4-2.06-1.27-.76-.68-1.27-1.52-1.42-1.78-.15-.26-.02-.4.11-.53.12-.12.26-.3.39-.45.13-.15.17-.26.26-.43.09-.17.04-.32-.02-.45-.06-.13-.58-1.39-.79-1.9-.21-.5-.43-.43-.58-.44h-.5c-.17 0-.45.06-.69.32-.24.26-.9.88-.9 2.15 0 1.27.92 2.5 1.05 2.68.13.17 1.81 2.76 4.38 3.87.61.26 1.08.42 1.45.54.61.19 1.16.16 1.6.1.49-.07 1.53-.62 1.75-1.22.22-.6.22-1.12.15-1.22-.06-.1-.23-.16-.49-.29Z" />
+  </svg>
+)
+
+const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Simplified Snapchat ghost mark */}
+    <path d="M12 2.25c-2.6 0-4.7 2.07-4.7 4.63v3.02c0 .22-.2.41-.46.46-.55.1-1.06.35-1.45.71-.42.39-.72.9-.86 1.47-.04.18-.18.32-.36.37l-.6.16c-.38.1-.38.65 0 .75l.6.16c.18.05.32.19.36.37.14.57.44 1.08.86 1.47.62.58 1.46.88 2.33.83.24-.01.46.15.51.38.17.83.6 1.57 1.23 2.1.62.52 1.4.8 2.19.8.79 0 1.57-.28 2.19-.8.63-.53 1.06-1.27 1.23-2.1.05-.23.27-.39.51-.38.87.05 1.71-.25 2.33-.83.42-.39.72-.9.86-1.47.04-.18.18-.32.36-.37l.6-.16c.38-.1.38-.65 0-.75l-.6-.16c-.18-.05-.32-.19-.36-.37a3.35 3.35 0 0 0-.86-1.47c-.39-.36-.9-.61-1.45-.71-.26-.05-.46-.24-.46-.46V6.88c0-2.56-2.1-4.63-4.7-4.63Z" />
+  </svg>
+)
+
 type FormData = z.infer<ReturnType<typeof getSchema>>
 
 const getSchema = (t: (key: string) => string) => z.object({
-  profile: z.enum(['Investor', 'Supplier', 'Operator'], {
-    required_error: t('contact.profileRequired'),
-    invalid_type_error: t('contact.profileRequired'),
-  }),
+  profile: z.enum(['Investor', 'Supplier', 'Operator']),
   firstName: z.string().min(2, t('registerInterest.firstNameRequired')),
   lastName: z.string().min(2, t('registerInterest.lastNameRequired')),
   email: z.string().email(t('registerInterest.emailInvalid')),
@@ -325,8 +347,8 @@ export default function Contact() {
                     {
                       icon: Mail,
                       label: t('contact.emailLabel'),
-                      value: 'info@binsaedan.com',
-                      href: 'mailto:info@binsaedan.com',
+                      value: 'info@faisal-binsaedan.com',
+                      href: 'mailto:info@faisal-binsaedan.com',
                     },
                     {
                       icon: MapPin,
@@ -413,13 +435,13 @@ export default function Contact() {
                       color: '#0077B5'
                     },
                     {
-                      icon: MessageCircle,
+                      icon: WhatsAppIcon,
                       href: 'https://wa.me/966920024010',
                       label: t('share.whatsapp'),
                       color: '#25D366'
                     },
                     {
-                      icon: Video,
+                      icon: SnapchatIcon,
                       href: 'https://www.snapchat.com/@binsaedanco',
                       label: t('share.snapchat'),
                       color: '#FFFC00'

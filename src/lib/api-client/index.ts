@@ -1,7 +1,5 @@
-import { Project, Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
+import { Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
 import { salesforceQuery, salesforceFetchUnits, SalesforceUnitDTO } from '../salesforce/client'
-import { mockProjects } from '../mock-data/projects'
-import { searchUnits as searchMockUnits, getUnitById, getRelatedUnits } from '../mock-data/units'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -143,6 +141,28 @@ interface PWAContent {
   Aspect_Ratio__c?: string
 }
 
+interface SalesforceProjectRecord {
+  Id: string
+  Name: string
+  City__c?: string
+  Province_Region__c?: string
+  District__c?: string
+  Hero_Image_URL__c?: string
+  Logo_URL__c?: string
+}
+
+interface SalesforcePhaseRecord {
+  Id: string
+  Name: string
+  Name_Ar__c?: string
+  Project__c: string
+  Status__c?: string
+}
+
+interface SalesforceAvailabilityRecord {
+  Phase__c: string
+}
+
 // Projects
 export async function getProjects() {
   const CACHE_KEY = 'binsaedan_projects_cache'
@@ -168,115 +188,175 @@ export async function getProjects() {
     console.log('[Projects] Fetching projects from Salesforce...')
 
     // 1. Fetch Projects
-    const projectsQuery = `SELECT Id, Name, Name_Ar__c, Location__c, Location_Ar__c, 
-                          Cover_Image_URL__c, Featured_Video_URL__c, Status__c, 
-                          Description__c, Description_Ar__c 
+    const projectsQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c, Hero_Image_URL__c, Logo_URL__c
                           FROM Project__c 
                           ORDER BY Name ASC`
 
-    const projectsResult = await salesforceQuery<any>(projectsQuery)
+    const projectsResult = await salesforceQuery<SalesforceProjectRecord>(projectsQuery)
 
-    if (projectsResult.records && projectsResult.records.length > 0) {
-      const sfProjects = projectsResult.records
-      const projectIds = sfProjects.map((p) => `'${p.Id}'`).join(',')
+    const sfProjects = projectsResult.records || []
 
-      // 2. Fetch Phases for these projects
-      console.log('[Projects] Fetching phases...')
-      const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
+    if (sfProjects.length === 0) {
+      // Salesforce is the only data source; return empty list if no records.
+      sessionStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          timestamp: Date.now(),
+          data: [],
+        })
+      )
+      return { success: true, data: [] }
+    }
+
+    const projectIds = sfProjects.map((p) => `'${p.Id}'`).join(',')
+
+    // 2. Fetch Phases for these projects
+    console.log('[Projects] Fetching phases...')
+    const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
                           FROM Phase__c 
                           WHERE Project__c IN (${projectIds})`
 
-      const phasesResult = await salesforceQuery<any>(phasesQuery)
-      const sfPhases = phasesResult.records || []
+    const phasesResult = await salesforceQuery<SalesforcePhaseRecord>(phasesQuery)
+    const sfPhases = phasesResult.records || []
 
-      // 3. Fetch Availability (Phases that have available units)
-      // We group by Phase__c to get distinct phases with available units
-      console.log('[Projects] Fetching availability data...')
-      const availabilityQuery = `SELECT Phase__c 
+    // 3. Fetch Availability (Phases that have available units)
+    // We group by Phase__c to get distinct phases with available units
+    console.log('[Projects] Fetching availability data...')
+    const availabilityQuery = `SELECT Phase__c 
                                 FROM Unit__c 
                                 WHERE Project__c IN (${projectIds}) 
                                 AND Status__c IN ('Available', 'On-Hold') 
                                 GROUP BY Phase__c`
 
-      const availabilityResult = await salesforceQuery<any>(availabilityQuery)
-      const availablePhaseIds = new Set((availabilityResult.records || []).map((r: any) => r.Phase__c))
+    const availabilityResult = await salesforceQuery<SalesforceAvailabilityRecord>(availabilityQuery)
+    const availablePhaseIds = new Set((availabilityResult.records || []).map((r) => r.Phase__c))
 
-      // Transform to application format
-      const mappedProjects = sfProjects.map((p) => {
-        // Get phases for this project
-        const projectPhases = sfPhases.filter((phase) => phase.Project__c === p.Id)
+    // Transform to application format
+    const mappedProjects = sfProjects.map((p) => {
+      // Get phases for this project
+      const projectPhases = sfPhases.filter((phase) => phase.Project__c === p.Id)
 
-        // Map phases and determine availability based on Unit data (availablePhaseIds)
-        const mappedPhases = projectPhases.map((phase) => ({
-          id: phase.Id,
-          projectId: phase.Project__c,
-          name: phase.Name,
-          nameAr: phase.Name_Ar__c,
-          // Phase is available if it is in the availablePhaseIds set (derived from Units)
-          status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
-          // We can't get exact count without another query, but for now we know it's > 0 if available
-          availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
-        }))
-
-        const availablePhasesCount = mappedPhases.filter((ph: any) => ph.status === 'Available').length
-
-        return {
-          id: p.Id,
-          name: p.Name,
-          nameAr: p.Name_Ar__c || p.Name,
-          location: p.Location__c,
-          locationAr: p.Location_Ar__c || p.Location__c,
-          coverImageUrl: p.Cover_Image_URL__c || '',
-          featuredVideoUrl: p.Featured_Video_URL__c || '',
-          status: p.Status__c || 'Active',
-          description: p.Description__c,
-          descriptionAr: p.Description_Ar__c,
-          phases: mappedPhases,
-          // UI Helpers
-          hasAvailability: availablePhasesCount > 0,
-          availablePhasesCount: availablePhasesCount,
-        }
-      })
-
-      console.log('[Projects] ✅ Loaded from Salesforce:', mappedProjects.length)
-
-      // Cache success result
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-        timestamp: Date.now(),
-        data: mappedProjects
+      // Map phases and determine availability based on Unit data (availablePhaseIds)
+      const mappedPhases = projectPhases.map((phase) => ({
+        id: phase.Id,
+        projectId: phase.Project__c,
+        name: phase.Name,
+        nameAr: phase.Name_Ar__c,
+        // Phase is available if it is in the availablePhaseIds set (derived from Units)
+        status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
+        // We can't get exact count without another query, but for now we know it's > 0 if available
+        availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
       }))
 
+      const availablePhasesCount = mappedPhases.filter((ph) => ph.status === 'Available').length
+
       return {
-        success: true,
-        data: mappedProjects,
+        id: p.Id,
+        name: p.Name,
+        nameAr: p.Name,
+        location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
+        locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
+        coverImageUrl: p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        featuredVideoUrl: '',
+        status: 'Active',
+        phases: mappedPhases,
+        // UI Helpers
+        hasAvailability: availablePhasesCount > 0,
+        availablePhasesCount: availablePhasesCount,
+        // Compatibility with older UI fields
+        nameEn: p.Name,
+        locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
       }
-    }
-  } catch (error) {
-    console.warn('[Projects] ⚠️ Failed to load from Salesforce, falling back to mocks:', error)
-  }
+    })
 
-  const result = await fetcher<(Project & { hasAvailability: boolean })[]>('/api/projects')
+    console.log('[Projects] ✅ Loaded from Salesforce:', mappedProjects.length)
 
-  // If API endpoint fails, return mock data as fallback
-  if (!result.success || !result.data || result.data.length === 0) {
-    // Transform mock projects to include availability info
-    const projectsWithAvailability = mockProjects.map((project) => ({
-      ...project,
-      hasAvailability: project.phases.some((phase) => phase.status === 'Available'),
-      availablePhasesCount: project.phases.filter((phase) => phase.status === 'Available').length,
-    }))
+    // Cache success result
+    sessionStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        data: mappedProjects,
+      })
+    )
 
     return {
       success: true,
-      data: projectsWithAvailability,
+      data: mappedProjects,
+    }
+  } catch (error) {
+    console.error('[Projects] ❌ Failed to load from Salesforce:', error)
+    return {
+      success: false,
+      error: 'Failed to load projects from Salesforce',
     }
   }
-
-  return result
 }
 
 export async function getProject(id: string) {
-  return fetcher<Project & { hasAvailability: boolean }>(`/api/projects/${id}`)
+  console.log('[Project] Fetching project from Salesforce:', id)
+
+  try {
+    const projectQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c, Hero_Image_URL__c, Logo_URL__c
+                          FROM Project__c 
+                          WHERE Id = '${id}'
+                          LIMIT 1`
+
+    const projectResult = await salesforceQuery<SalesforceProjectRecord>(projectQuery)
+    const p = projectResult.records?.[0]
+    if (!p) {
+      return { success: false, error: 'Project not found in Salesforce' }
+    }
+
+    const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
+                          FROM Phase__c 
+                          WHERE Project__c = '${id}'`
+    const phasesResult = await salesforceQuery<SalesforcePhaseRecord>(phasesQuery)
+    const sfPhases = phasesResult.records || []
+
+    const availabilityQuery = `SELECT Phase__c 
+                                FROM Unit__c 
+                                WHERE Project__c = '${id}'
+                                AND Status__c IN ('Available', 'On-Hold') 
+                                GROUP BY Phase__c`
+    const availabilityResult = await salesforceQuery<SalesforceAvailabilityRecord>(availabilityQuery)
+    const availablePhaseIds = new Set((availabilityResult.records || []).map((r) => r.Phase__c))
+
+    const mappedPhases = sfPhases.map((phase) => ({
+      id: phase.Id,
+      projectId: phase.Project__c,
+      name: phase.Name,
+      nameAr: phase.Name_Ar__c,
+      status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
+      availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
+    }))
+    const availablePhasesCount = mappedPhases.filter((ph) => ph.status === 'Available').length
+
+    return {
+      success: true,
+      data: {
+        id: p.Id,
+        name: p.Name,
+        nameAr: p.Name,
+        location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
+        locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
+        coverImageUrl: p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        featuredVideoUrl: '',
+        status: 'Active',
+        phases: mappedPhases,
+        hasAvailability: availablePhasesCount > 0,
+        availablePhasesCount,
+        nameEn: p.Name,
+        locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
+      },
+    }
+  } catch (error) {
+    console.error('[Project] ❌ Failed to load project from Salesforce:', error)
+    return {
+      success: false,
+      error: 'Failed to load project from Salesforce',
+    }
+  }
 }
 
 export async function getFeaturedVideo() {
@@ -455,67 +535,19 @@ export async function getFeaturedVideo() {
       console.warn('[Hero Video] ⚠️ No records found in Salesforce query result')
     }
 
-    // Fallback to API endpoint if no Salesforce record found
-    console.log('[Hero Video] No Salesforce record found, trying API endpoint fallback...')
-    const fallback = await fetcher<{
-      projectId: string
-      projectName: string
-      projectNameAr: string
-      videoUrl: string
-      coverImageUrl: string
-      aspectRatio?: number
-    }>('/api/projects/featured-video')
-
-    // If API endpoint also fails, return empty data (no video)
-    if (!fallback.success) {
-      console.warn('[Hero Video] ⚠️ API endpoint also failed, returning empty video data')
-      return {
-        success: true,
-        data: {
-          projectId: '',
-          projectName: '',
-          projectNameAr: '',
-          videoUrl: '',
-          coverImageUrl: '',
-          aspectRatio: undefined,
-        },
-      }
-    }
-
-    console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
-    return fallback
   } catch (error) {
     console.error('[Hero Video] ❌ ERROR fetching from Salesforce:', error)
-
-    // Fallback to API endpoint on error
-    console.log('[Hero Video] Attempting API endpoint fallback...')
-    const fallback = await fetcher<{
-      projectId: string
-      projectName: string
-      projectNameAr: string
-      videoUrl: string
-      coverImageUrl: string
-      aspectRatio?: number
-    }>('/api/projects/featured-video')
-
-    // If API endpoint also fails, return empty data (no video)
-    if (!fallback.success) {
-      console.warn('[Hero Video] ⚠️ API endpoint fallback also failed, returning empty video data')
-      return {
-        success: true,
-        data: {
-          projectId: '',
-          projectName: '',
-          projectNameAr: '',
-          videoUrl: '',
-          coverImageUrl: '',
-          aspectRatio: undefined,
-        },
-      }
+    return {
+      success: true,
+      data: {
+        projectId: '',
+        projectName: '',
+        projectNameAr: '',
+        videoUrl: '',
+        coverImageUrl: '',
+        aspectRatio: undefined,
+      },
     }
-
-    console.log('[Hero Video] ✅ Using API endpoint fallback data:', fallback.data)
-    return fallback
   }
 }
 
@@ -574,13 +606,15 @@ export async function searchUnits(filters?: UnitFilters) {
       }
     }
   } catch (error) {
-    console.warn('[Units] ⚠️ Failed to load from Salesforce, falling back to mocks:', error)
+    console.error('[Units] ❌ Failed to load from Salesforce:', error)
+    return {
+      success: false,
+      error: 'Failed to load units from Salesforce',
+    }
   }
-
-  // Fallback to mock data
   return {
     success: true,
-    data: searchMockUnits(filters || {}),
+    data: [],
   }
 }
 
@@ -618,18 +652,10 @@ export async function getUnit(id: string) {
       }
     }
   } catch (error) {
-    console.warn('[Units] ⚠️ Failed to load unit from Salesforce, falling back to mocks:', error)
-  }
-
-  // Fallback to mock data
-  const unit = getUnitById(id)
-  if (unit) {
+    console.error('[Units] ❌ Failed to load unit from Salesforce:', error)
     return {
-      success: true,
-      data: {
-        unit,
-        relatedUnits: getRelatedUnits(id, 3),
-      },
+      success: false,
+      error: 'Failed to load unit from Salesforce',
     }
   }
 
