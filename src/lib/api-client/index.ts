@@ -163,6 +163,12 @@ interface SalesforceAvailabilityRecord {
   Phase__c: string
 }
 
+function extractSalesforceIdFromAnchor(value?: string): string {
+  if (!value) return ''
+  const m = value.match(/href=["']\/([a-zA-Z0-9]{15,18})["']/i)
+  return m?.[1] || ''
+}
+
 // Projects
 export async function getProjects() {
   const CACHE_KEY = 'binsaedan_projects_cache'
@@ -212,7 +218,7 @@ export async function getProjects() {
 
     // 2. Fetch Phases for these projects
     console.log('[Projects] Fetching phases...')
-    const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
+    const phasesQuery = `SELECT Id, Name, Project__c
                           FROM Phase__c 
                           WHERE Project__c IN (${projectIds})`
 
@@ -225,8 +231,7 @@ export async function getProjects() {
     const availabilityQuery = `SELECT Phase__c 
                                 FROM Unit__c 
                                 WHERE Project__c IN (${projectIds}) 
-                                AND Status__c IN ('Available', 'On-Hold') 
-                                GROUP BY Phase__c`
+                                `
 
     const availabilityResult = await salesforceQuery<SalesforceAvailabilityRecord>(availabilityQuery)
     const availablePhaseIds = new Set((availabilityResult.records || []).map((r) => r.Phase__c))
@@ -622,34 +627,163 @@ export async function getUnit(id: string) {
   console.log('[Units] Fetching unit details from Salesforce:', id)
 
   try {
-    // We use the search endpoint with searchText matching the ID or Name
-    const result = await salesforceFetchUnits({ searchText: id, pageSize: 1 })
+    // Fetch unit by Id using SOQL via salesforce-query Netlify function
+    const soql = `SELECT Id, Name,
+      External_ID__c, Status__c, Price__c, Final_Price__c,
+      Number_of_Bedrooms__c, Number_of_Bathrooms__c, Total_Area__c, BUA__c, Floor__c,
+      Finishing__c, Usage_Type__c, View__c,
+      Has_Garden__c, Has_Land__c, Has_Roof__c, Has_Outdoor__c,
+      Garden_Area__c, Land_Area__c, Roof_Area__c, Outdoor_Area__c,
+      Eligible_for_Subsidies__c, Subsidies__c,
+      Unit_Image__c, X3D_Warehouse_iframe__c,
+      Project__c, 
+      Phase__c,
+      Block__c, 
+      Building__c
+      FROM Unit__c WHERE Id = '${id}' LIMIT 1`
 
-    if (result.success && result.data && result.data.units && result.data.units.length > 0) {
-      const unit = mapSalesforceUnit(result.data.units[0])
+    type SalesforceUnitRecord = {
+      Id: string
+      Name: string
+      External_ID__c?: string
+      Status__c?: string
+      Price__c?: number
+      Final_Price__c?: number
+      Number_of_Bedrooms__c?: number
+      Number_of_Bathrooms__c?: number
+      Total_Area__c?: number
+      BUA__c?: number
+      Floor__c?: number
+      Finishing__c?: string
+      Usage_Type__c?: string
+      View__c?: string
+      Has_Garden__c?: boolean
+      Has_Land__c?: boolean
+      Has_Roof__c?: boolean
+      Has_Outdoor__c?: boolean
+      Garden_Area__c?: number
+      Land_Area__c?: number
+      Roof_Area__c?: number
+      Outdoor_Area__c?: number
+      Eligible_for_Subsidies__c?: string
+      Subsidies__c?: number
+      Unit_Image__c?: string
+      X3D_Warehouse_iframe__c?: string
+      Project__c?: string
+      Phase__c?: string
+      Block__c?: string
+      Building__c?: string
+    }
 
-      // Get related units (same project, for example)
-      let relatedUnits: Unit[] = []
-      if (unit.projectId) {
-        const relatedResult = await salesforceFetchUnits({
+    const result = await salesforceQuery<SalesforceUnitRecord>(soql)
+    const record = result.records?.[0]
+    if (!record) return { success: false, error: 'Unit not found' }
+
+    const embed = record.X3D_Warehouse_iframe__c || ''
+    const embedSrcMatch = embed.match(/src=["']([^"']+)["']/i)
+    const embedSrc = embedSrcMatch?.[1]
+
+    const eligible =
+      (record.Eligible_for_Subsidies__c || '').toLowerCase() === 'yes' ||
+      (record.Eligible_for_Subsidies__c || '').toLowerCase() === 'true' ||
+      (record.Eligible_for_Subsidies__c || '').toLowerCase() === 'eligible'
+
+    const unit: Unit = {
+      id: record.Id,
+      projectId: extractSalesforceIdFromAnchor(record.Project__c) || record.Project__c || '',
+      phaseId: extractSalesforceIdFromAnchor(record.Phase__c) || record.Phase__c || '',
+      unitNumber: record.Name,
+      externalId: record.External_ID__c,
+      price: record.Price__c || 0,
+      finalPrice: record.Final_Price__c || undefined,
+      status: (record.Status__c as Unit['status']) || 'Available',
+      bedrooms: record.Number_of_Bedrooms__c || 0,
+      bathrooms: record.Number_of_Bathrooms__c || undefined,
+      area: record.Total_Area__c || 0,
+      bua: record.BUA__c || undefined,
+      floor: record.Floor__c || undefined,
+      finishing: record.Finishing__c || undefined,
+      usageType: record.Usage_Type__c || undefined,
+      view: record.View__c || undefined,
+      hasGarden: record.Has_Garden__c || false,
+      hasLand: record.Has_Land__c || false,
+      hasRoof: record.Has_Roof__c || false,
+      hasOutdoor: record.Has_Outdoor__c || false,
+      gardenArea: record.Garden_Area__c || undefined,
+      landArea: record.Land_Area__c || undefined,
+      roofArea: record.Roof_Area__c || undefined,
+      outdoorArea: record.Outdoor_Area__c || undefined,
+      eligibleForSubsidies: eligible,
+      subsidies: record.Subsidies__c ? String(record.Subsidies__c) : undefined,
+      deliveryDate: undefined,
+      images: record.Unit_Image__c ? [record.Unit_Image__c] : [],
+      unitImage: record.Unit_Image__c || undefined,
+      floorPlan: undefined,
+      sketchupEmbedUrl: embedSrc || undefined,
+      amenities: undefined,
+      description: undefined,
+      descriptionAr: undefined,
+      projectName: record.Project__c || undefined,
+      projectNameAr: undefined,
+      phaseName: record.Phase__c || undefined,
+      phaseNameAr: undefined,
+      buildingName: undefined,
+      blockName: record.Block__c || undefined,
+      notes: undefined,
+      paymentProgress: undefined,
+      paymentStatus: undefined,
+    }
+
+    let relatedUnits: Unit[] = []
+    if (unit.projectId) {
+      const relatedSoql = `SELECT Id, Name, Unit_Image__c, Price__c, Final_Price__c, Status__c,
+        Number_of_Bedrooms__c, Number_of_Bathrooms__c, Total_Area__c, BUA__c, Floor__c
+        FROM Unit__c
+        WHERE Project__c = '${unit.projectId}' AND Id != '${id}'
+        ORDER BY LastModifiedDate DESC
+        LIMIT 4`
+      const relatedResult = await salesforceQuery<{
+        Id: string
+        Name: string
+        Unit_Image__c?: string
+        Price__c?: number
+        Final_Price__c?: number
+        Status__c?: string
+        Number_of_Bedrooms__c?: number
+        Number_of_Bathrooms__c?: number
+        Total_Area__c?: number
+        BUA__c?: number
+        Floor__c?: number
+      }>(relatedSoql)
+
+      relatedUnits = (relatedResult.records || [])
+        .map((r) => ({
+          id: r.Id,
           projectId: unit.projectId,
-          pageSize: 4
-        })
-        if (relatedResult.success && relatedResult.data?.units) {
-          relatedUnits = relatedResult.data.units
-            .filter(u => u.id !== id)
-            .map(mapSalesforceUnit)
-            .slice(0, 3)
-        }
-      }
+          phaseId: '',
+          unitNumber: r.Name,
+          externalId: undefined,
+          price: r.Price__c || 0,
+          finalPrice: r.Final_Price__c || undefined,
+          status: (r.Status__c as Unit['status']) || 'Available',
+          bedrooms: r.Number_of_Bedrooms__c || 0,
+          bathrooms: r.Number_of_Bathrooms__c || undefined,
+          area: r.Total_Area__c || 0,
+          bua: r.BUA__c || undefined,
+          floor: r.Floor__c || undefined,
+          images: r.Unit_Image__c ? [r.Unit_Image__c] : [],
+          unitImage: r.Unit_Image__c || undefined,
+          notes: undefined,
+        }))
+        .slice(0, 3)
+    }
 
-      return {
-        success: true,
-        data: {
-          unit,
-          relatedUnits
-        }
-      }
+    return {
+      success: true,
+      data: {
+        unit,
+        relatedUnits,
+      },
     }
   } catch (error) {
     console.error('[Units] ❌ Failed to load unit from Salesforce:', error)

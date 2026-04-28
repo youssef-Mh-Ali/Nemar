@@ -10,6 +10,13 @@ interface SalesforceQueryResult<T> {
   error?: string
 }
 
+function extractSalesforceIdFromAnchor(value?: string): string {
+  if (!value) return ''
+  // Example: <a href="/a0AOm00000IFO33" target="_blank">Phase 1</a>
+  const m = value.match(/href=["']\/([a-zA-Z0-9]{15,18})["']/i)
+  return m?.[1] || ''
+}
+
 interface SalesforceCreateResult {
   success: boolean
   id: string
@@ -26,7 +33,7 @@ export interface SalesforceUnitDTO {
   currencyCode: string;
   unitImage: string;
   images: string[];
-  notes: any[];
+  notes: unknown[];
   numberOfBedrooms: number;
   numberOfBathrooms: number;
   totalArea: number;
@@ -186,15 +193,14 @@ export async function salesforceUpdate(
 /**
  * Fetch units from Salesforce via Netlify Function
  */
-export async function salesforceFetchUnits(filters: Record<string, any> = {}): Promise<SalesforceUnitSearchResponse> {
+export async function salesforceFetchUnits(filters: Record<string, unknown> = {}): Promise<SalesforceUnitSearchResponse> {
   console.log('[Salesforce Units] Fetching units with filters:', filters)
 
   try {
     const params = new URLSearchParams()
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.append(key, String(value))
-      }
+      if (value === undefined || value === null || value === '') return
+      params.append(key, String(value))
     })
 
     const query = params.toString() ? `?${params.toString()}` : ''
@@ -207,16 +213,10 @@ export async function salesforceFetchUnits(filters: Record<string, any> = {}): P
     }
 
     const result: SalesforceUnitSearchResponse = await response.json()
-
     if (!result.success) {
       console.error('[Salesforce Units] ❌ FAILED:', result.errorCode, result.message)
       throw new Error(result.message || 'Salesforce units fetch failed')
     }
-
-    console.log('[Salesforce Units] ✅ SUCCESS:', {
-      unitCount: result.data?.units?.length || 0,
-      totalCount: result.data?.pagination?.totalCount || 0,
-    })
 
     return result
   } catch (error) {
