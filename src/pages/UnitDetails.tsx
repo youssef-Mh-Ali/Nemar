@@ -12,7 +12,7 @@ import {
   Paper,
   CircularProgress,
 } from '@mui/material'
-import { ArrowRight, Bed, Bath, Maximize, Calendar, Check } from 'lucide-react'
+import { ArrowRight, Bed, Bath, Maximize, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
@@ -63,13 +63,6 @@ export default function UnitDetails() {
     }).format(price)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-    })
-  }
-
 
   if (isLoading) {
     return (
@@ -95,13 +88,13 @@ export default function UnitDetails() {
     )
   }
 
-  const statusColors: Record<Unit['status'], 'success' | 'warning' | 'error'> = {
+  const statusColors: Partial<Record<Unit['status'], 'success' | 'warning' | 'error'>> = {
     Available: 'success',
     Reserved: 'warning',
     Sold: 'error',
   }
 
-  const statusLabels: Record<Unit['status'], string> = {
+  const statusLabels: Partial<Record<Unit['status'], string>> = {
     Available: 'متاح',
     Reserved: 'محجوز',
     Sold: 'مباع',
@@ -197,8 +190,8 @@ export default function UnitDetails() {
             </Box>
           </Box>
           <Chip
-            label={statusLabels[unit.status]}
-            color={statusColors[unit.status]}
+            label={statusLabels[unit.status] || unit.status}
+            color={statusColors[unit.status] || 'warning'}
             sx={{
               position: 'absolute',
               top: { xs: 16, md: 20 },
@@ -320,29 +313,6 @@ export default function UnitDetails() {
                       </Typography>
                       <Typography variant="h5" fontWeight="bold" color="primary.main">
                         {unit.area} {t('unit.areaUnit')}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid size={{ xs: 6, md: 3 }}>
-                    <Box
-                      sx={{
-                        textAlign: 'center',
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: 'grey.50',
-                        transition: 'all 0.2s',
-                        '&:hover': {
-                          bgcolor: 'grey.100',
-                          transform: 'translateY(-2px)',
-                        },
-                      }}
-                    >
-                      <Calendar size={28} color="#1a365d" style={{ margin: '0 auto 12px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                        {t('unit.deliveryLabel')}
-                      </Typography>
-                      <Typography variant="h5" fontWeight="bold" color="primary.main">
-                        {formatDate(unit.deliveryDate)}
                       </Typography>
                     </Box>
                   </Grid>

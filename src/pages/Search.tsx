@@ -27,6 +27,7 @@ export default function Search() {
   const [searchParams] = useSearchParams()
   const { filters, setFilters, setFilterDrawerOpen } = useAppStore()
   const [units, setUnits] = useState<Unit[]>([])
+  const [pagination, setPagination] = useState<{ hasNextPage: boolean; hasPreviousPage: boolean } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -38,14 +39,18 @@ export default function Search() {
     }
   }, [searchParams])
 
-  // Fetch units when filters change
+  // Fetch units when filters change (filtering happens on backend)
   useEffect(() => {
     async function loadUnits() {
       setIsLoading(true)
       try {
-        const response = await searchUnits(filters)
+        const response = await searchUnits({ ...filters, page: filters.page || 1, pageSize: filters.pageSize || 12 })
         if (response.success && response.data) {
           setUnits(response.data)
+          setPagination({
+            hasNextPage: !!response.pagination?.hasNextPage,
+            hasPreviousPage: !!response.pagination?.hasPreviousPage,
+          })
         }
       } catch (error) {
         console.error('Error loading units:', error)
@@ -159,13 +164,27 @@ export default function Search() {
                 </Button>
               </Box>
             ) : (
-              <Grid container spacing={2}>
-                {units.map((unit, index) => (
-                  <Grid size={{ xs: 12, sm: 6, lg: viewMode === 'grid' ? 4 : 12 }} key={unit.id}>
-                    <UnitCard unit={unit} index={index} />
-                  </Grid>
-                ))}
-              </Grid>
+              <>
+                <Grid container spacing={2}>
+                  {units.map((unit, index) => (
+                    <Grid size={{ xs: 12, sm: 6, lg: viewMode === 'grid' ? 4 : 12 }} key={unit.id}>
+                      <UnitCard unit={unit} index={index} />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                  <Button
+                    variant="outlined"
+                    disabled={isLoading || !pagination?.hasNextPage}
+                    onClick={() => {
+                      setFilters({ ...filters, page: (filters.page || 1) + 1, pageSize: filters.pageSize || 12 })
+                    }}
+                  >
+                    Next
+                  </Button>
+                </Box>
+              </>
             )}
           </Grid>
         </Grid>
