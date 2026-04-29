@@ -20,16 +20,16 @@ import DashboardUnitCard from '../components/community/DashboardUnitCard'
 import CaseForm from '../components/community/CaseForm'
 import CaseList from '../components/community/CaseList'
 import { useAuthStore } from '../lib/store'
-import { getMyUnits, getCases } from '../lib/api-client'
+import { getMyOpportunities, getCases, type MyOpportunity } from '../lib/api-client'
 import { Unit, Case } from '../lib/types'
-import LanguageToggle from '../components/ui/LanguageToggle'
 
 export default function Community() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const isRtl = i18n.language === 'ar'
-  const { user, token } = useAuthStore()
+  const { user } = useAuthStore()
   const [units, setUnits] = useState<Unit[]>([])
+  const [opportunities, setOpportunities] = useState<MyOpportunity[]>([])
   const [cases, setCases] = useState<Case[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'units' | 'cases'>('units')
@@ -44,13 +44,11 @@ export default function Community() {
     async function loadData() {
       setIsLoading(true)
       try {
-        const [unitsRes, casesRes] = await Promise.all([
-          getMyUnits(token || undefined),
-          getCases(token || undefined),
-        ])
+        const [oppRes, casesRes] = await Promise.all([getMyOpportunities(), getCases(undefined)])
 
-        if (unitsRes.success && unitsRes.data) {
-          setUnits(unitsRes.data)
+        if (oppRes.success && oppRes.data) {
+          setOpportunities(oppRes.data)
+          setUnits(oppRes.data.flatMap((o) => o.units || []))
         }
         if (casesRes.success && casesRes.data) {
           setCases(casesRes.data)
@@ -63,10 +61,10 @@ export default function Community() {
     }
 
     loadData()
-  }, [user, token, navigate])
+  }, [user, navigate])
 
   const refreshCases = async () => {
-    const casesRes = await getCases(token || undefined)
+    const casesRes = await getCases(undefined)
     if (casesRes.success && casesRes.data) {
       setCases(casesRes.data)
     }
@@ -103,28 +101,6 @@ export default function Community() {
         </Box>
 
         <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 8 }}>
-            <Link to="/demo">
-              <Box
-                component="img"
-                src="/FBS%20logo%20acronim.svg"
-                alt="Bin Saedan"
-                sx={{ height: 40, width: 'auto' }}
-              />
-            </Link>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <LanguageToggle sx={{ color: 'white' }} />
-              <Button 
-                component={Link} 
-                to="/demo" 
-                variant="text" 
-                sx={{ color: 'white', opacity: 0.8 }}
-              >
-                {t('common.home')}
-              </Button>
-            </Box>
-          </Box>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -273,7 +249,7 @@ export default function Community() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              {units.length === 0 ? (
+              {opportunities.length === 0 ? (
                 <Paper sx={{ p: 8, textAlign: 'center', borderRadius: 4, bgcolor: 'transparent', border: '2px dashed', borderColor: 'divider' }} elevation={0}>
                   <Building2 size={64} color="#CBD5E1" style={{ margin: '0 auto 20px' }} />
                   <Typography variant="h6" fontWeight="bold">{t('community.noUnits')}</Typography>
@@ -281,13 +257,38 @@ export default function Community() {
                   <Button component={Link} to="/demo/search" variant="contained" size="large">{t('community.exploreUnits')}</Button>
                 </Paper>
               ) : (
-                <Grid container spacing={4}>
-                  {units.map((unit) => (
-                    <Grid size={{ xs: 12, md: 6 }} key={unit.id}>
-                      <DashboardUnitCard unit={unit} />
-                    </Grid>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {opportunities.map((opp) => (
+                    <Box key={opp.id}>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 2.5,
+                          borderRadius: 3,
+                          bgcolor: 'white',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          mb: 2,
+                        }}
+                      >
+                        <Typography fontWeight={800} color="primary.main">
+                          {opp.name || t('community.myUnits')}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {(opp.stageName || '').trim()}
+                        </Typography>
+                      </Paper>
+
+                      <Grid container spacing={4}>
+                        {(opp.units || []).map((unit) => (
+                          <Grid size={{ xs: 12, md: 6 }} key={unit.id}>
+                            <DashboardUnitCard unit={unit} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               )}
             </motion.div>
           ) : (
