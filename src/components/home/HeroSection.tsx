@@ -416,6 +416,25 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
+          {/* Logo */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            style={{ marginBottom: '32px' }}
+          >
+            <Box
+              component="img"
+              src="/FBS%20logo%20acronim.svg"
+              alt={t('home.title')}
+              sx={{
+                height: { xs: '64px', md: '80px' },
+                width: 'auto',
+                mx: 'auto',
+              }}
+            />
+          </motion.div>
+
           {/* Main Heading */}
           <Typography
             variant="h1"
