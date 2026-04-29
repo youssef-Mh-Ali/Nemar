@@ -10,6 +10,7 @@ async function fetcher<T>(endpoint: string, options?: RequestInit): Promise<ApiR
         'Content-Type': 'application/json',
         ...options?.headers,
       },
+      credentials: 'include',
       ...options,
     })
 
@@ -890,31 +891,33 @@ export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'source'>
 
 // Auth
 export async function login(username: string, password: string) {
-  return fetcher<{ user: AuthUser; token: string }>('/api/auth/login', {
+  // Session-based login (cookie set by Netlify Function)
+  return fetcher<{ user: AuthUser }>('/.netlify/functions/auth-login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email: username, password }),
   })
 }
 
-export async function getCurrentUser(token?: string) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-  return fetcher<AuthUser>('/api/auth/me', { headers })
+export async function getCurrentUser() {
+  return fetcher<AuthUser | null>('/.netlify/functions/auth-me')
 }
 
 export async function logout() {
-  return fetcher<void>('/api/auth/logout', { method: 'POST' })
+  return fetcher<void>('/.netlify/functions/auth-logout', { method: 'POST' })
 }
 
-// My Units
-export async function getMyUnits(token?: string) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-  return fetcher<Unit[]>('/api/my-units', { headers })
+// My Opportunities + Units (session-based)
+export type MyOpportunity = {
+  id: string
+  name: string
+  stageName?: string
+  closeDate?: string | null
+  amount?: number | null
+  units: Unit[]
+}
+
+export async function getMyOpportunities() {
+  return fetcher<MyOpportunity[]>('/.netlify/functions/my-opportunities')
 }
 
 // Cases

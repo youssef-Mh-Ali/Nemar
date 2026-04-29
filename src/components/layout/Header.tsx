@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Box, Button, IconButton } from '@mui/material'
 import { LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
+import { logout } from '../../lib/api-client'
 import LanguageToggle from '../ui/LanguageToggle'
 
 export default function Header() {
@@ -66,7 +67,17 @@ export default function Header() {
               <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
                 {user.firstName}
               </Box>
-              <IconButton onClick={clearAuth} size="small" title={t('common.logout')}>
+              <IconButton
+                onClick={async () => {
+                  try {
+                    await logout()
+                  } finally {
+                    clearAuth()
+                  }
+                }}
+                size="small"
+                title={t('common.logout')}
+              >
                 <LogOut size={20} />
               </IconButton>
             </>

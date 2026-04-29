@@ -23,7 +23,12 @@ export default function ProjectsGrid() {
       try {
         const response = await getProjects()
         if (response.success && response.data) {
-          setProjects(response.data)
+          setProjects(
+            response.data.filter(
+              (project) =>
+                project.hasAvailability || (project.availablePhasesCount ?? 0) > 0
+            )
+          )
         }
       } catch (error) {
         console.error('Error loading projects:', error)

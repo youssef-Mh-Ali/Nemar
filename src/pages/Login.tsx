@@ -51,7 +51,7 @@ export default function Login() {
       const response = await login(data.username, data.password)
 
       if (response.success && response.data) {
-        setAuth(response.data.user, response.data.token)
+        setAuth(response.data.user, null)
         navigate('/community')
       } else {
         setError(response.error || t('login.errorGeneric'))
