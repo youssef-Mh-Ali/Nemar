@@ -425,7 +425,7 @@ export default function HeroSection() {
           >
             <Box
               component="img"
-              src="/BinSaedanLogo-White.png"
+              src="/FBS%20logo%20acronim.svg"
               alt={t('home.title')}
               sx={{
                 height: { xs: '64px', md: '80px' },

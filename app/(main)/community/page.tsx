@@ -74,7 +74,7 @@ export default function CommunityPage() {
           >
             {/* Logo */}
             <Image
-              src="/BinSaedanLogo-White.png"
+              src="/FBS%20logo%20acronim.svg"
               alt="فيصل بن سعيدان"
               width={160}
               height={45}

@@ -11,7 +11,26 @@ export interface Project {
   status: "Active" | "Completed";
   description?: string;
   descriptionAr?: string;
+  mapCentroidLat?: number;
+  mapCentroidLng?: number;
+  mapGeometryJson?: unknown;
+  notes?: ProjectNote[];
+  attachments?: ProjectAttachment[];
   phases: Phase[];
+}
+
+export interface ProjectAttachment {
+  id: string;
+  title: string;
+  fileExtension?: string;
+  fileType?: string;
+  url: string;
+}
+
+export interface ProjectNote {
+  id: string;
+  title: string;
+  url: string;
 }
 
 export interface Phase {
@@ -75,7 +94,7 @@ export interface Lead {
   lastName: string;
   email: string;
   phone: string;
-  profile?: "Investor" | "Supplier" | "Operator";
+  profile?: "Investor" | "Customer";
   source: "PWA";
   interestedProjectId?: string;
   interestedPhaseId?: string;

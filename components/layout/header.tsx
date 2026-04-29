@@ -24,7 +24,7 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/BinSaedanLogo.png"
+            src="/FBS%20logo%20acronim.svg"
             alt="فيصل بن سعيدان"
             width={140}
             height={40}

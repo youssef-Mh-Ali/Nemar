@@ -75,11 +75,13 @@ const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
 type FormData = z.infer<ReturnType<typeof getSchema>>
 
 const getSchema = (t: (key: string) => string) => z.object({
-  profile: z.enum(['Investor', 'Supplier', 'Operator']),
-  firstName: z.string().min(2, t('registerInterest.firstNameRequired')),
-  lastName: z.string().min(2, t('registerInterest.lastNameRequired')),
-  email: z.string().email(t('registerInterest.emailInvalid')),
+  profile: z.enum(['Investor', 'Customer']),
+  name: z.string().min(2, t('registerInterest.firstNameRequired')),
+  email: z.union([z.string().email(t('registerInterest.emailInvalid')), z.literal('')]).optional(),
   phone: z.string().min(9, t('registerInterest.phoneInvalid')),
+  region: z.string().optional(),
+  city: z.string().optional(),
+  project: z.string().optional(),
   message: z.string().min(10, t('contact.message')),
 })
 
@@ -125,7 +127,24 @@ export default function Contact() {
     setError(null)
 
     try {
-      const response = await createLead(data)
+      const parts = data.name.trim().split(/\s+/).filter(Boolean)
+      const firstName = parts[0] || ''
+      const lastName = parts.slice(1).join(' ') || firstName
+      const meta = [
+        data.region ? `Region: ${data.region}` : null,
+        data.city ? `City: ${data.city}` : null,
+        data.project ? `Project: ${data.project}` : null,
+      ].filter(Boolean)
+      const message = meta.length ? `${data.message}\n\n${meta.join('\n')}` : data.message
+
+      const response = await createLead({
+        profile: data.profile,
+        firstName,
+        lastName,
+        phone: data.phone,
+        email: data.email || '',
+        message,
+      })
 
       if (response.success) {
         setIsSuccess(true)
@@ -234,8 +253,7 @@ export default function Contact() {
                                 aria-label={t('contact.profileQuestion')}
                               >
                                 <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
-                                <ToggleButton value="Supplier">{t('contact.profileOptions.supplier')}</ToggleButton>
-                                <ToggleButton value="Operator">{t('contact.profileOptions.operator')}</ToggleButton>
+                                <ToggleButton value="Customer">{t('contact.profileOptions.customer', 'Customer')}</ToggleButton>
                               </ToggleButtonGroup>
                             )}
                           />
@@ -245,24 +263,14 @@ export default function Contact() {
                             </Typography>
                           )}
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
+                        <Grid size={{ xs: 12 }}>
                           <TextField
-                            {...register('firstName')}
-                            label={t('contact.firstName')}
-                            placeholder={t('contact.firstNamePlaceholder')}
+                            {...register('name')}
+                            label={t('contact.name', 'Name')}
+                            placeholder={t('contact.namePlaceholder', 'Your name')}
                             fullWidth
-                            error={!!errors.firstName}
-                            helperText={errors.firstName?.message}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField
-                            {...register('lastName')}
-                            label={t('contact.lastName')}
-                            placeholder={t('contact.lastNamePlaceholder')}
-                            fullWidth
-                            error={!!errors.lastName}
-                            helperText={errors.lastName?.message}
+                            error={!!errors.name}
+                            helperText={errors.name?.message}
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -283,8 +291,39 @@ export default function Contact() {
                             type="tel"
                             placeholder={t('contact.phonePlaceholder')}
                             fullWidth
+                            required
                             error={!!errors.phone}
                             helperText={errors.phone?.message}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12 }}>
+                          <TextField
+                            {...register('region')}
+                            label={t('contact.region', 'Region')}
+                            placeholder={t('contact.regionPlaceholder', 'Your region')}
+                            fullWidth
+                            error={!!errors.region}
+                            helperText={errors.region?.message}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12 }}>
+                          <TextField
+                            {...register('city')}
+                            label={t('contact.city', 'City')}
+                            placeholder={t('contact.cityPlaceholder', 'Your city')}
+                            fullWidth
+                            error={!!errors.city}
+                            helperText={errors.city?.message}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12 }}>
+                          <TextField
+                            {...register('project')}
+                            label={t('contact.project', 'Project')}
+                            placeholder={t('contact.projectPlaceholder', 'Project name')}
+                            fullWidth
+                            error={!!errors.project}
+                            helperText={errors.project?.message}
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>

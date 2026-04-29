@@ -44,7 +44,7 @@
     "phone": "+966 11 234 5678",
     "email": "info@faisal-binsaedan.com",
     "address": "الرياض، المملكة العربية السعودية",
-    "phasesAvailable": "{{count}} مراحل متاحة",
+    "phasesAvailable": "{{count}} وحدات متاحة",
     "soldOut": "مباع بالكامل",
     "phases": "مراحل",
     "viewUnits": "عرض الوحدات",
@@ -70,6 +70,8 @@
     "deliveryYear": "سنة التسليم",
     "priceRange": "نطاق السعر",
     "applyFilters": "تطبيق الفلاتر",
+    "previous": "السابق",
+    "next": "التالي",
     "autocomplete": {
       "placeholder": "ابحث عن مشروع أو مرحلة...",
       "popular1": "شقق للبيع في الرياض",
@@ -156,7 +158,8 @@
     "profileOptions": {
       "investor": "مستثمر",
       "supplier": "مورد",
-      "operator": "مشغّل"
+      "operator": "مشغّل",
+      "customer": "عميل"
     },
     "name": "الاسم",
     "email": "البريد الإلكتروني",

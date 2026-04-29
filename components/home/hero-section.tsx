@@ -80,7 +80,7 @@ export function HeroSection() {
             className="mb-8"
           >
             <Image
-              src="/BinSaedanLogo-White.png"
+              src="/FBS%20logo%20acronim.svg"
               alt="فيصل بن سعيدان"
               width={280}
               height={80}

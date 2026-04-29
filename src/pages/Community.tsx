@@ -107,7 +107,7 @@ export default function Community() {
             <Link to="/demo">
               <Box
                 component="img"
-                src="/BinSaedanLogo-White.png"
+                src="/FBS%20logo%20acronim.svg"
                 alt="Bin Saedan"
                 sx={{ height: 40, width: 'auto' }}
               />

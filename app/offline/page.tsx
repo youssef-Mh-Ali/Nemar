@@ -14,7 +14,7 @@ export default function OfflinePage() {
       <div className="text-center max-w-md">
         {/* Logo */}
         <Image
-          src="/BinSaedanLogo.png"
+          src="/FBS%20logo%20acronim.svg"
           alt="فيصل بن سعيدان"
           width={180}
           height={50}

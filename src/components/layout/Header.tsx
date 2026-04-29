@@ -31,7 +31,7 @@ export default function Header() {
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <Box
             component="img"
-            src="/BinSaedanLogo.png"
+            src="/FBS%20logo%20acronim.svg"
             alt={t('home.title')}
             sx={{
               height: { xs: 32, sm: 40 },
