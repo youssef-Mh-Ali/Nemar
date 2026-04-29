@@ -2,6 +2,8 @@
   "common": {
     "home": "Home",
     "search": "Search",
+    "aboutUs": "About Us",
+    "achievements": "Achievements",
     "community": "My Community",
     "contact": "Contact Us",
     "login": "Login",
@@ -18,6 +20,37 @@
     "edit": "Edit",
     "view": "View",
     "more": "More"
+  },
+  "ach": {
+    "title": "Our Achievements",
+    "subtitle": "Milestones that shaped our story and the recognition that reflects our commitment to quality and innovation.",
+    "stats": {
+      "years": "Years of Excellence",
+      "projects": "Projects Delivered",
+      "units": "Units Delivered",
+      "families": "Families Served"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "subtitle": "A Journey of Growth"
+    },
+    "awards": {
+      "title": "Recognition",
+      "subtitle": "Awards & Certifications"
+    },
+    "press": {
+      "title": "What the Press Says"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Learn about our board members and our strategic vision and mission.",
+    "companyIntroTitle": "About the Company",
+    "companyIntroBody": "It is a real estate development company that was established to be an active partner in the real estate scene of the Kingdom of Saudi Arabia by implementing exceptional residential and commercial real estate innovations. Since its inception, the company has worked to ensure that its projects are characterized by quality and sustainability to create spaces that meet the desires and goals of individuals and communities.",
+    "visionMissionTitle": "Vision & Mission",
+    "boardMembersTitle": "Board Members",
+    "animatedPanelTitle": "Building Tomorrow",
+    "animatedPanelBody": "Our strategy combines design quality, investment discipline, and sustainable urban value."
   },
   "home": {
     "title": "Faisal Bin Saedan",

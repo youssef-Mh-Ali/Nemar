@@ -1,6 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material'
-import { Home, Search, Building2, MoreHorizontal } from 'lucide-react'
+import { Home, Search, Users, Building2, MoreHorizontal, Trophy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function BottomNav() {
@@ -11,6 +11,8 @@ export default function BottomNav() {
   const navItems = [
     { path: '/', label: t('common.home'), icon: Home },
     { path: '/search', label: t('common.search'), icon: Search },
+    { path: '/about-us', label: t('common.aboutUs'), icon: Users },
+    { path: '/achievements', label: t('common.achievements'), icon: Trophy },
     { path: '/community', label: t('common.community'), icon: Building2 },
     { path: '/contact', label: t('common.more'), icon: MoreHorizontal },
   ]

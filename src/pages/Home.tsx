@@ -90,10 +90,12 @@ export default function Home() {
               src="/Capital-Market-Authority-01.png"
               alt="Capital Market Authority"
               sx={{
+                display: 'block',
                 maxWidth: '100%',
                 height: 'auto',
                 maxHeight: 350,
                 objectFit: 'contain',
+                mx: 'auto',
                 mb: 4
               }}
             />
@@ -116,7 +118,7 @@ export default function Home() {
               <Typography
                 variant="overline"
                 sx={{
-                  color: 'secondary.main',
+                  color: 'primary.light',
                   fontWeight: 500,
                   mb: 1,
                   display: 'block',
@@ -206,10 +208,25 @@ export default function Home() {
               {t('home.ctaDescription')}
             </Typography>
             <Button
-              variant="contained"
-              color="secondary"
+              variant="outlined"
               size="large"
               onClick={() => setIsRegisterModalOpen(true)}
+              sx={{
+                px: { xs: 2.25, sm: 2.75 },
+                py: { xs: 1, sm: 1.125 },
+                gap: 0.5,
+                borderRadius: 1.5,
+                borderWidth: 1.5,
+                fontWeight: 500,
+                borderColor: 'rgba(255, 255, 255, 0.75)',
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.06)',
+                '&:hover': {
+                  borderWidth: 1.5,
+                  borderColor: 'white',
+                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                },
+              }}
             >
               {t('home.registerInterest')}
             </Button>

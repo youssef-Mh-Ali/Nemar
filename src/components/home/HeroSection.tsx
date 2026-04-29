@@ -416,25 +416,6 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          {/* Logo */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            style={{ marginBottom: '32px' }}
-          >
-            <Box
-              component="img"
-              src="/FBS%20logo%20acronim.svg"
-              alt={t('home.title')}
-              sx={{
-                height: { xs: '64px', md: '80px' },
-                width: 'auto',
-                mx: 'auto',
-              }}
-            />
-          </motion.div>
-
           {/* Main Heading */}
           <Typography
             variant="h1"
@@ -448,7 +429,7 @@ export default function HeroSection() {
           >
             {t('home.heroTitle')}
             <br />
-            <Box component="span" sx={{ color: 'secondary.main' }}>
+            <Box component="span" sx={{ color: 'white' }}>
               {t('home.heroSubtitle')}
             </Box>
           </Typography>
@@ -472,9 +453,15 @@ export default function HeroSection() {
               component={Link}
               to="/search"
               variant="contained"
-              color="secondary"
               size="large"
-              sx={{ minWidth: '200px' }}
+              sx={{
+                minWidth: '200px',
+                bgcolor: 'primary.light',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'primary.main',
+                },
+              }}
             >
               {t('home.exploreProjects')}
             </Button>

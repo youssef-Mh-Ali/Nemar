@@ -25,8 +25,8 @@ export default function VideoOverlay() {
         // Dark overlay gradient - darker for better text readability
         // Using multiple layers for better coverage
         background: [
-          'linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.85))',
-          'radial-gradient(circle at center, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6))',
+          'linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.65))',
+          'radial-gradient(circle at center, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45))',
         ].join(', '),
       }}
     >
