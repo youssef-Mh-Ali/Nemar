@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import Search from './pages/Search'
 import UnitDetails from './pages/UnitDetails'
+import ProjectDetails from './pages/ProjectDetails'
 import Login from './pages/Login'
 import Community from './pages/Community'
 import Contact from './pages/Contact'
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
+          <Route path="project/:id" element={<ProjectDetails />} />
           <Route path="unit/:id" element={<UnitDetails />} />
           <Route path="contact" element={<Contact />} />
           <Route

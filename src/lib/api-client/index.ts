@@ -149,24 +149,136 @@ interface SalesforceProjectRecord {
   District__c?: string
   Hero_Image_URL__c?: string
   Logo_URL__c?: string
+  Available_Units__c?: number
+  Map_Centroid_Lat__c?: number
+  Map_Centroid_Lng__c?: number
+  Map_Geometry_JSON__c?: string
 }
 
-interface SalesforcePhaseRecord {
+interface SalesforceContentDocumentLinkRecord {
+  ContentDocumentId: string
+  LinkedEntityId: string
+}
+
+interface SalesforceContentVersionRecord {
   Id: string
-  Name: string
-  Name_Ar__c?: string
-  Project__c: string
-  Status__c?: string
-}
-
-interface SalesforceAvailabilityRecord {
-  Phase__c: string
+  Title: string
+  FileExtension?: string
+  FileType?: string
+  ContentDocumentId: string
+  CreatedDate: string
 }
 
 function extractSalesforceIdFromAnchor(value?: string): string {
   if (!value) return ''
   const m = value.match(/href=["']\/([a-zA-Z0-9]{15,18})["']/i)
   return m?.[1] || ''
+}
+
+async function getProjectNotesAndAttachments(projectId: string) {
+  // Files & enhanced notes are both exposed via ContentDocumentLink/ContentVersion.
+  const linksQuery = `SELECT ContentDocumentId
+                      FROM ContentDocumentLink
+                      WHERE LinkedEntityId = '${projectId}'`
+  const linksResult = await salesforceQuery<SalesforceContentDocumentLinkRecord>(linksQuery)
+  const documentIds = (linksResult.records || []).map((r) => r.ContentDocumentId).filter(Boolean)
+
+  if (documentIds.length === 0) {
+    return { notes: [], attachments: [] }
+  }
+
+  const idsSoql = documentIds.map((id) => `'${id}'`).join(',')
+  const versionsQuery = `SELECT Id, Title, FileExtension, FileType, ContentDocumentId, CreatedDate
+                         FROM ContentVersion
+                         WHERE IsLatest = true
+                         AND ContentDocumentId IN (${idsSoql})
+                         ORDER BY CreatedDate DESC`
+  const versionsResult = await salesforceQuery<SalesforceContentVersionRecord>(versionsQuery)
+  const versions = versionsResult.records || []
+
+  const isNote = (v: SalesforceContentVersionRecord) => {
+    const ext = (v.FileExtension || '').toLowerCase()
+    const type = (v.FileType || '').toUpperCase()
+    return ext === 'snote' || type === 'SNOTE'
+  }
+
+  const toUrl = (versionId: string) => `/.netlify/functions/salesforce-file?versionId=${encodeURIComponent(versionId)}`
+
+  const notes = versions
+    .filter(isNote)
+    .map((v) => ({
+      id: v.Id,
+      title: v.Title,
+      url: toUrl(v.Id),
+    }))
+
+  const attachments = versions
+    .filter((v) => !isNote(v))
+    .map((v) => ({
+      id: v.Id,
+      title: v.Title,
+      fileExtension: v.FileExtension,
+      fileType: v.FileType,
+      url: toUrl(v.Id),
+    }))
+
+  return { notes, attachments }
+}
+
+async function getProjectsCoverImages(projectIds: string[]) {
+  if (projectIds.length === 0) return new Map<string, string>()
+
+  const idsSoql = projectIds.map((id) => `'${id}'`).join(',')
+  const linksQuery = `SELECT ContentDocumentId, LinkedEntityId
+                      FROM ContentDocumentLink
+                      WHERE LinkedEntityId IN (${idsSoql})`
+  const linksResult = await salesforceQuery<SalesforceContentDocumentLinkRecord>(linksQuery)
+  const links = linksResult.records || []
+
+  const contentDocumentIds = Array.from(new Set(links.map((l) => l.ContentDocumentId).filter(Boolean)))
+  if (contentDocumentIds.length === 0) return new Map<string, string>()
+
+  const docIdsSoql = contentDocumentIds.map((id) => `'${id}'`).join(',')
+  const versionsQuery = `SELECT Id, Title, FileExtension, FileType, ContentDocumentId, CreatedDate
+                         FROM ContentVersion
+                         WHERE IsLatest = true
+                         AND ContentDocumentId IN (${docIdsSoql})
+                         ORDER BY CreatedDate DESC`
+  const versionsResult = await salesforceQuery<SalesforceContentVersionRecord>(versionsQuery)
+  const versions = versionsResult.records || []
+
+  const versionByDocId = new Map<string, SalesforceContentVersionRecord>()
+  for (const v of versions) {
+    // Query is ORDER BY CreatedDate DESC, so first we see is newest
+    if (!versionByDocId.has(v.ContentDocumentId)) versionByDocId.set(v.ContentDocumentId, v)
+  }
+
+  const isImage = (ext?: string) => {
+    const e = (ext || '').toLowerCase()
+    return e === 'png' || e === 'jpg' || e === 'jpeg'
+  }
+
+  const coverByProjectId = new Map<string, string>()
+  for (const link of links) {
+    const v = versionByDocId.get(link.ContentDocumentId)
+    if (!v) continue
+    if (!isImage(v.FileExtension)) continue
+    if (coverByProjectId.has(link.LinkedEntityId)) continue
+    coverByProjectId.set(
+      link.LinkedEntityId,
+      `/.netlify/functions/salesforce-file?versionId=${encodeURIComponent(v.Id)}`
+    )
+  }
+
+  return coverByProjectId
+}
+
+function pickCoverFromAttachments(attachments: Array<{ fileExtension?: string; url: string }>) {
+  const isImage = (ext?: string) => {
+    const e = (ext || '').toLowerCase()
+    return e === 'png' || e === 'jpg' || e === 'jpeg'
+  }
+  return attachments.find((a) => isImage(a.fileExtension))?.url
 }
 
 // Projects
@@ -194,7 +306,9 @@ export async function getProjects() {
     console.log('[Projects] Fetching projects from Salesforce...')
 
     // 1. Fetch Projects
-    const projectsQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c, Hero_Image_URL__c, Logo_URL__c
+    const projectsQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c,
+                          Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
+                          Map_Centroid_Lat__c, Map_Centroid_Lng__c
                           FROM Project__c 
                           ORDER BY Name ASC`
 
@@ -214,60 +328,27 @@ export async function getProjects() {
       return { success: true, data: [] }
     }
 
-    const projectIds = sfProjects.map((p) => `'${p.Id}'`).join(',')
-
-    // 2. Fetch Phases for these projects
-    console.log('[Projects] Fetching phases...')
-    const phasesQuery = `SELECT Id, Name, Project__c
-                          FROM Phase__c 
-                          WHERE Project__c IN (${projectIds})`
-
-    const phasesResult = await salesforceQuery<SalesforcePhaseRecord>(phasesQuery)
-    const sfPhases = phasesResult.records || []
-
-    // 3. Fetch Availability (Phases that have available units)
-    // We group by Phase__c to get distinct phases with available units
-    console.log('[Projects] Fetching availability data...')
-    const availabilityQuery = `SELECT Phase__c 
-                                FROM Unit__c 
-                                WHERE Project__c IN (${projectIds}) 
-                                `
-
-    const availabilityResult = await salesforceQuery<SalesforceAvailabilityRecord>(availabilityQuery)
-    const availablePhaseIds = new Set((availabilityResult.records || []).map((r) => r.Phase__c))
+    const projectIds = sfProjects.map((p) => p.Id)
+    const coverByProjectId = await getProjectsCoverImages(projectIds)
 
     // Transform to application format
     const mappedProjects = sfProjects.map((p) => {
-      // Get phases for this project
-      const projectPhases = sfPhases.filter((phase) => phase.Project__c === p.Id)
-
-      // Map phases and determine availability based on Unit data (availablePhaseIds)
-      const mappedPhases = projectPhases.map((phase) => ({
-        id: phase.Id,
-        projectId: phase.Project__c,
-        name: phase.Name,
-        nameAr: phase.Name_Ar__c,
-        // Phase is available if it is in the availablePhaseIds set (derived from Units)
-        status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
-        // We can't get exact count without another query, but for now we know it's > 0 if available
-        availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
-      }))
-
-      const availablePhasesCount = mappedPhases.filter((ph) => ph.status === 'Available').length
-
+      const availableUnitsCount = Number(p.Available_Units__c || 0)
       return {
         id: p.Id,
         name: p.Name,
         nameAr: p.Name,
         location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
-        coverImageUrl: p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        coverImageUrl: coverByProjectId.get(p.Id) || p.Hero_Image_URL__c || p.Logo_URL__c || '',
         featuredVideoUrl: '',
         status: 'Active',
-        phases: mappedPhases,
-        // UI Helpers
-        hasAvailability: availablePhasesCount > 0,
-        availablePhasesCount: availablePhasesCount,
+        mapCentroidLat: typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined,
+        mapCentroidLng: typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined,
+        phases: [],
+        // UI Helpers (kept for compatibility)
+        hasAvailability: availableUnitsCount > 0,
+        availablePhasesCount: availableUnitsCount,
         // Compatibility with older UI fields
         nameEn: p.Name,
         locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
@@ -302,7 +383,9 @@ export async function getProject(id: string) {
   console.log('[Project] Fetching project from Salesforce:', id)
 
   try {
-    const projectQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c, Hero_Image_URL__c, Logo_URL__c
+    const projectQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c,
+                          Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
+                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c
                           FROM Project__c 
                           WHERE Id = '${id}'
                           LIMIT 1`
@@ -313,29 +396,20 @@ export async function getProject(id: string) {
       return { success: false, error: 'Project not found in Salesforce' }
     }
 
-    const phasesQuery = `SELECT Id, Name, Name_Ar__c, Project__c, Status__c 
-                          FROM Phase__c 
-                          WHERE Project__c = '${id}'`
-    const phasesResult = await salesforceQuery<SalesforcePhaseRecord>(phasesQuery)
-    const sfPhases = phasesResult.records || []
-
-    const availabilityQuery = `SELECT Phase__c 
-                                FROM Unit__c 
-                                WHERE Project__c = '${id}'
-                                AND Status__c IN ('Available', 'On-Hold') 
-                                GROUP BY Phase__c`
-    const availabilityResult = await salesforceQuery<SalesforceAvailabilityRecord>(availabilityQuery)
-    const availablePhaseIds = new Set((availabilityResult.records || []).map((r) => r.Phase__c))
-
-    const mappedPhases = sfPhases.map((phase) => ({
-      id: phase.Id,
-      projectId: phase.Project__c,
-      name: phase.Name,
-      nameAr: phase.Name_Ar__c,
-      status: availablePhaseIds.has(phase.Id) ? 'Available' : 'SoldOut',
-      availableUnitsCount: availablePhaseIds.has(phase.Id) ? 1 : 0,
-    }))
-    const availablePhasesCount = mappedPhases.filter((ph) => ph.status === 'Available').length
+    const { notes, attachments } = await getProjectNotesAndAttachments(id)
+    const coverFromAttachment = pickCoverFromAttachments(attachments)
+    const availableUnitsCount = Number(p.Available_Units__c || 0)
+    const mapCentroidLat = typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined
+    const mapCentroidLng = typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined
+    const mapGeometryJson = (() => {
+      const raw = (p.Map_Geometry_JSON__c || '').trim()
+      if (!raw) return undefined
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return undefined
+      }
+    })()
 
     return {
       success: true,
@@ -345,12 +419,17 @@ export async function getProject(id: string) {
         nameAr: p.Name,
         location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
-        coverImageUrl: p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        coverImageUrl: coverFromAttachment || p.Hero_Image_URL__c || p.Logo_URL__c || '',
         featuredVideoUrl: '',
         status: 'Active',
-        phases: mappedPhases,
-        hasAvailability: availablePhasesCount > 0,
-        availablePhasesCount,
+        mapCentroidLat,
+        mapCentroidLng,
+        mapGeometryJson,
+        notes,
+        attachments,
+        phases: [],
+        hasAvailability: availableUnitsCount > 0,
+        availablePhasesCount: availableUnitsCount,
         nameEn: p.Name,
         locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
       },
@@ -599,7 +678,7 @@ export async function searchUnits(filters?: UnitFilters) {
   console.log('[Units] Searching units from Salesforce...')
 
   try {
-    const result = await salesforceFetchUnits(filters || {})
+    const result = await salesforceFetchUnits((filters || {}) as Record<string, unknown>)
 
     if (result.success && result.data && result.data.units) {
       const mappedUnits = result.data.units.map(mapSalesforceUnit)
@@ -607,7 +686,8 @@ export async function searchUnits(filters?: UnitFilters) {
       return {
         success: true,
         data: mappedUnits,
-        pagination: result.data.pagination
+        pagination: result.data.pagination,
+        totalCount: result.data.pagination?.totalCount ?? mappedUnits.length,
       }
     }
   } catch (error) {
@@ -620,6 +700,7 @@ export async function searchUnits(filters?: UnitFilters) {
   return {
     success: true,
     data: [],
+    totalCount: 0,
   }
 }
 

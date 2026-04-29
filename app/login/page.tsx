@@ -77,7 +77,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Image
-              src="/BinSaedanLogo.png"
+              src="/FBS%20logo%20acronim.svg"
               alt="فيصل بن سعيدان"
               width={200}
               height={60}

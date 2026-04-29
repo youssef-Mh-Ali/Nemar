@@ -44,7 +44,7 @@
     "phone": "+966 11 234 5678",
     "email": "info@faisal-binsaedan.com",
     "address": "Riyadh, Kingdom of Saudi Arabia",
-    "phasesAvailable": "{{count}} phases available",
+    "phasesAvailable": "{{count}} units available",
     "soldOut": "Sold Out",
     "phases": "phases",
     "viewUnits": "View Units",
@@ -70,6 +70,8 @@
     "deliveryYear": "Delivery Year",
     "priceRange": "Price Range",
     "applyFilters": "Apply Filters",
+    "previous": "Previous",
+    "next": "Next",
     "autocomplete": {
       "placeholder": "Search for a project or phase...",
       "popular1": "Apartments for sale in Riyadh",
@@ -138,7 +140,8 @@
     "profileOptions": {
       "investor": "Investor",
       "supplier": "Supplier",
-      "operator": "Operator"
+      "operator": "Operator",
+      "customer": "Customer"
     },
     "name": "Name",
     "email": "Email",

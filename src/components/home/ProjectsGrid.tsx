@@ -90,7 +90,7 @@ export default function ProjectsGrid() {
                 >
                   <Card
                     component={Link}
-                    to={`/search?projectId=${project.id}`}
+                    to={`/project/${project.id}`}
                     sx={{
                       height: '100%',
                       display: 'flex',
