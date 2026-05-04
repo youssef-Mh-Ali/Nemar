@@ -13,6 +13,7 @@ import Contact from './pages/Contact'
 import Offline from './pages/Offline'
 import AboutUs from './pages/AboutUs'
 import Achievements from './pages/Achievements'
+import CollaborationComingSoon from './pages/CollaborationComingSoon'
 import Toast from './components/ui/Toast'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -59,6 +60,7 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="achievements" element={<Achievements />} />
+          <Route path="collaboration-coming-soon" element={<CollaborationComingSoon />} />
           <Route
             path="community"
             element={

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Box, Container, Typography, Button, Grid } from '@mui/material'
 import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { motion } from 'framer-motion'
@@ -6,6 +7,60 @@ import { useTranslation } from 'react-i18next'
 import HeroSection from '../components/home/HeroSection'
 import ProjectsGrid from '../components/home/ProjectsGrid'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
+
+
+const XIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+)
+
+// Custom TikTok icon component
+const TikTokIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+  </svg>
+)
+
+const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12.04 2C6.55 2 2.08 6.47 2.08 11.96c0 1.77.46 3.5 1.33 5.02L2 22l5.15-1.35a9.9 9.9 0 0 0 4.89 1.25h.01c5.49 0 9.96-4.47 9.96-9.96C22.01 6.47 17.54 2 12.04 2Zm0 17.99h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.06.8.82-2.98-.2-.31a8.26 8.26 0 0 1-1.26-4.4c0-4.58 3.73-8.3 8.31-8.3 4.58 0 8.31 3.72 8.31 8.3 0 4.58-3.73 8.3-8.39 8.3Zm4.82-6.2c-.26-.13-1.53-.75-1.77-.84-.24-.09-.41-.13-.58.13-.17.26-.67.84-.82 1.01-.15.17-.3.2-.56.07-.26-.13-1.08-.4-2.06-1.27-.76-.68-1.27-1.52-1.42-1.78-.15-.26-.02-.4.11-.53.12-.12.26-.3.39-.45.13-.15.17-.26.26-.43.09-.17.04-.32-.02-.45-.06-.13-.58-1.39-.79-1.9-.21-.5-.43-.43-.58-.44h-.5c-.17 0-.45.06-.69.32-.24.26-.9.88-.9 2.15 0 1.27.92 2.5 1.05 2.68.13.17 1.81 2.76 4.38 3.87.61.26 1.08.42 1.45.54.61.19 1.16.16 1.6.1.49-.07 1.53-.62 1.75-1.22.22-.6.22-1.12.15-1.22-.06-.1-.23-.16-.49-.29Z" />
+  </svg>
+)
+
+const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Simplified Snapchat ghost mark */}
+    <path d="M12 2.25c-2.6 0-4.7 2.07-4.7 4.63v3.02c0 .22-.2.41-.46.46-.55.1-1.06.35-1.45.71-.42.39-.72.9-.86 1.47-.04.18-.18.32-.36.37l-.6.16c-.38.1-.38.65 0 .75l.6.16c.18.05.32.19.36.37.14.57.44 1.08.86 1.47.62.58 1.46.88 2.33.83.24-.01.46.15.51.38.17.83.6 1.57 1.23 2.1.62.52 1.4.8 2.19.8.79 0 1.57-.28 2.19-.8.63-.53 1.06-1.27 1.23-2.1.05-.23.27-.39.51-.38.87.05 1.71-.25 2.33-.83.42-.39.72-.9.86-1.47.04-.18.18-.32.36-.37l.6-.16c.38-.1.38-.65 0-.75l-.6-.16c-.18-.05-.32-.19-.36-.37a3.35 3.35 0 0 0-.86-1.47c-.39-.36-.9-.61-1.45-.71-.26-.05-.46-.24-.46-.46V6.88c0-2.56-2.1-4.63-4.7-4.63Z" />
+  </svg>
+)
+
+
+
 
 export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
@@ -47,6 +102,28 @@ export default function Home() {
             <Typography variant="body1" sx={{ maxWidth: '800px', mx: 'auto', color: 'text.secondary', lineHeight: 1.8 }}>
               {t('home.cmaDescription')}
             </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: '640px',
+                mx: 'auto',
+                mt: 3,
+                color: 'text.secondary',
+                lineHeight: 1.7,
+                fontWeight: 500,
+              }}
+            >
+              {t('home.cmaCollaborationTeaser')}
+            </Typography>
+            <Button
+              component={Link}
+              to="/collaboration-coming-soon"
+              variant="outlined"
+              size="medium"
+              sx={{ mt: 2.5, textTransform: 'none', fontWeight: 600 }}
+            >
+              {t('home.cmaCollaborationCta')}
+            </Button>
           </motion.div>
         </Container>
       </Box>
