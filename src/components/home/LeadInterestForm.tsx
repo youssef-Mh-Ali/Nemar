@@ -1,0 +1,465 @@
+import { useState, useEffect, useMemo, useId } from 'react'
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Alert,
+  Grid,
+  ToggleButtonGroup,
+  ToggleButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+} from '@mui/material'
+import { CheckCircle } from '@mui/icons-material'
+import { Send } from 'lucide-react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
+import { createLead, getProjects } from '../../lib/api-client'
+import type { Project } from '../../lib/types'
+
+export type LeadInterestFormProps = {
+  /** `inline` = Contact page (always visible). `dialog` = modal (fetch when `active`). */
+  mode: 'inline' | 'dialog'
+  /** When mode is `dialog`, pass open state so projects load only while open */
+  active?: boolean
+  projectId?: string
+  phaseId?: string
+  unitId?: string
+  projectName?: string
+  /** Form id for external submit buttons (dialog actions) */
+  formId?: string
+  /** Cancel / close (dialog footer only) */
+  onCancel?: () => void
+  /** Called after success so the dialog can close (only used with `dialog` mode) */
+  onDialogFlowComplete?: () => void
+}
+
+type FormData = z.infer<ReturnType<typeof getSchema>>
+
+const getSchema = (t: (key: string) => string) =>
+  z.object({
+    profile: z.enum(['Investor', 'Customer']),
+    name: z.string().min(2, t('registerInterest.firstNameRequired')),
+    email: z.union([z.string().email(t('registerInterest.emailInvalid')), z.literal('')]).optional(),
+    phone: z.string().min(9, t('registerInterest.phoneInvalid')),
+    region: z.string().optional(),
+    city: z.string().optional(),
+    project: z.string().optional(),
+    message: z.string().min(10, t('contact.message')),
+  })
+
+function buildEmptyDefaults(projectId?: string): FormData {
+  return {
+    profile: 'Investor',
+    name: '',
+    email: '',
+    phone: '',
+    region: '',
+    city: '',
+    project: projectId ?? '',
+    message: '',
+  }
+}
+
+export default function LeadInterestForm({
+  mode,
+  active = true,
+  projectId,
+  phaseId,
+  unitId,
+  projectName,
+  formId = 'lead-interest-form',
+  onCancel,
+  onDialogFlowComplete,
+}: LeadInterestFormProps) {
+  const { t, i18n } = useTranslation()
+  const uid = useId()
+  const regionLabelId = `${uid}-region`
+  const cityLabelId = `${uid}-city`
+  const projectLabelId = `${uid}-project`
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectsLoading, setProjectsLoading] = useState(false)
+
+  const projectLocked = Boolean(projectId)
+  const isInline = mode === 'inline'
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(getSchema(t)),
+    defaultValues: buildEmptyDefaults(projectId),
+  })
+
+  const regionWatch = watch('region')
+  const cityWatch = watch('city')
+
+  const regions = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of projects) {
+      if (p.provinceRegion) set.add(p.provinceRegion)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b))
+  }, [projects])
+
+  const cities = useMemo(() => {
+    const pool = regionWatch ? projects.filter((p) => p.provinceRegion === regionWatch) : projects
+    const set = new Set<string>()
+    for (const p of pool) {
+      if (p.city) set.add(p.city)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b))
+  }, [projects, regionWatch])
+
+  const projectsForSelect = useMemo(() => {
+    return projects
+      .filter((p) => {
+        if (regionWatch && p.provinceRegion !== regionWatch) return false
+        if (cityWatch && p.city !== cityWatch) return false
+        return true
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [projects, regionWatch, cityWatch])
+
+  useEffect(() => {
+    let cancelled = false
+    if (!active) return
+    setProjectsLoading(true)
+    getProjects()
+      .then((res) => {
+        if (!cancelled && res.success && res.data) setProjects(res.data)
+      })
+      .finally(() => {
+        if (!cancelled) setProjectsLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [active])
+
+  useEffect(() => {
+    if (mode === 'dialog' && !active) return
+    reset(buildEmptyDefaults(projectId))
+    setError(null)
+    setIsSuccess(false)
+  }, [active, projectId, reset, mode])
+
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const parts = data.name.trim().split(/\s+/).filter(Boolean)
+      const firstName = parts[0] || ''
+      const lastName = parts.slice(1).join(' ') || firstName
+      const effectiveProjectId = projectLocked ? projectId! : data.project || undefined
+      const selectedProject = effectiveProjectId ? projects.find((p) => p.id === effectiveProjectId) : undefined
+      const projectLabel = selectedProject
+        ? i18n.language.startsWith('ar')
+          ? selectedProject.nameAr
+          : selectedProject.name
+        : ''
+      const meta = [
+        data.region ? `Region: ${data.region}` : null,
+        data.city ? `City: ${data.city}` : null,
+        effectiveProjectId && projectLabel ? `Project: ${projectLabel}` : null,
+      ].filter(Boolean)
+      const message = meta.length ? `${data.message}\n\n${meta.join('\n')}` : data.message
+
+      const response = await createLead({
+        profile: data.profile,
+        firstName,
+        lastName,
+        phone: data.phone,
+        email: data.email || '',
+        message,
+        interestedProjectId: effectiveProjectId,
+        interestedPhaseId: phaseId,
+        interestedUnitId: unitId,
+      })
+
+      if (response.success) {
+        setIsSuccess(true)
+        reset(buildEmptyDefaults(projectId))
+        if (isInline) {
+          setTimeout(() => setIsSuccess(false), 5000)
+        } else {
+          setTimeout(() => {
+            onDialogFlowComplete?.()
+            setIsSuccess(false)
+          }, 2000)
+        }
+      } else {
+        setError(response.error || t('contact.errorOccurred'))
+      }
+    } catch {
+      setError(t('contact.errorOccurred'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (isSuccess) {
+    return (
+      <Box sx={{ textAlign: 'center', py: isInline ? 4 : 2 }}>
+        <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
+        <Typography variant="h6" gutterBottom>
+          {t('contact.messageSent')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('contact.willContactSoon')}
+        </Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <form id={formId} onSubmit={handleSubmit(onSubmit)}>
+      <Grid container spacing={2} sx={{ mt: 0 }}>
+        <Grid size={{ xs: 12 }}>
+          <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+            {t('contact.profileQuestion')}
+          </Typography>
+          <Controller
+            name="profile"
+            control={control}
+            render={({ field }) => (
+              <ToggleButtonGroup
+                exclusive
+                value={field.value}
+                onChange={(_, next) => {
+                  if (next) field.onChange(next)
+                }}
+                fullWidth
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 999,
+                  overflow: 'hidden',
+                  '& .MuiToggleButton-root': {
+                    flex: 1,
+                    py: 1.25,
+                    border: 0,
+                    borderRadius: 0,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    color: 'text.secondary',
+                  },
+                  '& .MuiToggleButton-root.Mui-selected': {
+                    bgcolor: 'action.selected',
+                    color: 'text.primary',
+                  },
+                  '& .MuiToggleButton-root.Mui-selected:hover': {
+                    bgcolor: 'action.selected',
+                  },
+                }}
+                aria-label={t('contact.profileQuestion')}
+              >
+                <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
+                <ToggleButton value="Customer">{t('contact.profileOptions.customer')}</ToggleButton>
+              </ToggleButtonGroup>
+            )}
+          />
+          {errors.profile?.message && (
+            <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
+              {errors.profile.message}
+            </Typography>
+          )}
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            {...register('name')}
+            label={t('contact.name')}
+            placeholder={t('contact.namePlaceholder')}
+            fullWidth
+            error={!!errors.name}
+            helperText={errors.name?.message}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            {...register('email')}
+            label={t('contact.email')}
+            type="email"
+            placeholder={t('contact.emailPlaceholder')}
+            fullWidth
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            {...register('phone')}
+            label={t('contact.phone')}
+            type="tel"
+            placeholder={t('contact.phonePlaceholder')}
+            fullWidth
+            required
+            error={!!errors.phone}
+            helperText={errors.phone?.message}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Controller
+            name="region"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.region} disabled={projectsLoading}>
+                <InputLabel id={regionLabelId}>{t('contact.region')}</InputLabel>
+                <Select
+                  labelId={regionLabelId}
+                  label={t('contact.region')}
+                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) => {
+                    field.onChange(e.target.value)
+                    setValue('city', '')
+                    if (!projectLocked) setValue('project', '')
+                  }}
+                >
+                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                  {regions.map((r) => (
+                    <MenuItem key={r} value={r}>
+                      {r}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.region?.message ? <FormHelperText>{errors.region.message}</FormHelperText> : null}
+              </FormControl>
+            )}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Controller
+            name="city"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.city} disabled={projectsLoading}>
+                <InputLabel id={cityLabelId}>{t('contact.city')}</InputLabel>
+                <Select
+                  labelId={cityLabelId}
+                  label={t('contact.city')}
+                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) => {
+                    field.onChange(e.target.value)
+                    if (!projectLocked) setValue('project', '')
+                  }}
+                >
+                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                  {cities.map((c) => (
+                    <MenuItem key={c} value={c}>
+                      {c}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.city?.message ? <FormHelperText>{errors.city.message}</FormHelperText> : null}
+              </FormControl>
+            )}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          {projectLocked ? (
+            <>
+              <input type="hidden" {...register('project')} />
+              <TextField
+                label={t('contact.project')}
+                value={projectName || projects.find((p) => p.id === projectId)?.name || ''}
+                disabled
+                fullWidth
+              />
+            </>
+          ) : (
+            <Controller
+              name="project"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.project} disabled={projectsLoading}>
+                  <InputLabel id={projectLabelId}>{t('contact.project')}</InputLabel>
+                  <Select
+                    labelId={projectLabelId}
+                    label={t('contact.project')}
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                  >
+                    <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                    {projectsForSelect.map((p) => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {i18n.language.startsWith('ar') ? p.nameAr : p.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {projectsLoading ? (
+                    <FormHelperText>{t('contact.loadingProjects')}</FormHelperText>
+                  ) : errors.project?.message ? (
+                    <FormHelperText>{errors.project.message}</FormHelperText>
+                  ) : null}
+                </FormControl>
+              )}
+            />
+          )}
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            {...register('message')}
+            label={t('contact.message')}
+            placeholder={t('contact.messagePlaceholder')}
+            fullWidth
+            multiline
+            rows={4}
+            error={!!errors.message}
+            helperText={errors.message?.message}
+          />
+        </Grid>
+      </Grid>
+
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {isInline && (
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={isSubmitting}
+          startIcon={<Send size={20} />}
+          sx={{ mt: 2 }}
+        >
+          {isSubmitting ? t('contact.submitting') : t('contact.send')}
+        </Button>
+      )}
+
+      {!isInline && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, pt: 2, flexWrap: 'wrap' }}>
+          <Button type="button" variant="outlined" onClick={onCancel} disabled={isSubmitting}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" variant="contained" disabled={isSubmitting} startIcon={<Send size={20} />}>
+            {isSubmitting ? t('contact.submitting') : t('contact.send')}
+          </Button>
+        </Box>
+      )}
+    </form>
+  )
+}

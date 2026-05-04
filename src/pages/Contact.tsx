@@ -1,31 +1,18 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Box,
   Container,
   Typography,
   Card,
   CardContent,
-  TextField,
-  Button,
   Grid,
-  Alert,
   IconButton,
-  ToggleButtonGroup,
-  ToggleButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
 } from '@mui/material'
 import { motion } from 'framer-motion'
-import { Controller, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Instagram, Linkedin } from 'lucide-react'
-import { createLead, getOfficeMapUrl, getProjects } from '../lib/api-client'
-import type { Project } from '../lib/types'
+import { Phone, Mail, MapPin, Clock, Instagram, Linkedin } from 'lucide-react'
+import { getOfficeMapUrl } from '../lib/api-client'
+import LeadInterestForm from '../components/home/LeadInterestForm'
 
 // Custom X (Twitter) icon component
 const XIcon = ({ size = 20 }: { size?: number }) => (
@@ -78,101 +65,12 @@ const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
-type FormData = z.infer<ReturnType<typeof getSchema>>
-
-const getSchema = (t: (key: string) => string) => z.object({
-  profile: z.enum(['Investor', 'Customer']),
-  name: z.string().min(2, t('registerInterest.firstNameRequired')),
-  email: z.union([z.string().email(t('registerInterest.emailInvalid')), z.literal('')]).optional(),
-  phone: z.string().min(9, t('registerInterest.phoneInvalid')),
-  region: z.string().optional(),
-  city: z.string().optional(),
-  project: z.string().optional(),
-  message: z.string().min(10, t('contact.message')),
-})
-
 export default function Contact() {
-  const { t, i18n } = useTranslation()
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { t } = useTranslation()
   const [mapUrl, setMapUrl] = useState<string | null>(null)
   const [mapMetaKeywords, setMapMetaKeywords] = useState<string | undefined>(undefined)
   const [isLoadingMap, setIsLoadingMap] = useState(true)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [projectsLoading, setProjectsLoading] = useState(true)
 
-  const defaultFormValues: FormData = {
-    profile: 'Investor',
-    name: '',
-    email: '',
-    phone: '',
-    region: '',
-    city: '',
-    project: '',
-    message: '',
-  }
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(getSchema(t)),
-    defaultValues: defaultFormValues,
-  })
-
-  const regionWatch = watch('region')
-  const cityWatch = watch('city')
-
-  const regions = useMemo(() => {
-    const set = new Set<string>()
-    for (const p of projects) {
-      if (p.provinceRegion) set.add(p.provinceRegion)
-    }
-    return [...set].sort((a, b) => a.localeCompare(b))
-  }, [projects])
-
-  const cities = useMemo(() => {
-    const pool = regionWatch
-      ? projects.filter((p) => p.provinceRegion === regionWatch)
-      : projects
-    const set = new Set<string>()
-    for (const p of pool) {
-      if (p.city) set.add(p.city)
-    }
-    return [...set].sort((a, b) => a.localeCompare(b))
-  }, [projects, regionWatch])
-
-  const projectsForSelect = useMemo(() => {
-    return projects
-      .filter((p) => {
-        if (regionWatch && p.provinceRegion !== regionWatch) return false
-        if (cityWatch && p.city !== cityWatch) return false
-        return true
-      })
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }, [projects, regionWatch, cityWatch])
-
-  useEffect(() => {
-    let cancelled = false
-    setProjectsLoading(true)
-    getProjects()
-      .then((res) => {
-        if (!cancelled && res.success && res.data) setProjects(res.data)
-      })
-      .finally(() => {
-        if (!cancelled) setProjectsLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  // Fetch office map URL from Salesforce
   useEffect(() => {
     const fetchMapUrl = async () => {
       setIsLoadingMap(true)
@@ -188,47 +86,6 @@ export default function Contact() {
     }
     fetchMapUrl()
   }, [])
-
-  const onSubmit = async (data: FormData) => {
-    setError(null)
-
-    try {
-      const parts = data.name.trim().split(/\s+/).filter(Boolean)
-      const firstName = parts[0] || ''
-      const lastName = parts.slice(1).join(' ') || firstName
-      const selectedProject = data.project
-        ? projects.find((p) => p.id === data.project)
-        : undefined
-      const projectLabel = selectedProject
-        ? (i18n.language.startsWith('ar') ? selectedProject.nameAr : selectedProject.name)
-        : ''
-      const meta = [
-        data.region ? `Region: ${data.region}` : null,
-        data.city ? `City: ${data.city}` : null,
-        data.project && projectLabel ? `Project: ${projectLabel}` : null,
-      ].filter(Boolean)
-      const message = meta.length ? `${data.message}\n\n${meta.join('\n')}` : data.message
-
-      const response = await createLead({
-        profile: data.profile,
-        firstName,
-        lastName,
-        phone: data.phone,
-        email: data.email || '',
-        message,
-      })
-
-      if (response.success) {
-        setIsSuccess(true)
-        reset(defaultFormValues)
-        setTimeout(() => setIsSuccess(false), 5000)
-      } else {
-        setError(response.error || t('contact.errorOccurred'))
-      }
-    } catch {
-      setError(t('contact.errorOccurred'))
-    }
-  }
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -251,7 +108,7 @@ export default function Contact() {
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={4}>
-          {/* Contact Form */}
+          {/* Message form */}
           <Grid size={{ xs: 12, md: 6 }}>
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -263,237 +120,7 @@ export default function Contact() {
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
                     {t('contact.formTitle')}
                   </Typography>
-
-                  {isSuccess ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                    >
-                      <Box sx={{ textAlign: 'center', py: 4 }}>
-                        <Box sx={{ fontSize: 64, color: 'success.main', mb: 2, display: 'flex', justifyContent: 'center' }}>
-                          <CheckCircle size={64} color="#38a169" />
-                        </Box>
-                        <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                          {t('contact.messageSent')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {t('contact.willContactSoon')}
-                        </Typography>
-                      </Box>
-                    </motion.div>
-                  ) : (
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                      <Grid container spacing={2} sx={{ mt: 1 }}>
-                        <Grid size={{ xs: 12 }}>
-                          <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
-                            {t('contact.profileQuestion')}
-                          </Typography>
-                          <Controller
-                            name="profile"
-                            control={control}
-                            render={({ field }) => (
-                              <ToggleButtonGroup
-                                exclusive
-                                value={field.value}
-                                onChange={(_, next) => {
-                                  if (next) field.onChange(next)
-                                }}
-                                fullWidth
-                                sx={{
-                                  bgcolor: 'background.paper',
-                                  border: 1,
-                                  borderColor: 'divider',
-                                  borderRadius: 999,
-                                  overflow: 'hidden',
-                                  '& .MuiToggleButton-root': {
-                                    flex: 1,
-                                    py: 1.25,
-                                    border: 0,
-                                    borderRadius: 0,
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    color: 'text.secondary',
-                                  },
-                                  '& .MuiToggleButton-root.Mui-selected': {
-                                    bgcolor: 'action.selected',
-                                    color: 'text.primary',
-                                  },
-                                  '& .MuiToggleButton-root.Mui-selected:hover': {
-                                    bgcolor: 'action.selected',
-                                  },
-                                }}
-                                aria-label={t('contact.profileQuestion')}
-                              >
-                                <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
-                                <ToggleButton value="Customer">{t('contact.profileOptions.customer')}</ToggleButton>
-                              </ToggleButtonGroup>
-                            )}
-                          />
-                          {errors.profile?.message && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.75, display: 'block' }}>
-                              {errors.profile.message}
-                            </Typography>
-                          )}
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('name')}
-                            label={t('contact.name')}
-                            placeholder={t('contact.namePlaceholder')}
-                            fullWidth
-                            error={!!errors.name}
-                            helperText={errors.name?.message}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('email')}
-                            label={t('contact.email')}
-                            type="email"
-                            placeholder={t('contact.emailPlaceholder')}
-                            fullWidth
-                            error={!!errors.email}
-                            helperText={errors.email?.message}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('phone')}
-                            label={t('contact.phone')}
-                            type="tel"
-                            placeholder={t('contact.phonePlaceholder')}
-                            fullWidth
-                            required
-                            error={!!errors.phone}
-                            helperText={errors.phone?.message}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <Controller
-                            name="region"
-                            control={control}
-                            render={({ field }) => (
-                              <FormControl fullWidth error={!!errors.region} disabled={projectsLoading}>
-                                <InputLabel id="contact-region-label">{t('contact.region')}</InputLabel>
-                                <Select
-                                  labelId="contact-region-label"
-                                  label={t('contact.region')}
-                                  {...field}
-                                  value={field.value ?? ''}
-                                  onChange={(e) => {
-                                    field.onChange(e.target.value)
-                                    setValue('city', '')
-                                    setValue('project', '')
-                                  }}
-                                >
-                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
-                                  {regions.map((r) => (
-                                    <MenuItem key={r} value={r}>
-                                      {r}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                                {errors.region?.message ? (
-                                  <FormHelperText>{errors.region.message}</FormHelperText>
-                                ) : null}
-                              </FormControl>
-                            )}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <Controller
-                            name="city"
-                            control={control}
-                            render={({ field }) => (
-                              <FormControl fullWidth error={!!errors.city} disabled={projectsLoading}>
-                                <InputLabel id="contact-city-label">{t('contact.city')}</InputLabel>
-                                <Select
-                                  labelId="contact-city-label"
-                                  label={t('contact.city')}
-                                  {...field}
-                                  value={field.value ?? ''}
-                                  onChange={(e) => {
-                                    field.onChange(e.target.value)
-                                    setValue('project', '')
-                                  }}
-                                >
-                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
-                                  {cities.map((c) => (
-                                    <MenuItem key={c} value={c}>
-                                      {c}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                                {errors.city?.message ? (
-                                  <FormHelperText>{errors.city.message}</FormHelperText>
-                                ) : null}
-                              </FormControl>
-                            )}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <Controller
-                            name="project"
-                            control={control}
-                            render={({ field }) => (
-                              <FormControl fullWidth error={!!errors.project} disabled={projectsLoading}>
-                                <InputLabel id="contact-project-label">{t('contact.project')}</InputLabel>
-                                <Select
-                                  labelId="contact-project-label"
-                                  label={t('contact.project')}
-                                  {...field}
-                                  value={field.value ?? ''}
-                                  onChange={field.onChange}
-                                >
-                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
-                                  {projectsForSelect.map((p) => (
-                                    <MenuItem key={p.id} value={p.id}>
-                                      {i18n.language.startsWith('ar') ? p.nameAr : p.name}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                                {projectsLoading ? (
-                                  <FormHelperText>{t('contact.loadingProjects')}</FormHelperText>
-                                ) : errors.project?.message ? (
-                                  <FormHelperText>{errors.project.message}</FormHelperText>
-                                ) : null}
-                              </FormControl>
-                            )}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('message')}
-                            label={t('contact.message')}
-                            placeholder={t('contact.messagePlaceholder')}
-                            fullWidth
-                            multiline
-                            rows={4}
-                            error={!!errors.message}
-                            helperText={errors.message?.message}
-                          />
-                        </Grid>
-                      </Grid>
-
-                      {error && (
-                        <Alert severity="error" sx={{ mt: 2 }}>
-                          {error}
-                        </Alert>
-                      )}
-
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        disabled={isSubmitting}
-                        startIcon={<Send size={20} />}
-                        sx={{ mt: 2 }}
-                      >
-                        {isSubmitting ? t('contact.submitting') : t('contact.send')}
-                      </Button>
-                    </form>
-                  )}
+                  <LeadInterestForm mode="inline" active />
                 </CardContent>
               </Card>
             </motion.div>

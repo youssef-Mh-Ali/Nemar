@@ -175,6 +175,7 @@
     "title": "Contact Us",
     "description": "We're here to help. Contact us for any inquiries or feedback",
     "formTitle": "Send us a Message",
+    "formCta": "Open the form to share your details and message—we will respond as soon as we can.",
     "profileQuestion": "What's your profile? *",
     "profileRequired": "Please choose a profile",
     "profileOptions": {
