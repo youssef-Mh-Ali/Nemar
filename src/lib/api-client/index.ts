@@ -720,9 +720,9 @@ export async function getUnit(id: string) {
       Garden_Area__c, Land_Area__c, Roof_Area__c, Outdoor_Area__c,
       Eligible_for_Subsidies__c, Subsidies__c,
       Unit_Image__c, X3D_Warehouse_iframe__c,
-      Project__c, 
+      Project__c,
       Phase__c,
-      Block__c, 
+      Block__c,
       Building__c
       FROM Unit__c WHERE Id = '${id}' LIMIT 1`
 
@@ -763,6 +763,34 @@ export async function getUnit(id: string) {
     const record = result.records?.[0]
     if (!record) return { success: false, error: 'Unit not found' }
 
+    const resolvedProjectId = extractSalesforceIdFromAnchor(record.Project__c) || record.Project__c || ''
+
+    /** Load project labels separately — avoids fragile Unit SOQL relationship subqueries */
+    let projectNameFromSf: string | undefined
+    let projectProvinceRegionFromSf: string | undefined
+    let projectCityFromSf: string | undefined
+    if (resolvedProjectId) {
+      try {
+        const esc = resolvedProjectId.replace(/'/g, "\\'")
+        const projectSoql = `SELECT Id, Name, City__c, Province_Region__c FROM Project__c WHERE Id = '${esc}' LIMIT 1`
+        type SfProjectLite = {
+          Id: string
+          Name?: string
+          City__c?: string
+          Province_Region__c?: string
+        }
+        const pr = await salesforceQuery<SfProjectLite>(projectSoql)
+        const prow = pr.records?.[0]
+        if (prow) {
+          projectNameFromSf = prow.Name?.trim()
+          projectCityFromSf = prow.City__c?.trim()
+          projectProvinceRegionFromSf = prow.Province_Region__c?.trim()
+        }
+      } catch (e) {
+        console.warn('[Units] Optional Project__c lookup failed (unit still returned):', e)
+      }
+    }
+
     const embed = record.X3D_Warehouse_iframe__c || ''
     const embedSrcMatch = embed.match(/src=["']([^"']+)["']/i)
     const embedSrc = embedSrcMatch?.[1]
@@ -774,7 +802,7 @@ export async function getUnit(id: string) {
 
     const unit: Unit = {
       id: record.Id,
-      projectId: extractSalesforceIdFromAnchor(record.Project__c) || record.Project__c || '',
+      projectId: resolvedProjectId,
       phaseId: extractSalesforceIdFromAnchor(record.Phase__c) || record.Phase__c || '',
       unitNumber: record.Name,
       externalId: record.External_ID__c,
@@ -807,8 +835,10 @@ export async function getUnit(id: string) {
       amenities: undefined,
       description: undefined,
       descriptionAr: undefined,
-      projectName: record.Project__c || undefined,
-      projectNameAr: undefined,
+      projectName: projectNameFromSf,
+      projectNameAr: projectNameFromSf,
+      projectProvinceRegion: projectProvinceRegionFromSf,
+      projectCity: projectCityFromSf,
       phaseName: record.Phase__c || undefined,
       phaseNameAr: undefined,
       buildingName: undefined,

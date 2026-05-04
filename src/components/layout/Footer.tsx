@@ -23,7 +23,7 @@ export default function Footer() {
         mt: 'auto',
         borderTop: 1,
         borderColor: 'divider',
-        py: { xs: 2.5, md: 3 },
+        py: { xs: 2, md: 2},
         bgcolor: 'background.paper',
       }}
     >

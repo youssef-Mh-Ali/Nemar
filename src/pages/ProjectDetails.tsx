@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { getProject } from '../lib/api-client'
 import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
 import OpenStreetProjectMap from '../components/ui/OpenStreetProjectMap'
+import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
 type ProjectWithUi = Project & { hasAvailability?: boolean; availablePhasesCount?: number; nameEn?: string; locationEn?: string }
 
@@ -27,6 +28,7 @@ export default function ProjectDetails() {
   const navigate = useNavigate()
   const [project, setProject] = useState<ProjectWithUi | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -131,6 +133,21 @@ export default function ProjectDetails() {
             <Typography variant="body2" color="text.secondary">
               {location}
             </Typography>
+            <Box sx={{ mt: 3 }}>
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                onClick={() => setIsRegisterModalOpen(true)}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'semibold',
+                }}
+              >
+                {t('home.registerInterest')}
+              </Button>
+            </Box>
           </CardContent>
         </Card>
 
@@ -202,6 +219,15 @@ export default function ProjectDetails() {
           </Grid>
         </Grid>
       </Container>
+
+      <RegisterInterestModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        projectId={project.id}
+        projectName={title}
+        fallbackProvinceRegion={project.provinceRegion}
+        fallbackCity={project.city}
+      />
     </Box>
   )
 }

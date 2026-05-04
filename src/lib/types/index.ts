@@ -83,6 +83,9 @@ export interface Unit {
   descriptionAr?: string;
   projectName?: string;
   projectNameAr?: string;
+  /** From `Project__r` on unit query — used when lead form can’t match `getProjects()` */
+  projectProvinceRegion?: string;
+  projectCity?: string;
   phaseName?: string;
   phaseNameAr?: string;
   buildingName?: string;

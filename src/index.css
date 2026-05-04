@@ -103,9 +103,15 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Bottom nav height */
+/* Reserve space for fixed bottom nav on small screens only (nav is hidden from md up) */
 .main-content {
-  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 899.98px) {
+  .main-content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Achievements (Tailwind page) helpers */

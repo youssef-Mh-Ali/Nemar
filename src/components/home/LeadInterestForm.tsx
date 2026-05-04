@@ -21,7 +21,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { createLead, getProjects } from '../../lib/api-client'
+import { salesforceIdsEqual } from '../../lib/salesforceIds'
 import type { Project } from '../../lib/types'
+
+const log = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log('[LeadInterestForm]', ...args)
+}
 
 export type LeadInterestFormProps = {
   /** `inline` = Contact page (always visible). `dialog` = modal (fetch when `active`). */
@@ -32,6 +37,9 @@ export type LeadInterestFormProps = {
   phaseId?: string
   unitId?: string
   projectName?: string
+  /** From unit page `Project__r` when list match fails or loads late */
+  fallbackProvinceRegion?: string
+  fallbackCity?: string
   /** Form id for external submit buttons (dialog actions) */
   formId?: string
   /** Cancel / close (dialog footer only) */
@@ -74,6 +82,8 @@ export default function LeadInterestForm({
   phaseId,
   unitId,
   projectName,
+  fallbackProvinceRegion,
+  fallbackCity,
   formId = 'lead-interest-form',
   onCancel,
   onDialogFlowComplete,
@@ -136,13 +146,62 @@ export default function LeadInterestForm({
       .sort((a, b) => a.name.localeCompare(b.name))
   }, [projects, regionWatch, cityWatch])
 
+  /** Resolved project row when `projectId` is preset — match list by SF id, else synthetic row from unit fallbacks. */
+  const lockedProject = useMemo((): Project | undefined => {
+    if (!projectId) return undefined
+    const found = projects.find((p) => salesforceIdsEqual(p.id, projectId))
+    if (found) return found
+    const pr = (fallbackProvinceRegion ?? '').trim()
+    const ct = (fallbackCity ?? '').trim()
+    if (pr || ct || (projectName ?? '').trim()) {
+      return {
+        id: projectId,
+        name: projectName || '',
+        nameAr: projectName || '',
+        provinceRegion: pr || undefined,
+        city: ct || undefined,
+        location: '',
+        locationAr: '',
+        coverImageUrl: '',
+        featuredVideoUrl: '',
+        status: 'Active',
+        phases: [],
+      }
+    }
+    return undefined
+  }, [projectId, projects, fallbackProvinceRegion, fallbackCity, projectName])
+
   useEffect(() => {
     let cancelled = false
-    if (!active) return
+    if (!active) {
+      log('getProjects: skip (active=false)')
+      return
+    }
+    log('getProjects: fetch start', { mode, active, projectId })
     setProjectsLoading(true)
     getProjects()
       .then((res) => {
-        if (!cancelled && res.success && res.data) setProjects(res.data)
+        if (cancelled) return
+        if (res.success && res.data) {
+          log('getProjects: success', {
+            count: res.data.length,
+            projectIdsHead: res.data.slice(0, 3).map((p) => p.id),
+            sampleFields: res.data[0]
+              ? {
+                  id: res.data[0].id,
+                  name: res.data[0].name,
+                  provinceRegion: res.data[0].provinceRegion,
+                  city: res.data[0].city,
+                }
+              : null,
+          })
+          setProjects(res.data)
+        } else {
+          log('getProjects: no data or !success', { success: res.success, hasData: Boolean((res as { data?: unknown }).data) })
+        }
+      })
+      .catch((err) => {
+        log('getProjects: error', err)
       })
       .finally(() => {
         if (!cancelled) setProjectsLoading(false)
@@ -150,14 +209,81 @@ export default function LeadInterestForm({
     return () => {
       cancelled = true
     }
-  }, [active])
+  }, [active, mode, projectId])
 
   useEffect(() => {
-    if (mode === 'dialog' && !active) return
+    if (mode === 'dialog' && !active) {
+      log('reset: skip (dialog closed)')
+      return
+    }
+    log('reset: run', { mode, active, projectId, unitId, defaults: buildEmptyDefaults(projectId) })
     reset(buildEmptyDefaults(projectId))
     setError(null)
     setIsSuccess(false)
-  }, [active, projectId, reset, mode])
+  }, [active, projectId, reset, mode, unitId])
+
+  // When project is pre-selected (e.g. unit page), fill region & city from project list or unit fallbacks
+  useEffect(() => {
+    if (!active) {
+      log('syncRegionCity: skip (!active)')
+      return
+    }
+    if (!projectId) {
+      log('syncRegionCity: skip (no projectId)')
+      return
+    }
+
+    const apply = (regionVal: string, cityVal: string, reason: string, extra?: Record<string, unknown>) => {
+      log('syncRegionCity: applying', { reason, projectId, regionVal, cityVal, ...extra })
+      setValue('region', regionVal, { shouldDirty: false, shouldValidate: false })
+      setValue('city', cityVal, { shouldDirty: false, shouldValidate: false })
+    }
+
+    const row = projects.find((pr) => salesforceIdsEqual(pr.id, projectId))
+    if (row) {
+      apply((row.provinceRegion ?? '').trim(), (row.city ?? '').trim(), 'from getProjects row', {
+        raw: { provinceRegion: row.provinceRegion, city: row.city },
+      })
+      return
+    }
+
+    const fbR = (fallbackProvinceRegion ?? '').trim()
+    const fbC = (fallbackCity ?? '').trim()
+    if (fbR || fbC) {
+      apply(fbR, fbC, 'from unit Project__r fallbacks')
+      return
+    }
+
+    if (projects.length === 0) {
+      log('syncRegionCity: wait (projects empty, no fallbacks)', { projectId })
+      return
+    }
+
+    log('syncRegionCity: project NOT in list & no fallbacks', {
+      projectId,
+      listHasIds: projects.map((x) => x.id).slice(0, 12),
+      total: projects.length,
+      idMatchProbe: projects.some((x) => salesforceIdsEqual(x.id, projectId)),
+    })
+  }, [active, projectId, projects, setValue, fallbackProvinceRegion, fallbackCity])
+
+  useEffect(() => {
+    if (!projectLocked) return
+    log('locked form snapshot', {
+      regionWatch,
+      cityWatch,
+      fallbackProvinceRegion,
+      fallbackCity,
+      lockedProject: lockedProject
+        ? {
+            id: lockedProject.id,
+            provinceRegion: lockedProject.provinceRegion,
+            city: lockedProject.city,
+            name: lockedProject.name,
+          }
+        : null,
+    })
+  }, [projectLocked, regionWatch, cityWatch, lockedProject, fallbackProvinceRegion, fallbackCity])
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
@@ -316,63 +442,93 @@ export default function LeadInterestForm({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Controller
-            name="region"
-            control={control}
-            render={({ field }) => (
-              <FormControl fullWidth error={!!errors.region} disabled={projectsLoading}>
-                <InputLabel id={regionLabelId}>{t('contact.region')}</InputLabel>
-                <Select
-                  labelId={regionLabelId}
-                  label={t('contact.region')}
-                  {...field}
-                  value={field.value ?? ''}
-                  onChange={(e) => {
-                    field.onChange(e.target.value)
-                    setValue('city', '')
-                    if (!projectLocked) setValue('project', '')
-                  }}
-                >
-                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
-                  {regions.map((r) => (
-                    <MenuItem key={r} value={r}>
-                      {r}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.region?.message ? <FormHelperText>{errors.region.message}</FormHelperText> : null}
-              </FormControl>
-            )}
-          />
+          {projectLocked ? (
+            <>
+              <input type="hidden" {...register('region')} />
+              <TextField
+                label={t('contact.region')}
+                value={
+                  `${regionWatch || lockedProject?.provinceRegion || fallbackProvinceRegion || ''}`.trim() ||
+                  t('contact.notSpecified')
+                }
+                disabled
+                fullWidth
+              />
+            </>
+          ) : (
+            <Controller
+              name="region"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.region} disabled={projectsLoading}>
+                  <InputLabel id={regionLabelId}>{t('contact.region')}</InputLabel>
+                  <Select
+                    labelId={regionLabelId}
+                    label={t('contact.region')}
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      field.onChange(e.target.value)
+                      setValue('city', '')
+                      setValue('project', '')
+                    }}
+                  >
+                    <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                    {regions.map((r) => (
+                      <MenuItem key={r} value={r}>
+                        {r}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.region?.message ? <FormHelperText>{errors.region.message}</FormHelperText> : null}
+                </FormControl>
+              )}
+            />
+          )}
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Controller
-            name="city"
-            control={control}
-            render={({ field }) => (
-              <FormControl fullWidth error={!!errors.city} disabled={projectsLoading}>
-                <InputLabel id={cityLabelId}>{t('contact.city')}</InputLabel>
-                <Select
-                  labelId={cityLabelId}
-                  label={t('contact.city')}
-                  {...field}
-                  value={field.value ?? ''}
-                  onChange={(e) => {
-                    field.onChange(e.target.value)
-                    if (!projectLocked) setValue('project', '')
-                  }}
-                >
-                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
-                  {cities.map((c) => (
-                    <MenuItem key={c} value={c}>
-                      {c}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.city?.message ? <FormHelperText>{errors.city.message}</FormHelperText> : null}
-              </FormControl>
-            )}
-          />
+          {projectLocked ? (
+            <>
+              <input type="hidden" {...register('city')} />
+              <TextField
+                label={t('contact.city')}
+                value={
+                  `${cityWatch || lockedProject?.city || fallbackCity || ''}`.trim() ||
+                  t('contact.notSpecified')
+                }
+                disabled
+                fullWidth
+              />
+            </>
+          ) : (
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.city} disabled={projectsLoading}>
+                  <InputLabel id={cityLabelId}>{t('contact.city')}</InputLabel>
+                  <Select
+                    labelId={cityLabelId}
+                    label={t('contact.city')}
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      field.onChange(e.target.value)
+                      setValue('project', '')
+                    }}
+                  >
+                    <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                    {cities.map((c) => (
+                      <MenuItem key={c} value={c}>
+                        {c}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.city?.message ? <FormHelperText>{errors.city.message}</FormHelperText> : null}
+                </FormControl>
+              )}
+            />
+          )}
         </Grid>
         <Grid size={{ xs: 12 }}>
           {projectLocked ? (
@@ -380,7 +536,14 @@ export default function LeadInterestForm({
               <input type="hidden" {...register('project')} />
               <TextField
                 label={t('contact.project')}
-                value={projectName || projects.find((p) => p.id === projectId)?.name || ''}
+                value={
+                  projectName ||
+                  (lockedProject
+                    ? i18n.language.startsWith('ar')
+                      ? lockedProject.nameAr
+                      : lockedProject.name
+                    : '')
+                }
                 disabled
                 fullWidth
               />

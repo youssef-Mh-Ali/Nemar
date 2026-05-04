@@ -1,11 +1,18 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AppBar, Toolbar, Box, Button, IconButton } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { LogOut, User, Search, ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
 import { logout } from '../../lib/api-client'
 import LanguageToggle from '../ui/LanguageToggle'
 import BrandLogo from './BrandLogo'
+
+/** True when this nav item should show as the current page (nested routes included; home is exact). */
+function isNavPathActive(pathname: string, itemPath: string): boolean {
+  if (itemPath === '/') return pathname === '/'
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
+}
 
 export default function Header() {
   const location = useLocation()
@@ -71,23 +78,30 @@ export default function Header() {
           </Link>
         </Box>
 
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-          {navItems.map((item) => (
-            <Button
-              key={item.path}
-              component={Link}
-              to={item.path}
-              sx={{
-                color: location.pathname === item.path ? 'primary.main' : 'text.secondary',
-                bgcolor: location.pathname === item.path ? 'primary.main' + '10' : 'transparent',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-              }}
-            >
-              {item.label}
-            </Button>
-          ))}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, alignItems: 'center' }}>
+          {navItems.map((item) => {
+            const active = isNavPathActive(location.pathname, item.path)
+            return (
+              <Button
+                key={item.path}
+                component={Link}
+                to={item.path}
+                aria-current={active ? 'page' : undefined}
+                sx={(theme) => ({
+                  color: active ? 'primary.main' : 'text.secondary',
+                  fontWeight: active ? 600 : 500,
+                  bgcolor: active ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+                  borderRadius: 2,
+                  px: 1.5,
+                  '&:hover': {
+                    bgcolor: active ? alpha(theme.palette.primary.main, 0.18) : 'action.hover',
+                  },
+                })}
+              >
+                {item.label}
+              </Button>
+            )
+          })}
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -97,16 +111,21 @@ export default function Header() {
             size="small"
             title={t('common.search')}
             aria-label={t('common.search')}
-            sx={{
-              color: 'text.secondary',
-              border: 1,
-              borderColor: 'divider',
-              borderRadius: 1.5,
-              '&:hover': {
-                bgcolor: 'action.hover',
-                color: 'primary.main',
-                borderColor: 'primary.main',
-              },
+            aria-current={location.pathname.startsWith('/search') ? 'page' : undefined}
+            sx={(theme) => {
+              const onSearch = location.pathname.startsWith('/search')
+              return {
+                color: onSearch ? 'primary.main' : 'text.secondary',
+                bgcolor: onSearch ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+                border: 1,
+                borderColor: onSearch ? 'primary.main' : 'divider',
+                borderRadius: 1.5,
+                '&:hover': {
+                  bgcolor: onSearch ? alpha(theme.palette.primary.main, 0.18) : 'action.hover',
+                  color: 'primary.main',
+                  borderColor: 'primary.main',
+                },
+              }
             }}
           >
             <Search size={18} />

@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
 import VideoCover from './VideoCover'
 import VideoOverlay from './VideoOverlay'
-import BrandLogo from '../layout/BrandLogo'
 
 // Type declaration for Instagram embed API
 declare global {
@@ -417,16 +416,6 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          {/* Logo */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            style={{ marginBottom: '32px' }}
-          >
-            <BrandLogo variant="hero" />
-          </motion.div>
-
           {/* Main Heading */}
           <Typography
             variant="h1"

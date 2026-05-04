@@ -10,6 +10,8 @@ interface RegisterInterestModalProps {
   phaseId?: string
   unitId?: string
   projectName?: string
+  fallbackProvinceRegion?: string
+  fallbackCity?: string
 }
 
 export default function RegisterInterestModal({
@@ -19,6 +21,8 @@ export default function RegisterInterestModal({
   phaseId,
   unitId,
   projectName,
+  fallbackProvinceRegion,
+  fallbackCity,
 }: RegisterInterestModalProps) {
   const { t } = useTranslation()
 
@@ -52,6 +56,8 @@ export default function RegisterInterestModal({
           phaseId={phaseId}
           unitId={unitId}
           projectName={projectName}
+          fallbackProvinceRegion={fallbackProvinceRegion}
+          fallbackCity={fallbackCity}
           onCancel={handleClose}
           onDialogFlowComplete={onClose}
         />

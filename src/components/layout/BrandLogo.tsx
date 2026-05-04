@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 /** Public asset: vertical FBS + Arabic wordmark (use PNG with alpha for transparent background) */
 export const BRAND_LOGO_SRC = '/FBS_Logo_Vertical_AR.png'
 
-type BrandLogoVariant = 'header' | 'footer' | 'hero' | 'login'
+type BrandLogoVariant = 'header' | 'footer' | 'login'
 
 type BrandLogoProps = { variant: BrandLogoVariant }
 
@@ -13,13 +13,11 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
   const { t } = useTranslation()
 
   const height =
-    variant === 'hero'
-      ? { xs: '72px', md: '88px' }
-      : variant === 'header'
-        ? { xs: 36, sm: 40 }
-        : variant === 'footer'
-          ? { xs: 32, sm: 36 }
-          : { xs: 64, sm: 72 }
+    variant === 'header'
+      ? { xs: 44, sm: 52 }
+      : variant === 'footer'
+        ? { xs: 40, sm: 48 }
+        : { xs: 64, sm: 72 }
 
   const img = (
     <Box
@@ -30,7 +28,7 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
         height,
         width: 'auto',
         display: 'block',
-        mx: variant === 'hero' || variant === 'login' ? 'auto' : undefined,
+        mx: variant === 'login' ? 'auto' : undefined,
       }}
     />
   )
