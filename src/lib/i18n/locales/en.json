@@ -21,6 +21,13 @@
     "view": "View",
     "more": "More"
   },
+  "footer": {
+    "nav": "Footer navigation",
+    "copyright": "© {{year}} Faisal Bin Saedan. All rights reserved."
+  },
+  "siteContactBar": {
+    "label": "Contact and social media"
+  },
   "ach": {
     "title": "Our Achievements",
     "subtitle": "Milestones that shaped our story and the recognition that reflects our commitment to quality and innovation.",
@@ -177,6 +184,15 @@
       "customer": "Customer"
     },
     "name": "Name",
+    "namePlaceholder": "Your name",
+    "region": "Region",
+    "regionPlaceholder": "Your region",
+    "city": "City",
+    "cityPlaceholder": "Your city",
+    "project": "Project",
+    "projectPlaceholder": "Project name",
+    "notSpecified": "Not specified",
+    "loadingProjects": "Loading options…",
     "email": "Email",
     "phone": "Phone",
     "message": "Your Message",
@@ -290,6 +306,11 @@
     "contactUs": "Contact Us",
     "usernameRequired": "Username is required",
     "passwordRequired": "Password is required"
+  },
+  "offline": {
+    "title": "No internet connection",
+    "description": "You appear to be offline. Check your connection and try again.",
+    "retry": "Try again"
   },
   "cases": {
     "title": "New Case",

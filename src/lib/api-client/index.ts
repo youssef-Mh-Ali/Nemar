@@ -339,6 +339,8 @@ export async function getProjects() {
         id: p.Id,
         name: p.Name,
         nameAr: p.Name,
+        provinceRegion: p.Province_Region__c?.trim() || undefined,
+        city: p.City__c?.trim() || undefined,
         location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         coverImageUrl: coverByProjectId.get(p.Id) || p.Hero_Image_URL__c || p.Logo_URL__c || '',

@@ -4,6 +4,10 @@ export interface Project {
   id: string;
   name: string;
   nameAr: string;
+  /** Salesforce Province_Region__c — used for filters & forms */
+  provinceRegion?: string;
+  /** Salesforce City__c */
+  city?: string;
   location: string;
   locationAr: string;
   coverImageUrl: string;

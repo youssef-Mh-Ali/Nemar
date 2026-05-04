@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
 import { logout } from '../../lib/api-client'
 import LanguageToggle from '../ui/LanguageToggle'
+import BrandLogo from './BrandLogo'
 
 export default function Header() {
   const location = useLocation()
@@ -66,15 +67,7 @@ export default function Header() {
           )}
 
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <Box
-            component="img"
-            src="/FBS%20logo%20acronim.svg"
-            alt={t('home.title')}
-            sx={{
-              height: { xs: 22, sm: 30 },
-              width: 'auto',
-            }}
-          />
+            <BrandLogo variant="header" />
           </Link>
         </Box>
 
