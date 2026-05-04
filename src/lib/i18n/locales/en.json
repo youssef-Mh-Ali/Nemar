@@ -34,6 +34,43 @@
       "title": "Timeline",
       "subtitle": "A Journey of Growth"
     },
+    "snapshot": {
+      "kicker": "Company Snapshot",
+      "title": "A legacy of development, built for today",
+      "subtitle": "A modern extension of the Bin Saedan family legacy since 1934—focused on high-quality residential and commercial destinations, investment solutions, and long-term property care across Saudi Arabia.",
+      "cards": {
+        "residential": {
+          "title": "Residential Communities",
+          "desc": "Malfa and Nozol developments—villas, modern complexes, and semi-gated neighborhoods designed for everyday living."
+        },
+        "commercial": {
+          "title": "Commercial Destinations",
+          "desc": "Plazas and office assets in strategic locations, built to support thriving business districts."
+        },
+        "investment": {
+          "title": "Investment Solutions",
+          "desc": "Professionally managed real estate funds that offer structured opportunities for individuals and institutions."
+        },
+        "management": {
+          "title": "Property Management",
+          "desc": "Long-term maintenance, leasing, and customer support to protect asset value beyond delivery."
+        }
+      },
+      "highlights": {
+        "legacy": {
+          "title": "Heritage & Land Bank",
+          "desc": "Decades of trust and a strategic portfolio that supports sustainable urban growth."
+        },
+        "quality": {
+          "title": "Modern Delivery",
+          "desc": "Using advanced practices like BIM to improve efficiency, reduce waste, and elevate design quality."
+        },
+        "vision": {
+          "title": "Vision 2030 Alignment",
+          "desc": "Contributing to homeownership growth and workforce development through nationally aligned initiatives."
+        }
+      }
+    },
     "awards": {
       "title": "Recognition",
       "subtitle": "Awards & Certifications"
@@ -81,7 +118,14 @@
     "soldOut": "Sold Out",
     "phases": "phases",
     "viewUnits": "View Units",
-    "cmaDescription": "Faisal bin Saedan Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests."
+    "cmaDescription": "Faisal bin Saedan Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests.",
+    "cmaCollaborationTeaser": "Additional collaboration initiatives with the Saudi Capital Market Authority are coming soon.",
+    "cmaCollaborationCta": "View details"
+  },
+  "collaboration": {
+    "title": "Collaboration — coming soon",
+    "description": "We are preparing additional programs in coordination with the Saudi Capital Market Authority. This page will be updated with more information in due course.",
+    "backToHome": "Back to home"
   },
   "search": {
     "title": "Search for a Unit",

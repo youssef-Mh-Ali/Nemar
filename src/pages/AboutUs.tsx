@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { getBoardMembers, loadMissionVisionMarkdown } from '../lib/about/content'
@@ -58,6 +60,37 @@ function parseMarkdown(markdown: string): MarkdownBlock[] {
   return blocks
 }
 
+function extractVisionMission(blocks: MarkdownBlock[]) {
+  let section: 'vision' | 'mission' | null = null
+  const vision: string[] = []
+  const mission: string[] = []
+
+  for (const block of blocks) {
+    if (block.type === 'h2') {
+      const normalized = block.text.toLowerCase()
+      if (normalized === 'vision' || normalized === 'الرؤية') {
+        section = 'vision'
+      } else if (normalized === 'mission' || normalized === 'الرسالة') {
+        section = 'mission'
+      } else {
+        section = null
+      }
+      continue
+    }
+
+    if (!section) continue
+
+    if (section === 'vision') {
+      if (block.type === 'p') vision.push(block.text)
+    } else if (section === 'mission') {
+      if (block.type === 'ul') mission.push(...block.items)
+      if (block.type === 'p') mission.push(block.text)
+    }
+  }
+
+  return { vision, mission }
+}
+
 export default function AboutUs() {
   const { t, i18n } = useTranslation()
   const language = i18n.resolvedLanguage || i18n.language
@@ -66,6 +99,7 @@ export default function AboutUs() {
 
   const members = useMemo(() => getBoardMembers(language), [language])
   const markdownBlocks = useMemo(() => parseMarkdown(markdown), [markdown])
+  const { vision, mission } = useMemo(() => extractVisionMission(markdownBlocks), [markdownBlocks])
 
   useEffect(() => {
     let active = true
@@ -177,80 +211,131 @@ export default function AboutUs() {
         <Grid container spacing={3} sx={{ mt: 1 }}>
           <Grid size={{ xs: 12, md: 7 }}>
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <Card>
-                <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-                  <Typography variant="h5" fontWeight="bold" gutterBottom>
-                    {t('about.visionMissionTitle')}
-                  </Typography>
-                  {loading ? (
+              {loading ? (
+                <Card>
+                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
                     <Typography color="text.secondary">{t('common.loading')}</Typography>
-                  ) : (
-                    <Box sx={{ display: 'grid', gap: 1.5 }}>
-                      {markdownBlocks.map((block, index) => {
-                        if (block.type === 'h2') {
-                          return (
-                            <Typography key={index} variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
-                              {block.text}
-                            </Typography>
-                          )
-                        }
-                        if (block.type === 'h3') {
-                          return (
-                            <Typography key={index} variant="h6" fontWeight="bold" sx={{ mt: 0.5 }}>
-                              {block.text}
-                            </Typography>
-                          )
-                        }
-                        if (block.type === 'ul') {
-                          return (
-                            <Box key={index} component="ul" sx={{ m: 0, pl: 2.5, display: 'grid', gap: 0.75 }}>
-                              {block.items.map((item, itemIndex) => (
-                                <Typography key={itemIndex} component="li" variant="body1" color="text.secondary">
-                                  {item}
-                                </Typography>
-                              ))}
-                            </Box>
-                          )
-                        }
-                        return (
-                          <Typography key={index} variant="body1" color="text.secondary">
-                            {block.text}
-                          </Typography>
-                        )
-                      })}
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card
+                  sx={{
+                    borderRadius: 4,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    boxShadow: '0 10px 30px rgba(2, 6, 23, 0.08)',
+                    overflow: 'hidden',
+                    bgcolor: 'common.white',
+                  }}
+                >
+                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
+                    <Box
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        borderRadius: 999,
+                        px: 2,
+                        py: 0.65,
+                        bgcolor: 'grey.100',
+                        color: 'primary.main',
+                        fontWeight: 700,
+                        letterSpacing: '0.28em',
+                        textTransform: 'uppercase',
+                        fontSize: 12,
+                      }}
+                    >
+                      {language.startsWith('en') ? 'VISION' : 'الرؤية'}
                     </Box>
-                  )}
-                </CardContent>
-              </Card>
+                    <Box sx={{ mt: 2, display: 'grid', gap: 1.25 }}>
+                      {vision.map((p, idx) => (
+                        <Typography key={idx} variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
+                          {p}
+                        </Typography>
+                      ))}
+                    </Box>
+
+                    <Box sx={{ my: 3, height: 1, bgcolor: 'divider' }} />
+
+                    <Box
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        borderRadius: 999,
+                        px: 2,
+                        py: 0.65,
+                        bgcolor: 'grey.100',
+                        color: 'primary.main',
+                        fontWeight: 700,
+                        letterSpacing: '0.28em',
+                        textTransform: 'uppercase',
+                        fontSize: 12,
+                      }}
+                    >
+                      {language.startsWith('en') ? 'MISSION' : 'الرسالة'}
+                    </Box>
+
+                    <Box sx={{ mt: 2, display: 'grid', gap: 1.4 }}>
+                      {mission.map((item, idx) => (
+                        <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+                          <CheckCircleRoundedIcon sx={{ mt: '2px', fontSize: 18, color: 'rgba(201, 162, 39, 1)' }} />
+                          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
+                            {item}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </CardContent>
+                </Card>
+              )}
             </motion.div>
           </Grid>
           <Grid size={{ xs: 12, md: 5 }}>
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <Card sx={{ height: '100%', overflow: 'hidden', position: 'relative', bgcolor: 'grey.900' }}>
-                <CardContent sx={{ p: 3, minHeight: 320, position: 'relative' }}>
-                  <Typography variant="h6" sx={{ color: 'common.white', fontWeight: 700 }}>
-                    {t('about.animatedPanelTitle')}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'grey.300', mt: 1.25, maxWidth: 280 }}>
-                    {t('about.animatedPanelBody')}
-                  </Typography>
+              <Card
+                sx={{
+                  height: '100%',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  borderRadius: 4,
+                  border: '1px solid rgba(201, 162, 39, 0.18)',
+                  backgroundImage: 'linear-gradient(135deg, #0b1b33 0%, #16325c 100%)',
+                  boxShadow: '0 20px 50px -20px rgba(2, 6, 23, 0.35)',
+                }}
+              >
+                <CardContent sx={{ p: 3.25, minHeight: 320, position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', inset: 0, opacity: 0.18, backgroundImage: 'radial-gradient(rgba(201,162,39,0.22) 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
+
+                  <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 1, color: 'rgba(255,255,255,0.7)' }}>
+                    <AutoAwesomeRoundedIcon sx={{ fontSize: 16, color: 'rgba(201,162,39,0.95)' }} />
+                    <Typography sx={{ fontSize: 12, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700 }}>
+                      2030
+                    </Typography>
+                  </Box>
+
+                  {/* Orb */}
                   <Box
                     sx={{
-                      width: 220,
-                      height: 220,
+                      width: 190,
+                      height: 190,
                       borderRadius: '50%',
                       position: 'absolute',
-                      bottom: -40,
-                      right: -30,
-                      background: 'radial-gradient(circle at 30% 30%, #ffffff 0%, #90caf9 30%, #1976d2 100%)',
-                      animation: 'floatPulse 4s ease-in-out infinite',
-                      '@keyframes floatPulse': {
-                        '0%': { transform: 'translateY(0px) scale(1)' },
-                        '50%': { transform: 'translateY(-10px) scale(1.06)' },
-                        '100%': { transform: 'translateY(0px) scale(1)' },
-                      },
+                      top: -48,
+                      right: -42,
+                      background:
+                        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35) 0%, rgba(201,162,39,0.65) 42%, rgba(201,162,39,0.08) 72%)',
+                      opacity: 0.85,
                     }}
                   />
+
+                  {/* Bottom content */}
+                  <Box sx={{ position: 'absolute', left: 26, right: 26, bottom: 26 }}>
+                    <Typography variant="h4" sx={{ color: 'common.white', fontWeight: 800, fontFamily: "'Playfair Display', Georgia, serif" }}>
+                      {t('about.animatedPanelTitle')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.78)', mt: 1.25, lineHeight: 1.9, maxWidth: 380 }}>
+                      {t('about.animatedPanelBody')}
+                    </Typography>
+                  </Box>
                 </CardContent>
               </Card>
             </motion.div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Box, Container, Typography, Button, Grid, IconButton } from '@mui/material'
 import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { motion } from 'framer-motion'
@@ -102,6 +103,28 @@ export default function Home() {
             <Typography variant="body1" sx={{ maxWidth: '800px', mx: 'auto', color: 'text.secondary', lineHeight: 1.8 }}>
               {t('home.cmaDescription')}
             </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: '640px',
+                mx: 'auto',
+                mt: 3,
+                color: 'text.secondary',
+                lineHeight: 1.7,
+                fontWeight: 500,
+              }}
+            >
+              {t('home.cmaCollaborationTeaser')}
+            </Typography>
+            <Button
+              component={Link}
+              to="/collaboration-coming-soon"
+              variant="outlined"
+              size="medium"
+              sx={{ mt: 2.5, textTransform: 'none', fontWeight: 600 }}
+            >
+              {t('home.cmaCollaborationCta')}
+            </Button>
           </motion.div>
         </Container>
       </Box>

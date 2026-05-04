@@ -1,4 +1,4 @@
-import { Award, Building2, Users, Trophy, ShieldCheck, Sparkles, Star, Quote } from "lucide-react";
+import { Award, Building2, Users, Trophy, ShieldCheck, Sparkles, Star, Quote, Home } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useCountUp } from "../hooks/useCountUp";
 import { useReveal } from "../hooks/useReveal";
@@ -28,13 +28,17 @@ const Achievements = () => {
   const { t, lang } = useLanguage();
   const ref = useReveal();
 
-  const milestones = [
-    { year: "1990", title: lang === "ar" ? "التأسيس" : "Founded", desc: lang === "ar" ? "بداية رحلة فيصل بن سعيدان في التطوير العقاري" : "The beginning of Faisal Bin Saedan's journey in real estate." },
-    { year: "1998", title: lang === "ar" ? "أول مشروع كبير" : "First Major Project", desc: lang === "ar" ? "إطلاق أول مجمع سكني متكامل" : "Launched the first integrated residential compound." },
-    { year: "2008", title: lang === "ar" ? "التوسع الإقليمي" : "Regional Expansion", desc: lang === "ar" ? "التوسع إلى المدينة المنورة وجدة" : "Expansion into Madinah and Jeddah." },
-    { year: "2015", title: lang === "ar" ? "اعتماد الجودة" : "Quality Certification", desc: lang === "ar" ? "حصلنا على شهادة ISO للجودة والاستدامة" : "Achieved ISO certification for quality and sustainability." },
-    { year: "2020", title: lang === "ar" ? "رؤية 2030" : "Vision 2030", desc: lang === "ar" ? "انضمام إلى مبادرات رؤية المملكة 2030" : "Joined Saudi Vision 2030 initiatives." },
-    { year: "2026", title: lang === "ar" ? "اليوم" : "Today", desc: lang === "ar" ? "أكثر من 30 ألف وحدة مسلمة وعائلات سعيدة" : "30,000+ units delivered and thriving families." },
+  const snapshotCards = [
+    { icon: Home, title: t("ach.snapshot.cards.residential.title"), desc: t("ach.snapshot.cards.residential.desc") },
+    { icon: Building2, title: t("ach.snapshot.cards.commercial.title"), desc: t("ach.snapshot.cards.commercial.desc") },
+    { icon: Trophy, title: t("ach.snapshot.cards.investment.title"), desc: t("ach.snapshot.cards.investment.desc") },
+    { icon: Users, title: t("ach.snapshot.cards.management.title"), desc: t("ach.snapshot.cards.management.desc") },
+  ];
+
+  const highlights = [
+    { icon: Sparkles, title: t("ach.snapshot.highlights.legacy.title"), desc: t("ach.snapshot.highlights.legacy.desc") },
+    { icon: ShieldCheck, title: t("ach.snapshot.highlights.quality.title"), desc: t("ach.snapshot.highlights.quality.desc") },
+    { icon: Award, title: t("ach.snapshot.highlights.vision.title"), desc: t("ach.snapshot.highlights.vision.desc") },
   ];
 
   const awards = [
@@ -81,35 +85,51 @@ const Achievements = () => {
         </div>
       </section>
 
-      {/* TIMELINE */}
+      {/* COMPANY SNAPSHOT */}
       <section className="container-fbs py-20">
         <div className="text-center">
-          <span className="reveal eyebrow">{t("ach.timeline.title")}</span>
-          <h2 className="reveal reveal-delay-1 mt-4 font-display text-4xl font-bold md:text-5xl">
-            {t("ach.timeline.subtitle")}
-          </h2>
+          <span className="reveal eyebrow">{t("ach.snapshot.kicker")}</span>
+          <h2 className="reveal reveal-delay-1 mt-4 font-display text-4xl font-bold md:text-5xl">{t("ach.snapshot.title")}</h2>
+          <p className="reveal reveal-delay-2 mx-auto mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            {t("ach.snapshot.subtitle")}
+          </p>
         </div>
 
-        <div className="relative mt-16">
-          <div className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-accent/40 to-transparent md:block" />
-          <div className="absolute inset-y-0 left-4 w-px bg-gradient-to-b from-transparent via-accent/40 to-transparent md:hidden" />
-
-          <div className="space-y-12">
-            {milestones.map((m, i) => {
-              const left = i % 2 === 0;
-              return (
-                <div key={i} className={`reveal grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-12 ${left ? "" : "md:[&>*:first-child]:order-2"}`}>
-                  <div className={`relative pl-12 md:pl-0 ${left ? "md:text-end md:pe-12" : "md:ps-12"}`}>
-                    <div className="absolute left-4 top-2 h-3 w-3 -translate-x-1/2 rounded-full bg-accent ring-4 ring-accent/20 md:left-auto md:right-0 md:translate-x-1/2" style={left ? { left: "auto", right: 0, transform: "translateX(50%)" } : { left: 0, transform: "translateX(-50%)" }} />
-                    <div className="font-display text-4xl font-bold text-accent md:text-5xl">{m.year}</div>
-                    <h3 className="mt-2 font-display text-xl font-semibold">{m.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.desc}</p>
-                  </div>
-                  <div className="hidden md:block" />
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {snapshotCards.map((c, i) => (
+            <div
+              key={i}
+              className={`reveal reveal-delay-${(i % 4) + 1} group relative overflow-hidden rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-elegant`}
+            >
+              <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/5 transition-all duration-700 group-hover:scale-150 group-hover:bg-accent/10" />
+              <div className="relative">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all duration-500 group-hover:bg-accent group-hover:text-accent-foreground">
+                  <c.icon className="h-6 w-6" />
                 </div>
-              );
-            })}
-          </div>
+                <h3 className="mt-5 font-display text-lg font-semibold">{c.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{c.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {highlights.map((h, i) => (
+            <div
+              key={i}
+              className={`reveal reveal-delay-${i + 1} rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <h.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-display text-lg font-semibold">{h.title}</div>
+                  <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{h.desc}</div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
