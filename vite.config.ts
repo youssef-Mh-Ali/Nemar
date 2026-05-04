@@ -8,7 +8,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/*.png', 'FBS logo acronim.svg', 'appicon.png'],
+      includeAssets: [
+        'favicon.ico',
+        'icons/*.png',
+        'FBS logo acronim.svg',
+        'FBS_Logo_Vertical_AR.png',
+        'appicon.png',
+      ],
       manifest: {
         name: 'فيصل بن سعيدان | Faisal Bin Saedan Properties',
         short_name: 'Bin Saedan',

@@ -21,6 +21,13 @@
     "view": "عرض",
     "more": "المزيد"
   },
+  "footer": {
+    "nav": "تذييل الصفحة",
+    "copyright": "© {{year}} فيصل بن سعيدان. جميع الحقوق محفوظة."
+  },
+  "siteContactBar": {
+    "label": "التواصل ووسائل التواصل الاجتماعي"
+  },
   "ach": {
     "title": "إنجازاتنا",
     "subtitle": "محطات صنعت قصتنا، وتكريمات تعكس التزامنا بالجودة والابتكار.",
@@ -239,6 +246,15 @@
       "customer": "عميل"
     },
     "name": "الاسم",
+    "namePlaceholder": "اسمك",
+    "region": "المنطقة",
+    "regionPlaceholder": "منطقتك",
+    "city": "المدينة",
+    "cityPlaceholder": "مدينتك",
+    "project": "المشروع",
+    "projectPlaceholder": "اسم المشروع",
+    "notSpecified": "غير محدد",
+    "loadingProjects": "جاري تحميل الخيارات…",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
     "message": "رسالتك",
@@ -334,6 +350,11 @@
     "contactUs": "تواصل معنا",
     "usernameRequired": "اسم المستخدم مطلوب",
     "passwordRequired": "كلمة المرور مطلوبة"
+  },
+  "offline": {
+    "title": "لا يوجد اتصال بالإنترنت",
+    "description": "يبدو أنك غير متصل بالإنترنت. تحقق من اتصالك وحاول مرة أخرى.",
+    "retry": "إعادة المحاولة"
   },
   "cases": {
     "title": "فتح طلب جديد",

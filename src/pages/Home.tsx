@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Box, Container, Typography, Button, Grid, IconButton } from '@mui/material'
+import { Box, Container, Typography, Button, Grid } from '@mui/material'
 import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,6 @@ import HeroSection from '../components/home/HeroSection'
 import ProjectsGrid from '../components/home/ProjectsGrid'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
-import { Phone, Mail, MapPin, Instagram, Linkedin, Facebook } from 'lucide-react'
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg
@@ -254,133 +253,6 @@ export default function Home() {
               {t('home.registerInterest')}
             </Button>
           </motion.div>
-        </Container>
-      </Box>
-
-      {/* Contact Info */}
-      <Box sx={{ py: 6, px: { xs: 2, md: 3 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
-            <Box
-              component="a"
-              href="tel:+966112345678"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                color: 'text.secondary',
-                textDecoration: 'none',
-                '&:hover': { color: 'primary.main' },
-              }}
-            >
-              <Phone size={20} />
-              <Typography variant="body2" dir="ltr">
-                {t('home.phone')}
-              </Typography>
-            </Box>
-            <Box
-              component="a"
-              href={`mailto:${t('home.email')}`}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                color: 'text.secondary',
-                textDecoration: 'none',
-                '&:hover': { color: 'primary.main' },
-              }}
-            >
-              <Mail size={20} />
-              <Typography variant="body2">{t('home.email')}</Typography>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                color: 'text.secondary',
-              }}
-            >
-              <MapPin size={20} />
-              <Typography variant="body2">{t('home.address')}</Typography>
-            </Box>
-
-
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {[
-                {
-                  icon: Instagram,
-                  href: 'https://www.instagram.com/faisalsaedanco?igsh=MXBvazg2d3lnNDQ4bQ==',
-                  label: t('share.instagram'),
-                  color: '#E4405F'
-                },
-                {
-                  icon: XIcon,
-                  href: 'https://x.com/FaisalSaedanCo',
-                  label: t('share.twitter'),
-                  color: '#000000'
-                },
-                {
-                  icon: Linkedin,
-                  href: 'https://www.linkedin.com/company/faisal-binsaedan/',
-                  label: t('share.linkedin'),
-                  color: '#0077B5'
-                },
-                {
-                  icon: WhatsAppIcon,
-                  href: 'https://wa.me/966920024010',
-                  label: t('share.whatsapp'),
-                  color: '#25D366'
-                },
-                {
-                  icon: Facebook,
-                  href: 'https://www.facebook.com/faisalsaedanco/',
-                  label: t('share.facebook'),
-                  color: '#1877F2'
-                },
-                {
-                  icon: SnapchatIcon,
-                  href: 'https://www.snapchat.com/@binsaedanco',
-                  label: t('share.snapchat'),
-                  color: '#FFFC00'
-                },
-                {
-                  icon: TikTokIcon,
-                  href: 'https://www.tiktok.com/@fbs.c?_r=1&_t=ZS-95iiXSKM2iI ',
-                  label: t('share.tiktok'),
-                  color: '#000000'
-                },
-              ].map((social) => {
-                const Icon = social.icon
-                return (
-                  <IconButton
-                    key={social.label}
-                    component="a"
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      border: 1,
-                      borderColor: 'divider',
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                        borderColor: social.color || 'primary.main',
-                        '& svg': {
-                          color: social.color || 'primary.main',
-                        }
-                      },
-                    }}
-                    aria-label={social.label}
-                    title={social.label}
-                  >
-                    <Icon size={20} />
-                  </IconButton>
-                )
-              })}
-            </Box>
-          </Box>
-
-
         </Container>
       </Box>
 

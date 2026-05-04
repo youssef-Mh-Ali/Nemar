@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { getFeaturedVideo, detectVideoAspectRatio } from '../../lib/api-client'
 import VideoCover from './VideoCover'
 import VideoOverlay from './VideoOverlay'
+import BrandLogo from '../layout/BrandLogo'
 
 // Type declaration for Instagram embed API
 declare global {
@@ -423,16 +424,7 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.5 }}
             style={{ marginBottom: '32px' }}
           >
-            <Box
-              component="img"
-              src="/FBS%20logo%20acronim.svg"
-              alt={t('home.title')}
-              sx={{
-                height: { xs: '64px', md: '80px' },
-                width: 'auto',
-                mx: 'auto',
-              }}
-            />
+            <BrandLogo variant="hero" />
           </motion.div>
 
           {/* Main Heading */}

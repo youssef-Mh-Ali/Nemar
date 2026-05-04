@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Box,
   Container,
@@ -12,6 +12,11 @@ import {
   IconButton,
   ToggleButtonGroup,
   ToggleButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Controller, useForm } from 'react-hook-form'
@@ -19,7 +24,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Instagram, Linkedin } from 'lucide-react'
-import { createLead, getOfficeMapUrl } from '../lib/api-client'
+import { createLead, getOfficeMapUrl, getProjects } from '../lib/api-client'
+import type { Project } from '../lib/types'
 
 // Custom X (Twitter) icon component
 const XIcon = ({ size = 20 }: { size?: number }) => (
@@ -86,25 +92,85 @@ const getSchema = (t: (key: string) => string) => z.object({
 })
 
 export default function Contact() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mapUrl, setMapUrl] = useState<string | null>(null)
   const [mapMetaKeywords, setMapMetaKeywords] = useState<string | undefined>(undefined)
   const [isLoadingMap, setIsLoadingMap] = useState(true)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectsLoading, setProjectsLoading] = useState(true)
+
+  const defaultFormValues: FormData = {
+    profile: 'Investor',
+    name: '',
+    email: '',
+    phone: '',
+    region: '',
+    city: '',
+    project: '',
+    message: '',
+  }
 
   const {
     register,
     control,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(getSchema(t)),
-    defaultValues: {
-      profile: 'Investor',
-    },
+    defaultValues: defaultFormValues,
   })
+
+  const regionWatch = watch('region')
+  const cityWatch = watch('city')
+
+  const regions = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of projects) {
+      if (p.provinceRegion) set.add(p.provinceRegion)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b))
+  }, [projects])
+
+  const cities = useMemo(() => {
+    const pool = regionWatch
+      ? projects.filter((p) => p.provinceRegion === regionWatch)
+      : projects
+    const set = new Set<string>()
+    for (const p of pool) {
+      if (p.city) set.add(p.city)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b))
+  }, [projects, regionWatch])
+
+  const projectsForSelect = useMemo(() => {
+    return projects
+      .filter((p) => {
+        if (regionWatch && p.provinceRegion !== regionWatch) return false
+        if (cityWatch && p.city !== cityWatch) return false
+        return true
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [projects, regionWatch, cityWatch])
+
+  useEffect(() => {
+    let cancelled = false
+    setProjectsLoading(true)
+    getProjects()
+      .then((res) => {
+        if (!cancelled && res.success && res.data) setProjects(res.data)
+      })
+      .finally(() => {
+        if (!cancelled) setProjectsLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Fetch office map URL from Salesforce
   useEffect(() => {
@@ -130,10 +196,16 @@ export default function Contact() {
       const parts = data.name.trim().split(/\s+/).filter(Boolean)
       const firstName = parts[0] || ''
       const lastName = parts.slice(1).join(' ') || firstName
+      const selectedProject = data.project
+        ? projects.find((p) => p.id === data.project)
+        : undefined
+      const projectLabel = selectedProject
+        ? (i18n.language.startsWith('ar') ? selectedProject.nameAr : selectedProject.name)
+        : ''
       const meta = [
         data.region ? `Region: ${data.region}` : null,
         data.city ? `City: ${data.city}` : null,
-        data.project ? `Project: ${data.project}` : null,
+        data.project && projectLabel ? `Project: ${projectLabel}` : null,
       ].filter(Boolean)
       const message = meta.length ? `${data.message}\n\n${meta.join('\n')}` : data.message
 
@@ -148,7 +220,7 @@ export default function Contact() {
 
       if (response.success) {
         setIsSuccess(true)
-        reset()
+        reset(defaultFormValues)
         setTimeout(() => setIsSuccess(false), 5000)
       } else {
         setError(response.error || t('contact.errorOccurred'))
@@ -253,7 +325,7 @@ export default function Contact() {
                                 aria-label={t('contact.profileQuestion')}
                               >
                                 <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
-                                <ToggleButton value="Customer">{t('contact.profileOptions.customer', 'Customer')}</ToggleButton>
+                                <ToggleButton value="Customer">{t('contact.profileOptions.customer')}</ToggleButton>
                               </ToggleButtonGroup>
                             )}
                           />
@@ -266,8 +338,8 @@ export default function Contact() {
                         <Grid size={{ xs: 12 }}>
                           <TextField
                             {...register('name')}
-                            label={t('contact.name', 'Name')}
-                            placeholder={t('contact.namePlaceholder', 'Your name')}
+                            label={t('contact.name')}
+                            placeholder={t('contact.namePlaceholder')}
                             fullWidth
                             error={!!errors.name}
                             helperText={errors.name?.message}
@@ -297,33 +369,96 @@ export default function Contact() {
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('region')}
-                            label={t('contact.region', 'Region')}
-                            placeholder={t('contact.regionPlaceholder', 'Your region')}
-                            fullWidth
-                            error={!!errors.region}
-                            helperText={errors.region?.message}
+                          <Controller
+                            name="region"
+                            control={control}
+                            render={({ field }) => (
+                              <FormControl fullWidth error={!!errors.region} disabled={projectsLoading}>
+                                <InputLabel id="contact-region-label">{t('contact.region')}</InputLabel>
+                                <Select
+                                  labelId="contact-region-label"
+                                  label={t('contact.region')}
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    field.onChange(e.target.value)
+                                    setValue('city', '')
+                                    setValue('project', '')
+                                  }}
+                                >
+                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                                  {regions.map((r) => (
+                                    <MenuItem key={r} value={r}>
+                                      {r}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                {errors.region?.message ? (
+                                  <FormHelperText>{errors.region.message}</FormHelperText>
+                                ) : null}
+                              </FormControl>
+                            )}
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('city')}
-                            label={t('contact.city', 'City')}
-                            placeholder={t('contact.cityPlaceholder', 'Your city')}
-                            fullWidth
-                            error={!!errors.city}
-                            helperText={errors.city?.message}
+                          <Controller
+                            name="city"
+                            control={control}
+                            render={({ field }) => (
+                              <FormControl fullWidth error={!!errors.city} disabled={projectsLoading}>
+                                <InputLabel id="contact-city-label">{t('contact.city')}</InputLabel>
+                                <Select
+                                  labelId="contact-city-label"
+                                  label={t('contact.city')}
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    field.onChange(e.target.value)
+                                    setValue('project', '')
+                                  }}
+                                >
+                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                                  {cities.map((c) => (
+                                    <MenuItem key={c} value={c}>
+                                      {c}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                {errors.city?.message ? (
+                                  <FormHelperText>{errors.city.message}</FormHelperText>
+                                ) : null}
+                              </FormControl>
+                            )}
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
-                          <TextField
-                            {...register('project')}
-                            label={t('contact.project', 'Project')}
-                            placeholder={t('contact.projectPlaceholder', 'Project name')}
-                            fullWidth
-                            error={!!errors.project}
-                            helperText={errors.project?.message}
+                          <Controller
+                            name="project"
+                            control={control}
+                            render={({ field }) => (
+                              <FormControl fullWidth error={!!errors.project} disabled={projectsLoading}>
+                                <InputLabel id="contact-project-label">{t('contact.project')}</InputLabel>
+                                <Select
+                                  labelId="contact-project-label"
+                                  label={t('contact.project')}
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={field.onChange}
+                                >
+                                  <MenuItem value="">{t('contact.notSpecified')}</MenuItem>
+                                  {projectsForSelect.map((p) => (
+                                    <MenuItem key={p.id} value={p.id}>
+                                      {i18n.language.startsWith('ar') ? p.nameAr : p.name}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                {projectsLoading ? (
+                                  <FormHelperText>{t('contact.loadingProjects')}</FormHelperText>
+                                ) : errors.project?.message ? (
+                                  <FormHelperText>{errors.project.message}</FormHelperText>
+                                ) : null}
+                              </FormControl>
+                            )}
                           />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -560,7 +695,7 @@ export default function Contact() {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title={mapMetaKeywords || t('contact.mapTitle') || 'Office Location'}
+                    title={mapMetaKeywords || t('contact.mapTitle')}
                   />
                 ) : (
                   <Box
