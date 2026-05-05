@@ -75,6 +75,7 @@ async function getSalesforceAccessToken() {
 }
 
 async function sfQuery(instanceUrl, accessToken, soql) {
+  console.log('Salesforce SOQL:', soql)
   const url = `${instanceUrl}/services/data/v59.0/query?q=${encodeURIComponent(soql)}`
   const res = await fetch(url, {
     method: 'GET',
