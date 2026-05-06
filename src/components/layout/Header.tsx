@@ -41,151 +41,81 @@ export default function Header() {
 
   return (
     <AppBar
-      position="sticky"
-      sx={{
-        backgroundColor: 'background.paper',
+      position="absolute"
+      elevation={0}
+      sx={(theme) => ({
+        backgroundColor: location.pathname === '/' ? 'transparent' : alpha(theme.palette.background.paper, 0.6),
+        backdropFilter: location.pathname === '/' ? 'none' : 'blur(16px)',
         color: 'text.primary',
-        boxShadow: '0 1px 0 0 rgba(0,0,0,0.1)',
-      }}
+        borderBottom: location.pathname === '/' ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+        boxShadow: 'none',
+        pt: 2,
+      })}
       className="safe-top"
     >
-      <Toolbar sx={{ justifyContent: 'space-between', minHeight: '64px !important' }}>
+      <Toolbar sx={{ justifyContent: 'space-between', minHeight: '64px !important', px: { xs: 2, md: 4, lg: 6 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {canShowBack && (
-            <IconButton
-              onClick={onBack}
-              size="small"
-              title={t('common.back')}
-              aria-label={t('common.back')}
-              sx={{
-                color: 'text.secondary',
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                  color: 'primary.main',
-                  borderColor: 'primary.main',
-                },
-              }}
-            >
-              {isRtl ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
-            </IconButton>
-          )}
-
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <BrandLogo variant="header" />
           </Link>
         </Box>
 
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, alignItems: 'center' }}>
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           {navItems.map((item) => {
             const active = isNavPathActive(location.pathname, item.path)
             return (
-              <Button
+              <Box
                 key={item.path}
                 component={Link}
                 to={item.path}
-                aria-current={active ? 'page' : undefined}
-                sx={(theme) => ({
-                  color: active ? 'primary.main' : 'text.secondary',
-                  fontWeight: active ? 600 : 500,
-                  bgcolor: active ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
-                  borderRadius: 2,
-                  px: 1.5,
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  textTransform: 'uppercase',
+                  position: 'relative',
+                  '&:after': active ? {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: -4,
+                    left: 0,
+                    width: '100%',
+                    height: 2,
+                    bgcolor: 'primary.main',
+                  } : {},
                   '&:hover': {
-                    bgcolor: active ? alpha(theme.palette.primary.main, 0.18) : 'action.hover',
+                    opacity: 0.8,
                   },
-                })}
+                }}
               >
                 {item.label}
-              </Button>
+              </Box>
             )
           })}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton
-            component={Link}
-            to="/search"
-            size="small"
-            title={t('common.search')}
-            aria-label={t('common.search')}
-            aria-current={location.pathname.startsWith('/search') ? 'page' : undefined}
-            sx={(theme) => {
-              const onSearch = location.pathname.startsWith('/search')
-              return {
-                color: onSearch ? 'primary.main' : 'text.secondary',
-                bgcolor: onSearch ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
-                border: 1,
-                borderColor: onSearch ? 'primary.main' : 'divider',
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: onSearch ? alpha(theme.palette.primary.main, 0.18) : 'action.hover',
-                  color: 'primary.main',
-                  borderColor: 'primary.main',
-                },
-              }
-            }}
-          >
-            <Search size={18} />
-          </IconButton>
-          <LanguageToggle />
-          {user ? (
-            <>
-              <Box sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '14px', color: 'text.secondary' }}>
-                {user.firstName}
-              </Box>
-              <IconButton
-                onClick={async () => {
-                  try {
-                    await logout()
-                  } finally {
-                    clearAuth()
-                  }
-                }}
-                size="small"
-                title={t('common.logout')}
-              >
-                <LogOut size={20} />
-              </IconButton>
-            </>
-          ) : (
-            <Button
-              component={Link}
-              to="/login"
-              variant="outlined"
-              size="small"
-              startIcon={<User size={18} />}
-              sx={{
-                px: { xs: 1.5, sm: 2 },
-                py: { xs: 0.75, sm: 0.875 },
-                minWidth: { xs: 'auto', sm: 'auto' },
-                gap: 0.5,
-                borderRadius: 1.5,
-                borderWidth: 1.5,
-                fontWeight: 500,
-                '& .MuiButton-startIcon': {
-                  margin: 0,
-                  marginRight: { xs: 0, sm: 0.5 },
-                  display: 'flex',
-                  alignItems: 'center',
-                },
-                '&:hover': {
-                  borderWidth: 1.5,
-                },
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }} onClick={() => i18n.changeLanguage(isRtl ? 'en' : 'ar')}>
+            <Box component="span" sx={{ textDecoration: isRtl ? 'underline' : 'none' }}>AR</Box>
+            <span>/</span>
+            <Box component="span" sx={{ textDecoration: !isRtl ? 'underline' : 'none' }}>EN</Box>
+          </Box>
+          {user && (
+            <IconButton
+              onClick={async () => {
+                try {
+                  await logout()
+                } finally {
+                  clearAuth()
+                }
               }}
+              size="small"
+              title={t('common.logout')}
+              sx={{ color: 'primary.main' }}
             >
-              <Box
-                component="span"
-                sx={{
-                  display: { xs: 'none', sm: 'inline' },
-                  lineHeight: 1.5,
-                }}
-              >
-                {t('common.login')}
-              </Box>
-            </Button>
+              <LogOut size={18} />
+            </IconButton>
           )}
         </Box>
       </Toolbar>

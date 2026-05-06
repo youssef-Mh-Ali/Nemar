@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent, Chip, Box, Typography, Divider } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { motion } from 'framer-motion'
 import { Bed, Bath, Maximize, Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -51,17 +52,21 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
       <Card
         component={Link}
         to={`/unit/${unit.id}`}
-        sx={{
+        sx={(theme) => ({
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           textDecoration: 'none',
-          transition: 'transform 0.2s, box-shadow 0.2s',
+          backgroundColor: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: 'blur(16px)',
+          border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+          transition: 'transform 0.2s, box-shadow 0.2s, background-color 0.2s',
           '&:hover': {
             transform: 'translateY(-4px)',
-            boxShadow: 4,
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.1)',
+            backgroundColor: alpha(theme.palette.background.paper, 0.8),
           },
-        }}
+        })}
       >
         <Box sx={{ position: 'relative', height: { xs: 176, md: 192 }, overflow: 'hidden' }}>
           <LazyImage

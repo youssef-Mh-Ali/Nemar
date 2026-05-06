@@ -8,6 +8,7 @@ import {
   Grid,
   IconButton,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Phone, Mail, MapPin, Clock, Instagram, Linkedin } from 'lucide-react'
@@ -88,9 +89,9 @@ export default function Contact() {
   }, [])
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* Header */}
-      <Box sx={{ bgcolor: 'primary.main', color: 'white', px: { xs: 2, md: 3 }, py: 6, textAlign: 'center' }}>
+      <Box sx={(theme) => ({ bgcolor: alpha(theme.palette.primary.main, 0.8), backdropFilter: 'blur(20px)', color: 'white', px: { xs: 2, md: 3 }, py: 6, textAlign: 'center' })}>
         <Container maxWidth="lg">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -115,7 +116,14 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Card>
+              <Card
+                sx={(theme) => ({
+                  backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                  backdropFilter: 'blur(16px)',
+                  border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                })}
+              >
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
                     {t('contact.formTitle')}
@@ -142,14 +150,14 @@ export default function Contact() {
                     {
                       icon: Phone,
                       label: t('contact.phoneLabel'),
-                      value: '+966 11 234 5678',
-                      href: 'tel:+966112345678',
+                      value: '920024010',
+                      href: 'tel:920024010',
                     },
                     {
                       icon: Mail,
                       label: t('contact.emailLabel'),
-                      value: 'info@faisal-binsaedan.com',
-                      href: 'mailto:info@faisal-binsaedan.com',
+                      value: 'customer.care@faisal-binsaedan.com / info@faisal-binsaedan.com',
+                      href: 'mailto:customer.care@faisal-binsaedan.com',
                     },
                     {
                       icon: MapPin,
@@ -164,7 +172,14 @@ export default function Contact() {
                   ].map((item) => {
                     const Icon = item.icon
                     const content = (
-                      <Card>
+                      <Card
+                        sx={(theme) => ({
+                          backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                          backdropFilter: 'blur(16px)',
+                          border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                        })}
+                      >
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'start', gap: 2 }}>
                             <Box

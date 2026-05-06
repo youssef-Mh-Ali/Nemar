@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, Typography, TextField, MenuItem, Button, Stack, Box } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Refresh } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
@@ -67,7 +68,14 @@ export default function DesktopFilters() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== undefined)
 
   return (
-    <Card>
+    <Card
+      sx={(theme) => ({
+        backgroundColor: alpha(theme.palette.background.paper, 0.6),
+        backdropFilter: 'blur(16px)',
+        border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+      })}
+    >
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h6" fontWeight="semibold">

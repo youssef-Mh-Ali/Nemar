@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import { motion } from 'framer-motion'
@@ -122,8 +123,8 @@ export default function AboutUs() {
   }, [language])
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Box sx={{ bgcolor: 'primary.main', color: 'white', px: { xs: 2, md: 3 }, py: 6, textAlign: 'center' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
+      <Box sx={(theme) => ({ bgcolor: alpha(theme.palette.primary.main, 0.8), backdropFilter: 'blur(20px)', color: 'white', px: { xs: 2, md: 3 }, py: 6, textAlign: 'center' })}>
         <Container maxWidth="lg">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Typography variant="h3" fontWeight="bold" gutterBottom>
@@ -138,7 +139,15 @@ export default function AboutUs() {
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <Card sx={{ mb: 4 }}>
+          <Card
+            sx={(theme) => ({
+              mb: 4,
+              backgroundColor: alpha(theme.palette.background.paper, 0.6),
+              backdropFilter: 'blur(16px)',
+              border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+            })}
+          >
             <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
               <Typography variant="h5" fontWeight="bold" gutterBottom>
                 {t('about.companyIntroTitle')}

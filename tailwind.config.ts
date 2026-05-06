@@ -20,6 +20,12 @@ export default {
         muted: 'hsl(var(--muted))',
         'muted-foreground': 'hsl(var(--muted-foreground))',
         border: 'hsl(var(--border))',
+        aurora: {
+          1: 'hsl(var(--aurora-1))',
+          2: 'hsl(var(--aurora-2))',
+          3: 'hsl(var(--aurora-3))',
+          4: 'hsl(var(--aurora-4))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
