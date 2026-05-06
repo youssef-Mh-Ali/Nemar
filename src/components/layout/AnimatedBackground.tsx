@@ -38,9 +38,13 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
       {variant === 'geometric' ? (
         // Geometric Variant - Soft, large overlapping shapes like the screenshot
         <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#f4f7fb' }}>
-          {Array.from({ length: 4 }).map((_, i) => {
+          {Array.from({ length: 5 }).map((_, i) => {
             const width = 600 + Math.random() * 400
             const height = 600 + Math.random() * 400
+            const colors = ['#799fbc', '#9dc2e1', '#aab6be', '#ffffff']
+            const color1 = colors[i % colors.length]
+            const color2 = colors[(i + 1) % colors.length]
+            
             return (
               <motion.div
                 key={`geo-${i}`}
@@ -59,11 +63,11 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
                   position: 'absolute',
                   width,
                   height,
-                  background: `linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(220, 235, 245, 0.4) 100%)`,
+                  background: `linear-gradient(135deg, ${color1}88 0%, ${color2}44 100%)`,
                   backdropFilter: 'blur(20px)',
                   clipPath: 'polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%)',
                   boxShadow: '0 20px 60px rgba(16, 45, 74, 0.05), inset 0 0 0 1px rgba(255,255,255,0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  border: `1px solid ${color1}44`,
                 }}
               />
             )
