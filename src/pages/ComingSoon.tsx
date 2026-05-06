@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { Lock, Eye, EyeOff, ArrowRight, Construction } from 'lucide-react'
 import { useAppStore } from '../lib/store/app-store'
+import AnimatedBackground from '../components/layout/AnimatedBackground'
 
 export default function ComingSoon() {
   const [password, setPassword] = useState('')
@@ -32,30 +33,27 @@ export default function ComingSoon() {
   return (
     <Box
       sx={{
-        height: '100vh',
+        minHeight: '100vh',
         width: '100vw',
         position: 'fixed',
         top: 0,
         left: 0,
         zIndex: 9999,
-        backgroundImage: 'url("/images/coming-soon-bg.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(15, 31, 58, 0.85)', // Dark primary color with overlay
-          backdropFilter: 'blur(8px)',
-        },
+        bgcolor: '#2a3441', // Dark blue-gray base
+        overflow: 'hidden',
       }}
     >
+      {/* Animated Boxes Background */}
+      <Box sx={{ position: 'absolute', inset: 0, opacity: 0.15, pointerEvents: 'none' }}>
+        <AnimatedBackground variant="geometric" />
+      </Box>
+
+      {/* Subtle Overlay to ensure text readability */}
+      <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(42, 52, 65, 0.7)' }} />
+
       <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -68,26 +66,25 @@ export default function ComingSoon() {
               flexDirection: 'column',
               alignItems: 'center',
               textAlign: 'center',
-              mb: 4,
+              mb: 5,
             }}
           >
             <motion.img
               src="/BinSaedanLogo-White.png"
               alt="Bin Saedan"
-              style={{ height: '80px', marginBottom: '32px' }}
+              style={{ height: '90px', marginBottom: '32px' }}
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               transition={{ duration: 1, ease: 'easeOut' }}
             />
 
             <Typography
-              variant="h2"
-              component="h1"
+              variant="h1"
               sx={{
                 color: 'white',
                 fontWeight: 700,
-                mb: 1,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                mb: 2,
+                fontSize: { xs: '3rem', md: '4rem' },
                 fontFamily: '"IBM Plex Sans Arabic", sans-serif',
               }}
             >
@@ -96,11 +93,12 @@ export default function ComingSoon() {
             <Typography
               variant="h5"
               sx={{
-                color: '#c9a227', // Gold color
-                fontWeight: 500,
+                color: '#d09b30', // Gold color
+                fontWeight: 600,
                 mb: 4,
-                letterSpacing: '2px',
+                letterSpacing: '4px',
                 textTransform: 'uppercase',
+                fontSize: '1.25rem'
               }}
             >
               Coming Soon
@@ -109,45 +107,69 @@ export default function ComingSoon() {
             <Typography
               variant="body1"
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
-                mb: 6,
-                maxWidth: '400px',
-                mx: 'auto',
-                lineHeight: 1.6,
+                color: 'rgba(255, 255, 255, 0.85)',
+                mb: 1,
+                fontSize: '1.1rem',
+                fontFamily: '"IBM Plex Sans Arabic", sans-serif',
               }}
+              dir="rtl"
             >
               نحن نعمل على تطوير تجربة عقارية رقمية استثنائية تليق بكم.
-              <br />
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '1rem',
+              }}
+            >
               We are working on developing an exceptional digital real estate experience for you.
             </Typography>
           </Box>
 
           <Paper
-            elevation={24}
+            elevation={0}
             sx={{
-              p: 4,
+              p: { xs: 3, md: 4 },
               borderRadius: '24px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(20px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(10px)',
             }}
           >
             <form onSubmit={handleSubmit}>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  color: 'white',
-                  mb: 2,
-                  textAlign: 'left',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                }}
-              >
-                <Lock size={16} /> Enter Access Password
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    fontWeight: 500,
+                  }}
+                >
+                  Enter Access Password <Lock size={16} />
+                </Typography>
+              </Box>
 
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  sx={{
+                    borderRadius: '12px',
+                    minWidth: '64px',
+                    height: '56px',
+                    bgcolor: '#d09b30',
+                    color: 'white',
+                    '&:hover': { bgcolor: '#b88625' },
+                    boxShadow: 'none',
+                  }}
+                >
+                  <ArrowRight size={24} />
+                </Button>
+                
                 <TextField
                   fullWidth
                   type={showPassword ? 'text' : 'password'}
@@ -155,29 +177,36 @@ export default function ComingSoon() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   error={error}
+                  dir="rtl" // Right-to-left to match screenshot dots on the right
                   sx={{
+                    flexGrow: 1,
                     '& .MuiOutlinedInput-root': {
                       color: 'white',
+                      height: '56px',
                       backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '12px',
                       '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                        borderRadius: '12px',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.4)',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
                       },
                       '&.Mui-focused fieldset': {
-                        borderColor: '#c9a227',
+                        borderColor: '#d09b30',
                       },
                     },
+                    '& .MuiInputBase-input': {
+                      textAlign: 'right',
+                      letterSpacing: '4px',
+                    }
                   }}
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
+                    startAdornment: (
+                      <InputAdornment position="start">
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                          edge="start"
+                          sx={{ color: 'rgba(255, 255, 255, 0.4)', mr: -1 }}
                         >
                           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </IconButton>
@@ -185,18 +214,6 @@ export default function ComingSoon() {
                     ),
                   }}
                 />
-                <Button
-                  variant="contained"
-                  type="submit"
-                  sx={{
-                    borderRadius: '12px',
-                    px: 3,
-                    bgcolor: '#c9a227',
-                    '&:hover': { bgcolor: '#a8871f' },
-                  }}
-                >
-                  <ArrowRight size={24} />
-                </Button>
               </Box>
 
               <AnimatePresence>
@@ -213,6 +230,7 @@ export default function ComingSoon() {
                         borderRadius: '12px',
                         bgcolor: 'rgba(211, 47, 47, 0.1)',
                         color: '#ffcdd2',
+                        border: '1px solid rgba(211, 47, 47, 0.3)',
                         '& .MuiAlert-icon': { color: '#ffcdd2' },
                       }}
                     >
@@ -231,11 +249,13 @@ export default function ComingSoon() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 1,
-              color: 'rgba(255, 255, 255, 0.4)',
+              color: 'rgba(255, 255, 255, 0.3)',
             }}
           >
-            <Construction size={16} />
-            <Typography variant="caption">Under Development by Bin Saedan Team</Typography>
+            <Typography variant="caption" sx={{ fontSize: '0.8rem' }}>
+              Under Development by Bin Saedan Team
+            </Typography>
+            <Construction size={16} opacity={0.7} />
           </Box>
         </motion.div>
       </Container>
