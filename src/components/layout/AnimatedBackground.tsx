@@ -35,6 +35,7 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
           : 'linear-gradient(to bottom right, hsl(var(--background)), #ffffff)',
       }}
     >
+      {variant === 'geometric' ? (
         // Geometric Variant - Soft, large overlapping shapes like the screenshot
         <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#f4f7fb' }}>
           {Array.from({ length: 4 }).map((_, i) => {
