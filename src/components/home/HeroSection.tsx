@@ -229,28 +229,27 @@ export default function HeroSection() {
         <Grid container spacing={4} alignItems="center" justifyContent="center">
           
           {/* Left Column: Main Title */}
-          <Grid item xs={12} md={3} sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+          <Grid item xs={12} md={4} lg={3} sx={{ textAlign: { xs: 'center', md: 'left' } }}>
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}>
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '3.5rem', md: '4.5rem', lg: '5.5rem' },
-                  fontWeight: 600,
-                  color: 'primary.main',
+                  fontSize: { xs: '3rem', md: '4rem', lg: '5rem' },
+                  fontWeight: 500,
+                  color: '#102d4a',
                   lineHeight: 1.1,
                   letterSpacing: '-0.02em',
-                  textShadow: '0 4px 20px rgba(255,255,255,0.2)',
                   whiteSpace: 'pre-line',
                 }}
               >
-                {t('home.heroTitle')}{'\n'}
+                {t('home.heroTitle')}{' '}
                 {t('home.heroSubtitle')}
               </Typography>
             </motion.div>
           </Grid>
 
           {/* Center Column: Video Rectangle */}
-          <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+          <Grid item xs={12} md={4} lg={6} sx={{ display: 'flex', justifyContent: 'center', zIndex: 1 }}>
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }} style={{ width: '100%', maxWidth: '550px', aspectRatio: '4/5' }}>
               <Box
                 sx={{
@@ -258,47 +257,62 @@ export default function HeroSection() {
                   height: '100%',
                   overflow: 'hidden',
                   borderRadius: 0, // Sharp corners like the screenshot
-                  boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                   position: 'relative',
-                  bgcolor: 'rgba(255,255,255,0.8)',
-                  backdropFilter: 'blur(10px)',
+                  bgcolor: '#e2e8f0',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  '& > *': { width: '100%', height: '100%' }
                 }}
               >
-                {renderVideo()}
+                {!featuredVideo || !featuredVideo.videoUrl || isLoading ? (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      background: featuredVideo?.coverImageUrl 
+                        ? `url(${featuredVideo.coverImageUrl}) center/cover` 
+                        : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover', // Glass building fallback
+                    }}
+                  />
+                ) : (
+                  renderVideo()
+                )}
               </Box>
             </motion.div>
           </Grid>
 
           {/* Right Column: Description */}
-          <Grid item xs={12} md={3} sx={{ textAlign: { xs: 'center', md: 'left' }, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%', alignSelf: 'flex-end', pb: { md: 10 } }}>
+          <Grid item xs={12} md={4} lg={3} sx={{ textAlign: { xs: 'center', md: 'left' }, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%', alignSelf: 'flex-end', pb: { md: 10 } }}>
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}>
               <Typography
-                variant="h6"
+                variant="body1"
                 sx={{
-                  color: 'primary.main',
+                  color: '#102d4a',
                   fontWeight: 500,
-                  lineHeight: 1.6,
-                  fontSize: '1.25rem',
+                  lineHeight: 1.5,
+                  fontSize: '1.2rem',
                 }}
               >
                 {t('home.heroDescription')}
               </Typography>
-
-              <Box sx={{ mt: 10, display: 'flex', alignItems: 'center', justifyContent: { xs: 'center', md: 'flex-start' }, gap: 1, cursor: 'pointer', color: 'primary.main', opacity: 0.7 }} onClick={scrollToProjects}>
-                <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}>
-                  <ChevronDown size={20} />
-                </motion.div>
-                <Typography variant="body2" fontWeight="600" sx={{ letterSpacing: '0.05em' }}>
-                  {t('home.scrollDown', 'Scroll down')}
-                </Typography>
-              </Box>
             </motion.div>
           </Grid>
 
         </Grid>
+
+        {/* Scroll Down Section */}
+        <Box sx={{ mt: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', color: '#102d4a' }} onClick={scrollToProjects}>
+            <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}>
+              <ChevronDown size={20} />
+            </motion.div>
+            <Typography variant="body2" fontWeight="600" sx={{ letterSpacing: '0.05em' }}>
+              {t('home.scrollDown', 'Scroll down')}
+            </Typography>
+          </Box>
+        </Box>
       </Container>
     </Box>
   )

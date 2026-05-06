@@ -35,38 +35,39 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
           : 'linear-gradient(to bottom right, hsl(var(--background)), #ffffff)',
       }}
     >
-      {variant === 'geometric' ? (
-        // Geometric Variant
-        Array.from({ length: 6 }).map((_, i) => {
-          const width = 300 + Math.random() * 400
-          const height = 300 + Math.random() * 400
-          return (
-            <motion.div
-              key={`geo-${i}`}
-              animate={{
-                x: [`${Math.random() * 100 - 20}vw`, `${Math.random() * 100 - 20}vw`],
-                y: [`${Math.random() * 100 - 20}vh`, `${Math.random() * 100 - 20}vh`],
-                rotate: [Math.random() * 45, Math.random() * 90 - 45],
-              }}
-              transition={{
-                duration: 40 + Math.random() * 30,
-                repeat: Infinity,
-                repeatType: 'reverse',
-                ease: 'linear',
-              }}
-              style={{
-                position: 'absolute',
-                width,
-                height,
-                background: `linear-gradient(135deg, ${auroraColors[i % auroraColors.length]}22, ${auroraColors[(i + 1) % auroraColors.length]}66)`,
-                backdropFilter: 'blur(10px)',
-                clipPath: 'polygon(10% 0, 100% 10%, 90% 100%, 0 90%)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-              }}
-            />
-          )
-        })
+        // Geometric Variant - Soft, large overlapping shapes like the screenshot
+        <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#f4f7fb' }}>
+          {Array.from({ length: 4 }).map((_, i) => {
+            const width = 600 + Math.random() * 400
+            const height = 600 + Math.random() * 400
+            return (
+              <motion.div
+                key={`geo-${i}`}
+                animate={{
+                  x: [`${Math.random() * 80 - 10}vw`, `${Math.random() * 80 - 10}vw`],
+                  y: [`${Math.random() * 80 - 10}vh`, `${Math.random() * 80 - 10}vh`],
+                  rotate: [Math.random() * 20, Math.random() * 40 - 20],
+                }}
+                transition={{
+                  duration: 60 + Math.random() * 40,
+                  repeat: Infinity,
+                  repeatType: 'reverse',
+                  ease: 'linear',
+                }}
+                style={{
+                  position: 'absolute',
+                  width,
+                  height,
+                  background: `linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(220, 235, 245, 0.4) 100%)`,
+                  backdropFilter: 'blur(20px)',
+                  clipPath: 'polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%)',
+                  boxShadow: '0 20px 60px rgba(16, 45, 74, 0.05), inset 0 0 0 1px rgba(255,255,255,0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                }}
+              />
+            )
+          })}
+        </Box>
       ) : (
         // Blobs Variant
         Array.from({ length: 6 }).map((_, i) => {
