@@ -23,7 +23,12 @@ export default function ProjectsGrid() {
       try {
         const response = await getProjects()
         if (response.success && response.data) {
-          setProjects(response.data)
+          setProjects(
+            response.data.filter(
+              (project) =>
+                project.hasAvailability || (project.availablePhasesCount ?? 0) > 0
+            )
+          )
         }
       } catch (error) {
         console.error('Error loading projects:', error)
@@ -48,8 +53,8 @@ export default function ProjectsGrid() {
             <Chip
               label={t('home.latestProjects')}
               sx={{
-                bgcolor: 'secondary.main',
-                color: 'primary.dark',
+                bgcolor: 'primary.light',
+                color: 'white',
                 fontWeight: 500,
                 mb: 2,
               }}
@@ -90,7 +95,7 @@ export default function ProjectsGrid() {
                 >
                   <Card
                     component={Link}
-                    to={`/search?projectId=${project.id}`}
+                    to={`/project/${project.id}`}
                     sx={{
                       height: '100%',
                       display: 'flex',

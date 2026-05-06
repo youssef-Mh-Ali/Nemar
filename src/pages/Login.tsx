@@ -20,6 +20,9 @@ import { useTranslation } from 'react-i18next'
 import { login } from '../lib/api-client'
 import { useAuthStore } from '../lib/store'
 import LanguageToggle from '../components/ui/LanguageToggle'
+import SiteContactBar from '../components/layout/SiteContactBar'
+import Footer from '../components/layout/Footer'
+import BrandLogo from '../components/layout/BrandLogo'
 
 export default function Login() {
   const { t, i18n } = useTranslation()
@@ -51,7 +54,7 @@ export default function Login() {
       const response = await login(data.username, data.password)
 
       if (response.success && response.data) {
-        setAuth(response.data.user, response.data.token)
+        setAuth(response.data.user, null)
         navigate('/community')
       } else {
         setError(response.error || t('login.errorGeneric'))
@@ -80,17 +83,9 @@ export default function Login() {
       <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', alignItems: 'center', py: 4 }}>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box
-              component="img"
-              src="/BinSaedanLogo.png"
-              alt={t('home.title')}
-              sx={{
-                height: 64,
-                width: 'auto',
-                mx: 'auto',
-                mb: 2,
-              }}
-            />
+            <Box sx={{ mb: 2 }}>
+              <BrandLogo variant="login" />
+            </Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               {t('login.title')}
             </Typography>
@@ -153,6 +148,9 @@ export default function Login() {
           </Typography>
         </Box>
       </Container>
+
+      <SiteContactBar />
+      <Footer />
     </Box>
   )
 }

@@ -65,7 +65,7 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
       >
         <Box sx={{ position: 'relative', height: { xs: 176, md: 192 }, overflow: 'hidden' }}>
           <LazyImage
-            src={unit.images[0] || '/placeholder.jpg'}
+            src={unit?.images?.[0] || '/placeholder.jpg'}
             alt={`Unit ${unit.unitNumber}`}
             objectFit="cover"
             sx={{

@@ -74,8 +74,16 @@ exports.handler = async (event) => {
         }
 
         // Step 2: Forward request to Salesforce UnitSearch REST API
-        // Append any query parameters from the Netlify function request
-        const queryString = event.rawQuery || '';
+        // Rewrite bedrooms filter to minBedrooms/maxBedrooms using the same value.
+        const requestParams = new URLSearchParams(event.rawQuery || '');
+        const bedrooms = requestParams.get('bedrooms');
+        if (bedrooms !== null && bedrooms !== '') {
+            requestParams.delete('bedrooms');
+            requestParams.set('minBedrooms', bedrooms);
+            requestParams.set('maxBedrooms', bedrooms);
+        }
+
+        const queryString = requestParams.toString();
         const sfApiUrl = `${tokenInstanceUrl}/services/apexrest/UnitSearch/v1/${queryString ? '?' + queryString : ''}`;
 
         console.log('[Salesforce Units Function] Calling SF API:', sfApiUrl);

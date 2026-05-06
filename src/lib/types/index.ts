@@ -4,6 +4,10 @@ export interface Project {
   id: string;
   name: string;
   nameAr: string;
+  /** Salesforce Province_Region__c — used for filters & forms */
+  provinceRegion?: string;
+  /** Salesforce City__c */
+  city?: string;
   location: string;
   locationAr: string;
   coverImageUrl: string;
@@ -11,7 +15,26 @@ export interface Project {
   status: "Active" | "Completed";
   description?: string;
   descriptionAr?: string;
+  mapCentroidLat?: number;
+  mapCentroidLng?: number;
+  mapGeometryJson?: unknown;
+  notes?: ProjectNote[];
+  attachments?: ProjectAttachment[];
   phases: Phase[];
+}
+
+export interface ProjectAttachment {
+  id: string;
+  title: string;
+  fileExtension?: string;
+  fileType?: string;
+  url: string;
+}
+
+export interface ProjectNote {
+  id: string;
+  title: string;
+  url: string;
 }
 
 export interface Phase {
@@ -60,6 +83,9 @@ export interface Unit {
   descriptionAr?: string;
   projectName?: string;
   projectNameAr?: string;
+  /** From `Project__r` on unit query — used when lead form can’t match `getProjects()` */
+  projectProvinceRegion?: string;
+  projectCity?: string;
   phaseName?: string;
   phaseNameAr?: string;
   buildingName?: string;
@@ -75,7 +101,7 @@ export interface Lead {
   lastName: string;
   email: string;
   phone: string;
-  profile?: "Investor" | "Supplier" | "Operator";
+  profile?: "Investor" | "Customer";
   source: "PWA";
   interestedProjectId?: string;
   interestedPhaseId?: string;
