@@ -14,6 +14,7 @@ import {
   CardContent,
 } from '@mui/material'
 import { Badge } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { LayoutGrid, List, Map as MapIcon, SlidersHorizontal, Search as SearchIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import UnitCard from '../components/search/UnitCard'
@@ -103,16 +104,19 @@ export default function Search() {
   }, [projects])
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* Header */}
       <Paper
-        sx={{
+        sx={(theme) => ({
           position: 'sticky',
           top: 64,
           zIndex: 30,
           borderBottom: 1,
           borderColor: 'divider',
-        }}
+          bgcolor: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: 'blur(16px)',
+        })}
+        elevation={0}
       >
         <Container maxWidth="xl" sx={{ py: 1.5 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

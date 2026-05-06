@@ -1,5 +1,5 @@
 import { Box, Container, IconButton, Typography } from '@mui/material'
-import { Mail, MapPin, Instagram, Linkedin, Facebook, Phone } from 'lucide-react'
+import { Mail, MapPin, Instagram, Linkedin, Facebook, Phone, Youtube } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
@@ -96,6 +96,12 @@ export default function SiteContactBar() {
       label: t('share.tiktok'),
       color: '#000000',
     },
+    {
+      icon: Youtube,
+      href: 'https://www.youtube.com/@faisal-binsaedan',
+      label: t('share.youtube', 'YouTube'),
+      color: '#FF0000',
+    },
   ]
 
   return (
@@ -108,7 +114,7 @@ export default function SiteContactBar() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
           <Box
             component="a"
-            href="tel:+966112345678"
+            href="tel:920024010"
             sx={{
               display: 'flex',
               alignItems: 'center',

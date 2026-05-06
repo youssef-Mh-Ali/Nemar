@@ -10,6 +10,7 @@ import {
   Divider,
   Stack,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Close, Refresh as RefreshIcon } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
@@ -140,11 +141,14 @@ export default function FilterDrawer() {
       open={isFilterDrawerOpen}
       onClose={() => setFilterDrawerOpen(false)}
       PaperProps={{
-        sx: {
+        sx: (theme) => ({
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           maxHeight: '85vh',
-        },
+          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: 'blur(16px)',
+          borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+        }),
       }}
     >
       <Box sx={{ p: 2 }}>

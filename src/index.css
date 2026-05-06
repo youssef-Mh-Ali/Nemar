@@ -6,24 +6,29 @@
 
 :root {
   /* Match inspire-hub FBS theme tokens (for Tailwind `bg-card`, `text-muted-foreground`, gradients, etc.) */
-  --background: 40 20% 97%;
-  --foreground: 213 64% 12%;
+  --background: 208 38% 96%;
+  --foreground: 210 64% 18%;
 
   --card: 0 0% 100%;
-  --card-foreground: 213 64% 12%;
+  --card-foreground: 210 64% 18%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 213 64% 12%;
+  --popover-foreground: 210 64% 18%;
 
-  --primary: 213 67% 16%;
-  --primary-foreground: 40 20% 97%;
-  --primary-glow: 213 60% 28%;
+  --primary: 210 64% 18%;
+  --primary-foreground: 208 38% 96%;
+  --primary-glow: 210 64% 28%;
 
-  --secondary: 40 18% 92%;
-  --secondary-foreground: 213 64% 12%;
+  --secondary: 207 50% 75%;
+  --secondary-foreground: 210 64% 18%;
 
-  --muted: 40 15% 94%;
-  --muted-foreground: 215 16% 40%;
+  --muted: 208 38% 92%;
+  --muted-foreground: 210 40% 40%;
+
+  --aurora-1: 206 33% 61%;
+  --aurora-2: 204 15% 71%;
+  --aurora-3: 207 50% 75%;
+  --aurora-4: 208 38% 92%;
 
   --accent: 38 45% 60%;
   --accent-foreground: 213 64% 12%;

@@ -12,6 +12,7 @@ import {
   Paper,
   CircularProgress,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { ArrowRight, Bed, Bath, Maximize, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -101,16 +102,19 @@ export default function UnitDetails() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* Back Button */}
       <Paper
-        sx={{
+        sx={(theme) => ({
           position: 'sticky',
           top: 64,
           zIndex: 30,
           borderBottom: 1,
           borderColor: 'divider',
-        }}
+          backgroundColor: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: 'blur(16px)',
+        })}
+        elevation={0}
       >
         <Container maxWidth="lg" sx={{ py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -237,11 +241,14 @@ export default function UnitDetails() {
 
             {/* Specs Grid */}
             <Card
-              sx={{
+              sx={(theme) => ({
                 mb: 4,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                backdropFilter: 'blur(16px)',
+                border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
                 borderRadius: 2,
-              }}
+              })}
             >
               <CardContent sx={{ p: { xs: 2, md: 3 } }}>
                 <Grid container spacing={3}>

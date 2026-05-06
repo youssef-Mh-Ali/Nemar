@@ -1,5 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Home, Search, Users, Building2, MoreHorizontal, Trophy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -19,20 +20,25 @@ export default function BottomNav() {
 
   return (
     <Paper
-      sx={{
+      sx={(theme) => ({
         position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: 1000,
         display: { xs: 'block', md: 'none' },
-      }}
-      elevation={3}
+        backgroundColor: alpha(theme.palette.background.paper, 0.6),
+        backdropFilter: 'blur(16px)',
+        borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+        boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.05)',
+      })}
+      elevation={0}
       className="safe-bottom"
     >
       <BottomNavigation
         value={currentPath}
         sx={{
+          backgroundColor: 'transparent',
           '& .MuiBottomNavigationAction-root': {
             color: 'text.secondary',
             '&.Mui-selected': {

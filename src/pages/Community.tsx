@@ -13,6 +13,7 @@ import {
   Avatar,
   Paper,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Building2, Plus, FileText, LayoutDashboard, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -75,17 +76,18 @@ export default function Community() {
   const activeCasesCount = cases.filter((c) => c.status === 'New' || c.status === 'InProgress').length
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* Premium Header Section */}
       <Box 
-        sx={{ 
-          bgcolor: 'primary.main', 
+        sx={(theme) => ({ 
+          bgcolor: alpha(theme.palette.primary.main, 0.8), 
+          backdropFilter: 'blur(20px)',
           color: 'white', 
           pt: 6, 
           pb: 12,
           position: 'relative',
           overflow: 'hidden'
-        }}
+        })}
       >
         {/* Background Decorative Element */}
         <Box 

@@ -1,14 +1,19 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Box } from '@mui/material'
 import Header from './Header'
 import SiteContactBar from './SiteContactBar'
 import Footer from './Footer'
 import BottomNav from './BottomNav'
 import InstallBanner from './InstallBanner'
+import AnimatedBackground from './AnimatedBackground'
 
 export default function Layout() {
+  const location = useLocation()
+  const isHome = location.pathname === '/'
+
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <AnimatedBackground variant={isHome ? 'geometric' : 'blobs'} />
       <Header />
       <Box
         component="main"

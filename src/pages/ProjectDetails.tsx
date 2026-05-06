@@ -13,6 +13,7 @@ import {
   Chip,
   Link as MuiLink,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { ArrowRight, FileText, Image as ImageIcon, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getProject } from '../lib/api-client'
@@ -79,15 +80,18 @@ export default function ProjectDetails() {
   const attachments: ProjectAttachment[] = project.attachments || []
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       <Paper
-        sx={{
+        sx={(theme) => ({
           position: 'sticky',
           top: 64,
           zIndex: 30,
           borderBottom: 1,
           borderColor: 'divider',
-        }}
+          backgroundColor: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: 'blur(16px)',
+        })}
+        elevation={0}
       >
         <Container maxWidth="lg" sx={{ py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -102,7 +106,17 @@ export default function ProjectDetails() {
       </Paper>
 
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Card sx={{ overflow: 'hidden', borderRadius: 2, mb: 3 }}>
+        <Card
+          sx={(theme) => ({
+            overflow: 'hidden',
+            borderRadius: 2,
+            mb: 3,
+            backgroundColor: alpha(theme.palette.background.paper, 0.6),
+            backdropFilter: 'blur(16px)',
+            border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+          })}
+        >
           {project.coverImageUrl ? (
             <Box
               component="img"
@@ -165,7 +179,14 @@ export default function ProjectDetails() {
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card>
+            <Card
+              sx={(theme) => ({
+                backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                backdropFilter: 'blur(16px)',
+                border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+              })}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <FileText size={18} />
@@ -192,7 +213,14 @@ export default function ProjectDetails() {
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card>
+            <Card
+              sx={(theme) => ({
+                backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                backdropFilter: 'blur(16px)',
+                border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+              })}
+            >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <ImageIcon size={18} />

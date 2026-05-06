@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Box, Container, Typography, Button, Grid } from '@mui/material'
-import { Construction, LocationOn, Handshake } from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import HeroSection from '../components/home/HeroSection'
+import InspiringSpacesSection from '../components/home/InspiringSpacesSection'
+import StatsSection from '../components/home/StatsSection'
 import ProjectsGrid from '../components/home/ProjectsGrid'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
@@ -21,10 +22,12 @@ export default function Home() {
   return (
     <>
       <HeroSection />
+      <InspiringSpacesSection />
+      <StatsSection />
       <ProjectsGrid />
 
       {/* CMA Section */}
-      <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'white', textAlign: 'center' }}>
+      <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>
         <Container maxWidth="xl">
           <motion.div
             initial={{ opacity: 0, y: 100 }}
@@ -74,95 +77,8 @@ export default function Home() {
         </Container>
       </Box>
 
-      {/* Why Choose Us Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 3 }, bgcolor: 'grey.50' }}>
-        <Container maxWidth="xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-              <Typography
-                variant="overline"
-                sx={{
-                  color: 'primary.light',
-                  fontWeight: 500,
-                  mb: 1,
-                  display: 'block',
-                }}
-              >
-                {t('home.whyChooseUs')}
-              </Typography>
-              <Typography variant="h3" fontWeight="bold" gutterBottom>
-                {t('home.legacyTitle')}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '36rem', mx: 'auto' }}>
-                {t('home.legacyDescription')}
-              </Typography>
-            </Box>
-
-            <Grid container spacing={4}>
-              {[
-                {
-                  title: t('home.qualityTitle'),
-                  description: t('home.qualityDescription'),
-                  icon: Construction,
-                },
-                {
-                  title: t('home.locationTitle'),
-                  description: t('home.locationDescription'),
-                  icon: LocationOn,
-                },
-                {
-                  title: t('home.serviceTitle'),
-                  description: t('home.serviceDescription'),
-                  icon: Handshake,
-                },
-              ].map((item, index) => {
-                const IconComponent = item.icon
-                return (
-                  <Grid size={{ xs: 12, md: 4 }} key={item.title}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Box sx={{ textAlign: 'center', p: 3 }}>
-                        <Box
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 80,
-                            height: 80,
-                            borderRadius: '50%',
-                            bgcolor: 'primary.main',
-                            color: 'white',
-                            mb: 2,
-                          }}
-                        >
-                          <IconComponent sx={{ fontSize: 40 }} />
-                        </Box>
-                        <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                          {item.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {item.description}
-                        </Typography>
-                      </Box>
-                    </motion.div>
-                  </Grid>
-                )
-              })}
-            </Grid>
-          </motion.div>
-        </Container>
-      </Box>
-
       {/* CTA Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 3 }, bgcolor: 'primary.main', color: 'white' }}>
+      <Box sx={(theme) => ({ py: 8, px: { xs: 2, md: 3 }, bgcolor: theme.palette.primary.main, color: 'white' })}>
         <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
