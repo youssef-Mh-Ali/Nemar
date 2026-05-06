@@ -32,7 +32,7 @@ export default function HeroSection() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [instagramEmbedFailed, setInstagramEmbedFailed] = useState(false)
-  const [aspectRatio, setAspectRatio] = useState<number>(16 / 9)
+  const [aspectRatio, setAspectRatio] = useState<number>(4 / 5)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function HeroSection() {
                     setAspectRatio(detectedRatio)
                   }
                 } catch (error) {
-                  setAspectRatio(16 / 9)
+                  setAspectRatio(4 / 5)
                 }
               } else {
                 if (response.data.videoUrl.includes('instagram.com/reel/')) {
@@ -64,7 +64,7 @@ export default function HeroSection() {
                 } else if (response.data.videoUrl.includes('instagram.com/p/')) {
                   setAspectRatio(1)
                 } else {
-                  setAspectRatio(16 / 9)
+                  setAspectRatio(4 / 5)
                 }
               }
             }
@@ -122,28 +122,20 @@ export default function HeroSection() {
   const renderVideo = () => {
     if (!featuredVideo || !featuredVideo.videoUrl || isLoading) {
       return (
-        <Box
-          sx={{
-            width: '100%',
-            height: '100%',
-            bgcolor: 'rgba(255, 255, 255, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {isLoading ? null : (
-            <Box
-              sx={{
-                width: '100%',
-                height: '100%',
-                backgroundImage: featuredVideo?.coverImageUrl ? `url(${featuredVideo.coverImageUrl})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-          )}
-        </Box>
+        <VideoCover aspectRatio={aspectRatio} mediaType="video">
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              background: featuredVideo?.coverImageUrl 
+                ? `url(${featuredVideo.coverImageUrl}) center/cover` 
+                : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          />
+        </VideoCover>
       )
     }
 

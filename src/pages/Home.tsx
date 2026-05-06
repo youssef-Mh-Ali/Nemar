@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next'
 import HeroSection from '../components/home/HeroSection'
 import InspiringSpacesSection from '../components/home/InspiringSpacesSection'
 import StatsSection from '../components/home/StatsSection'
-import ProjectsGrid from '../components/home/ProjectsGrid'
+import OurFieldsSection from '../components/home/OurFieldsSection'
+import AboutProjectsSection from '../components/home/AboutProjectsSection'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 
 export default function Home() {
@@ -24,7 +25,8 @@ export default function Home() {
       <HeroSection />
       <InspiringSpacesSection />
       <StatsSection />
-      <ProjectsGrid />
+      <OurFieldsSection />
+      <AboutProjectsSection />
 
       {/* CMA Section */}
       <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>

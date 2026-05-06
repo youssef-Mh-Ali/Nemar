@@ -37,21 +37,19 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
     >
       {variant === 'geometric' ? (
         // Geometric Variant
-        Array.from({ length: 8 }).map((_, i) => {
-          const width = 300 + Math.random() * 500
-          const height = 300 + Math.random() * 500
+        Array.from({ length: 6 }).map((_, i) => {
+          const width = 300 + Math.random() * 400
+          const height = 300 + Math.random() * 400
           return (
             <motion.div
               key={`geo-${i}`}
               animate={{
                 x: [`${Math.random() * 100 - 20}vw`, `${Math.random() * 100 - 20}vw`],
                 y: [`${Math.random() * 100 - 20}vh`, `${Math.random() * 100 - 20}vh`],
-                rotateX: [Math.random() * 90 - 45, Math.random() * 360],
-                rotateY: [Math.random() * 90 - 45, Math.random() * 360],
-                rotateZ: [Math.random() * 90 - 45, Math.random() * 360],
+                rotate: [Math.random() * 45, Math.random() * 90 - 45],
               }}
               transition={{
-                duration: 50 + Math.random() * 40,
+                duration: 40 + Math.random() * 30,
                 repeat: Infinity,
                 repeatType: 'reverse',
                 ease: 'linear',
@@ -60,34 +58,13 @@ export default function AnimatedBackground({ variant = 'blobs' }: AnimatedBackgr
                 position: 'absolute',
                 width,
                 height,
-                transformStyle: 'preserve-3d',
+                background: `linear-gradient(135deg, ${auroraColors[i % auroraColors.length]}22, ${auroraColors[(i + 1) % auroraColors.length]}66)`,
+                backdropFilter: 'blur(10px)',
+                clipPath: 'polygon(10% 0, 100% 10%, 90% 100%, 0 90%)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
               }}
-            >
-              {[
-                { transform: `rotateY(0deg) translateZ(${width / 2}px)`, brightness: 1 },
-                { transform: `rotateY(90deg) translateZ(${width / 2}px)`, brightness: 0.8 },
-                { transform: `rotateY(180deg) translateZ(${width / 2}px)`, brightness: 0.6 },
-                { transform: `rotateY(-90deg) translateZ(${width / 2}px)`, brightness: 0.7 },
-                { transform: `rotateX(90deg) translateZ(${width / 2}px)`, brightness: 1.1 },
-                { transform: `rotateX(-90deg) translateZ(${width / 2}px)`, brightness: 0.5 },
-              ].map((face, index) => (
-                <div
-                  key={index}
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    background: auroraColors[i % auroraColors.length],
-                    opacity: 0.7,
-                    filter: `brightness(${face.brightness})`,
-                    transform: face.transform,
-                    border: '1px solid rgba(255, 255, 255, 0.4)',
-                    backdropFilter: 'blur(4px)',
-                    boxShadow: 'inset 0 0 20px rgba(255,255,255,0.3)',
-                  }}
-                />
-              ))}
-            </motion.div>
+            />
           )
         })
       ) : (
