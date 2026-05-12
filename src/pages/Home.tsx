@@ -10,7 +10,6 @@ import OurFieldsSection from '../components/home/OurFieldsSection'
 import AboutProjectsSection from '../components/home/AboutProjectsSection'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import MorphicBackground from '../components/home/MorphicBackground'
-import MorphicSectionTransition from '../components/home/MorphicSectionTransition'
 
 export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
@@ -26,15 +25,10 @@ export default function Home() {
     <Box sx={{ position: 'relative', overflowX: 'hidden' }}>
       <MorphicBackground />
       <HeroSection />
-      <MorphicSectionTransition type="wave" color="rgba(255, 255, 255, 0.4)" />
       <InspiringSpacesSection />
-      <MorphicSectionTransition type="glow" color="rgba(16, 45, 74, 0.15)" />
       <StatsSection />
-      <MorphicSectionTransition type="wave" color="rgba(255, 255, 255, 0.4)" flip />
       <OurFieldsSection />
-      <MorphicSectionTransition type="wave" color="rgba(215, 235, 245, 0.4)" />
       <AboutProjectsSection />
-      <MorphicSectionTransition type="wave" color="rgba(255, 255, 255, 0.5)" flip />
 
       {/* CMA Section */}
       <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>
