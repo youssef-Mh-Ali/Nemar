@@ -6,7 +6,7 @@ export default function InspiringSpacesSection() {
   const { t } = useTranslation()
 
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, overflow: 'hidden' }}>
+    <Box id="inspiring-spaces" sx={{ py: { xs: 8, md: 12 }, overflow: 'hidden' }}>
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4, lg: 6 } }}>
         <Grid container spacing={6} alignItems="center">
           

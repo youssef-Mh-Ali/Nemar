@@ -116,7 +116,7 @@ export default function HeroSection() {
   }, [featuredVideo])
 
   const scrollToProjects = () => {
-    document.getElementById('latest-projects')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('inspiring-spaces')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const renderVideo = () => {

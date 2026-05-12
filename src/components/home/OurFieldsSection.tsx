@@ -20,7 +20,7 @@ export default function OurFieldsSection() {
     },
     {
       id: 'commercial',
-      image: '/projects/nozol/hero.jpg', // Placeholder
+      image: 'https://faisal-binsaedan.com/wp-content/uploads/2024/07/manar-1.webp',
       titleEn: 'Commercial Projects',
       titleAr: 'المشاريع التجارية',
       descEn: 'Our carefully selected commercial buildings inspire you to pursue your entrepreneurial dreams, as we provide the ideal starting point for whatever your business growth may be, from retail and entertainment venues to modern office space.',
