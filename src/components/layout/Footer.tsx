@@ -67,14 +67,35 @@ export default function Footer() {
           </Box>
         </Box>
 
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          component="p"
-          sx={{ textAlign: 'center', mt: 2.5, mb: 0 }}
-        >
-          {t('footer.copyright', { year })}
-        </Typography>
+        <Box sx={{ textAlign: 'center', mt: 2.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            component="p"
+            sx={{ mb: 0.5 }}
+          >
+            {t('footer.copyright', { year })}
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            component="p"
+            sx={{ fontSize: '0.7rem', opacity: 0.8, mb: 0 }}
+          >
+            Developed with love by{' '}
+            <Link
+              href="https://cloudastick.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+              underline="hover"
+              sx={{ fontWeight: 600 }}
+            >
+              Cloudastick
+            </Link>{' '}
+            - Salesforce Partner
+          </Typography>
+        </Box>
       </Container>
     </Box>
   )
