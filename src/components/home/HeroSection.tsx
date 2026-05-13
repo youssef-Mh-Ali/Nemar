@@ -180,7 +180,7 @@ export default function HeroSection() {
             }}
           >
             <Box sx={{ textAlign: 'center', color: 'white', p: 2, bgcolor: 'rgba(0, 0, 0, 0.5)', borderRadius: 2, backdropFilter: 'blur(10px)' }}>
-              <Typography variant="body1" fontWeight="bold">شاهد الفيديو على Instagram</Typography>
+              <Typography variant="body1" fontWeight="bold">{t('home.watchOnInstagram', 'Watch video on Instagram')}</Typography>
             </Box>
           </Box>
         )

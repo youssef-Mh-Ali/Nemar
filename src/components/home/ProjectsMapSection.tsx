@@ -164,6 +164,14 @@ export default function ProjectsMapSection() {
   }, [regions, projects])
 
   // Custom marker icon creation helpers
+  const getLocalizedRegionName = (rName: string) => {
+    if (!isRtl) return rName
+    if (rName.toLowerCase() === 'north coast') return 'الساحل الشمالي'
+    if (rName.toLowerCase() === 'west cairo') return 'غرب القاهرة'
+    if (rName.toLowerCase() === 'east cairo') return 'شرق القاهرة'
+    return rName
+  }
+
   const createRegionIcon = (regionName: string) => {
     const html = `
       <div style="
@@ -181,7 +189,7 @@ export default function ProjectsMapSection() {
         min-width: 100px;
       ">
         <div style="font-weight: 700; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-          🏢 <span>${regionName}</span>
+          🏢 <span>${getLocalizedRegionName(regionName)}</span>
         </div>
         <div style="
           border-top: 1px solid #e65100;
@@ -191,7 +199,7 @@ export default function ProjectsMapSection() {
           font-weight: 600;
           text-transform: uppercase;
         ">
-          Show
+          ${isRtl ? 'عرض' : 'Show'}
         </div>
       </div>
     `
@@ -207,7 +215,7 @@ export default function ProjectsMapSection() {
     const logoSrc = project.logoUrl || '/BinSaedanLogo.png'
     const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
     const actionBg = isSoldOut ? 'rgba(40,40,40,0.9)' : '#e65100'
-    const actionText = isSoldOut ? 'Sold Out' : 'Explore'
+    const actionText = isSoldOut ? (isRtl ? 'مباع بالكامل' : 'Sold Out') : (isRtl ? 'استكشف' : 'Explore')
     const actionColor = isSoldOut ? '#aaa' : '#fff'
 
     const html = `
@@ -437,7 +445,7 @@ export default function ProjectsMapSection() {
                 },
               }}
             >
-              Reset Zoom
+              {isRtl ? 'إعادة ضبط الخريطة' : 'Reset Zoom'}
             </Button>
           </Box>
 
@@ -479,7 +487,7 @@ export default function ProjectsMapSection() {
                     },
                   }}
                 >
-                  {regionName}
+                  {getLocalizedRegionName(regionName)}
                 </Button>
               )
             })}

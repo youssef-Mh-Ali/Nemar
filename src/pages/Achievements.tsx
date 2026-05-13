@@ -41,19 +41,21 @@ const Achievements = () => {
     { icon: Award, title: t("ach.snapshot.highlights.vision.title"), desc: t("ach.snapshot.highlights.vision.desc") },
   ];
 
+  const isAr = lang.startsWith("ar");
+
   const awards = [
-    { icon: Trophy, title: lang === "ar" ? "أفضل مطور عقاري" : "Best Real Estate Developer", desc: lang === "ar" ? "جائزة العقارات السعودية 2023" : "Saudi Real Estate Awards 2023" },
-    { icon: ShieldCheck, title: lang === "ar" ? "شهادة ISO 9001" : "ISO 9001 Certified", desc: lang === "ar" ? "نظام إدارة الجودة" : "Quality Management Systems" },
-    { icon: Award, title: lang === "ar" ? "هيئة السوق المالية" : "CMA Approved", desc: lang === "ar" ? "شريك معتمد لإدارة الصناديق العقارية" : "Approved real estate fund partner" },
-    { icon: Sparkles, title: lang === "ar" ? "التميز في التصميم" : "Design Excellence", desc: lang === "ar" ? "جائزة العمارة الخليجية 2022" : "Gulf Architecture Award 2022" },
-    { icon: Building2, title: lang === "ar" ? "الاستدامة الحضرية" : "Urban Sustainability", desc: lang === "ar" ? "تقدير رؤية 2030" : "Vision 2030 Recognition" },
-    { icon: Users, title: lang === "ar" ? "خيار العملاء" : "Customer Choice", desc: lang === "ar" ? "5 سنوات متتالية" : "5 consecutive years" },
+    { icon: Trophy, title: isAr ? "أفضل مطور عقاري" : "Best Real Estate Developer", desc: isAr ? "جائزة العقارات السعودية 2023" : "Saudi Real Estate Awards 2023" },
+    { icon: ShieldCheck, title: isAr ? "شهادة ISO 9001" : "ISO 9001 Certified", desc: isAr ? "نظام إدارة الجودة" : "Quality Management Systems" },
+    { icon: Award, title: isAr ? "هيئة السوق المالية" : "CMA Approved", desc: isAr ? "شريك معتمد لإدارة الصناديق العقارية" : "Approved real estate fund partner" },
+    { icon: Sparkles, title: isAr ? "التميز في التصميم" : "Design Excellence", desc: isAr ? "جائزة العمارة الخليجية 2022" : "Gulf Architecture Award 2022" },
+    { icon: Building2, title: isAr ? "الاستدامة الحضرية" : "Urban Sustainability", desc: isAr ? "تقدير رؤية 2030" : "Vision 2030 Recognition" },
+    { icon: Users, title: isAr ? "خيار العملاء" : "Customer Choice", desc: isAr ? "5 سنوات متتالية" : "5 consecutive years" },
   ];
 
   const press = [
-    { quote: lang === "ar" ? "أحد أبرز المطورين في المملكة، يجمع بين الجودة والابتكار." : "One of the Kingdom's most distinguished developers, blending quality with innovation.", source: "Arab News" },
-    { quote: lang === "ar" ? "مرجع في بناء المجتمعات السكنية المتكاملة." : "A benchmark for building integrated residential communities.", source: "Saudi Gazette" },
-    { quote: lang === "ar" ? "التزامهم بمعايير الاستدامة يضع معيارًا جديدًا." : "Their commitment to sustainability sets a new standard.", source: "Argaam" },
+    { quote: isAr ? "أحد أبرز المطورين في المملكة، يجمع بين الجودة والابتكار." : "One of the Kingdom's most distinguished developers, blending quality with innovation.", source: "Arab News" },
+    { quote: isAr ? "مرجع في بناء المجتمعات السكنية المتكاملة." : "A benchmark for building integrated residential communities.", source: "Saudi Gazette" },
+    { quote: isAr ? "التزامهم بمعايير الاستدامة يضع معيارًا جديدًا." : "Their commitment to sustainability sets a new standard.", source: "Argaam" },
   ];
 
   return (
@@ -63,7 +65,7 @@ const Achievements = () => {
         <div className="absolute inset-0 dot-pattern opacity-30" />
         <div className="container-fbs relative text-center">
           <span className="reveal inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent backdrop-blur-sm">
-            {lang === "ar" ? "إنجازاتنا" : "Our Achievements"}
+            {isAr ? "إنجازاتنا" : "Our Achievements"}
           </span>
           <h1 className="reveal reveal-delay-1 mt-5 font-display text-5xl font-bold text-white md:text-6xl">
             {t("ach.title")}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 
 function Counter({ value, suffix = '', duration = 2 }: { value: number, suffix?: string, duration?: number }) {
+  const { i18n } = useTranslation()
   const [count, setCount] = useState(0)
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -25,6 +26,8 @@ function Counter({ value, suffix = '', duration = 2 }: { value: number, suffix?:
     }
   }, [isInView, value, duration])
 
+  const isRtl = i18n.language.startsWith('ar')
+
   return (
     <Box ref={ref} sx={{ display: 'inline-flex', alignItems: 'baseline' }}>
       <Typography
@@ -36,7 +39,7 @@ function Counter({ value, suffix = '', duration = 2 }: { value: number, suffix?:
           lineHeight: 1,
         }}
       >
-        {suffix === '+' ? `+${count.toLocaleString()}` : count.toLocaleString()}
+        {suffix === '+' ? (isRtl ? `${count.toLocaleString()}+` : `+${count.toLocaleString()}`) : count.toLocaleString()}
       </Typography>
     </Box>
   )

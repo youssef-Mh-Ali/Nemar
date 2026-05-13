@@ -82,7 +82,7 @@ export default function Footer() {
             component="p"
             sx={{ fontSize: '0.7rem', opacity: 0.8, mb: 0 }}
           >
-            Developed with love by{' '}
+            {t('footer.developedBy', 'Developed with love by')}{' '}
             <Link
               href="https://cloudastick.com"
               target="_blank"

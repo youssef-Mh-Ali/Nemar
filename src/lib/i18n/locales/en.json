@@ -23,7 +23,8 @@
   },
   "footer": {
     "nav": "Footer navigation",
-    "copyright": "© {{year}} Faisal Bin Saedan. All rights reserved."
+    "copyright": "© {{year}} Faisal Bin Saedan. All rights reserved.",
+    "developedBy": "Developed with love by"
   },
   "siteContactBar": {
     "label": "Contact and social media"
@@ -127,7 +128,18 @@
     "viewUnits": "View Units",
     "cmaDescription": "Faisal bin Saedan Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests.",
     "cmaCollaborationTeaser": "Additional collaboration initiatives with the Saudi Capital Market Authority are coming soon.",
-    "cmaCollaborationCta": "View details"
+    "cmaCollaborationCta": "View details",
+    "watchOnInstagram": "Watch video on Instagram",
+    "inspiringSpacesTitle": "Inspiring Spaces, Building Futures",
+    "inspiringSpacesDesc": "Through structure, discipline, and strategic foresight, we transform potential into enduring, measurable value, supporting national progress and sustainable growth.",
+    "statsTitle": "Strong foundation and advanced innovations",
+    "statsDesc": "At Faisal Bin Saedan, we strive to implement modern architectural styles and inspiring innovations with a strong foundation.",
+    "stats": {
+      "housing": "Housing units",
+      "exhibitions": "Exhibitions",
+      "drivethrough": "Drive Through",
+      "plaza": "Plaza"
+    }
   },
   "collaboration": {
     "title": "Collaboration — coming soon",
@@ -303,6 +315,7 @@
     "linkedin": "LinkedIn",
     "snapchat": "Snapchat",
     "tiktok": "TikTok",
+    "youtube": "YouTube",
     "success": "Shared successfully"
   },
   "community": {
@@ -429,5 +442,12 @@
     "callNow": "Call now",
     "copyright": "Broker Property Management. All rights reserved.",
     "whatsapp": "Chat on WhatsApp"
+  },
+  "project": {
+    "notFound": "Project not found",
+    "notes": "Notes",
+    "noNotes": "No notes",
+    "attachments": "Attachments",
+    "noAttachments": "No attachments"
   }
 }
