@@ -114,7 +114,7 @@ export default function SiteContactBar() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
           <Box
             component="a"
-            href="tel:920024010"
+            href="tel:+966920024010"
             sx={{
               display: 'flex',
               alignItems: 'center',

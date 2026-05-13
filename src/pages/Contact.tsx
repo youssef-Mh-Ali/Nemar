@@ -151,7 +151,7 @@ export default function Contact() {
                       icon: Phone,
                       label: t('contact.phoneLabel'),
                       value: '920024010',
-                      href: 'tel:920024010',
+                      href: 'tel:+966920024010',
                     },
                     {
                       icon: Mail,

@@ -38,7 +38,7 @@ function MapController({
   resetTrigger,
 }: {
   selectedRegion: string | null
-  projects: Project[]
+  projects: Array<Project & { renderLat?: number; renderLng?: number }>
   resetTrigger: number
 }) {
   const map = useMap()
@@ -52,7 +52,9 @@ function MapController({
 
     const pts: [number, number][] = []
     targetProjects.forEach((p) => {
-      if (typeof p.mapCentroidLat === 'number' && typeof p.mapCentroidLng === 'number') {
+      if (typeof p.renderLat === 'number' && typeof p.renderLng === 'number') {
+        pts.push([p.renderLat, p.renderLng])
+      } else if (typeof p.mapCentroidLat === 'number' && typeof p.mapCentroidLng === 'number') {
         pts.push([p.mapCentroidLat, p.mapCentroidLng])
       }
       if (isPolygon(p.mapGeometryJson)) {
@@ -92,7 +94,12 @@ export default function ProjectsMapSection() {
       try {
         const res = await getProjects()
         if (res.success && res.data) {
-          setProjects(res.data)
+          // Filter out legacy Egyptian demo regions (Cairo, Coast, Giza, etc.) to ensure only genuine Saudi FBS projects are mapped
+          const saudiProjects = res.data.filter((p) => {
+            const r = (p.provinceRegion || '').toLowerCase()
+            return !r.includes('cairo') && !r.includes('قاهرة') && !r.includes('coast') && !r.includes('ساحل') && !r.includes('giza') && !r.includes('جيزة')
+          })
+          setProjects(saudiProjects)
         }
       } catch (err) {
         console.error('Error loading projects map data:', err)
@@ -103,113 +110,93 @@ export default function ProjectsMapSection() {
 
   const isRtl = i18n.language === 'ar'
 
-  // Extract unique regions, defaulting to those shown in UI/UX if data is sparse
+  // Extract unique regions from loaded projects
   const regions = useMemo(() => {
-    const found = Array.from(new Set(projects.map((p) => p.provinceRegion).filter((r): r is string => !!r)))
-    const standard = ['North Coast', 'West Cairo', 'East Cairo']
-    // Ensure standard regions are always present for complete visual match with screenshots
-    standard.forEach((r) => {
-      if (!found.some((fr) => fr.toLowerCase() === r.toLowerCase())) {
-        found.push(r)
-      }
-    })
-    return found
+    return Array.from(new Set(projects.map((p) => p.provinceRegion).filter((r): r is string => !!r)))
   }, [projects])
 
-  // Group projects by region for Region Summary Markers when no region is selected
-  const regionSummaries = useMemo(() => {
-    return regions.map((regionName) => {
-      const regionProjects = projects.filter((p) => p.provinceRegion?.toLowerCase() === regionName.toLowerCase())
-      let latSum = 0
-      let lngSum = 0
-      let count = 0
+  // Precompute project render coordinates so every project is guaranteed to display
+  const projectMarkers = useMemo(() => {
+    const getRegionCenter = (rName?: string): [number, number] => {
+      const lower = (rName || '').toLowerCase()
+      if (lower.includes('riyadh') || lower.includes('الرياض')) return [24.7136, 46.6753]
+      if (lower.includes('makkah') || lower.includes('مكة')) return [21.4858, 39.1925]
+      if (lower.includes('madinah') || lower.includes('المدينة')) return [24.5247, 39.5692]
+      if (lower.includes('tabuk') || lower.includes('تبوك')) return [28.3835, 36.5662]
+      if (lower.includes('eastern') || lower.includes('الشرقية')) return [26.4207, 50.0888]
+      if (lower.includes('asir') || lower.includes('عسير')) return [18.2164, 42.5053]
+      return [24.7136, 46.6753]
+    }
 
-      regionProjects.forEach((p) => {
-        if (typeof p.mapCentroidLat === 'number' && typeof p.mapCentroidLng === 'number') {
-          latSum += p.mapCentroidLat
-          lngSum += p.mapCentroidLng
-          count++
-        } else if (isPolygon(p.mapGeometryJson) && p.mapGeometryJson.coordinates[0]?.[0]) {
-          latSum += p.mapGeometryJson.coordinates[0][0][1]
-          lngSum += p.mapGeometryJson.coordinates[0][0][0]
-          count++
-        }
-      })
+    const fallbackCounts: Record<string, number> = {}
 
-      // Default fallback coordinates matching standard regions if no projects exist in them yet
-      let lat = 30.0444
-      let lng = 31.2357
-      if (count > 0) {
-        lat = latSum / count
-        lng = lngSum / count
-      } else {
-        if (regionName.toLowerCase().includes('north coast')) {
-          lat = 30.82
-          lng = 28.95
-        } else if (regionName.toLowerCase().includes('west cairo')) {
-          lat = 30.01
-          lng = 30.98
-        } else if (regionName.toLowerCase().includes('east cairo')) {
-          lat = 30.05
-          lng = 31.45
+    return projects.map((project) => {
+      let lat = project.mapCentroidLat
+      let lng = project.mapCentroidLng
+
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        if (isPolygon(project.mapGeometryJson) && project.mapGeometryJson.coordinates[0]?.[0]) {
+          lat = project.mapGeometryJson.coordinates[0][0][1]
+          lng = project.mapGeometryJson.coordinates[0][0][0]
         }
+      }
+
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        const [baseLat, baseLng] = getRegionCenter(project.provinceRegion)
+        const key = `${baseLat}-${baseLng}`
+        const count = fallbackCounts[key] || 0
+        fallbackCounts[key] = count + 1
+
+        // Distribute overlapping fallback markers in a subtle spiral/grid around the base center
+        const angle = count * 2.4
+        const radius = 0.05 + Math.floor(count / 4) * 0.05
+        lat = baseLat + (count === 0 ? 0 : Math.sin(angle) * radius)
+        lng = baseLng + (count === 0 ? 0 : Math.cos(angle) * radius)
       }
 
       return {
-        name: regionName,
-        lat,
-        lng,
+        ...project,
+        renderLat: lat,
+        renderLng: lng,
       }
     })
-  }, [regions, projects])
+  }, [projects])
 
   // Custom marker icon creation helpers
   const getLocalizedRegionName = (rName: string) => {
-    if (!isRtl) return rName
-    if (rName.toLowerCase() === 'north coast') return 'الساحل الشمالي'
-    if (rName.toLowerCase() === 'west cairo') return 'غرب القاهرة'
-    if (rName.toLowerCase() === 'east cairo') return 'شرق القاهرة'
-    return rName
+    if (!rName) return ''
+    const lower = rName.toLowerCase()
+
+    if (isRtl) {
+      if (lower.includes('riyadh') || lower.includes('الرياض')) return 'منطقة الرياض'
+      if (lower.includes('makkah') || lower.includes('مكة')) return 'منطقة مكة المكرمة'
+      if (lower.includes('madinah') || lower.includes('المدينة')) return 'منطقة المدينة المنورة'
+      if (lower.includes('tabuk') || lower.includes('تبوك')) return 'منطقة تبوك'
+      if (lower.includes('eastern') || lower.includes('الشرقية')) return 'المنطقة الشرقية'
+      if (lower.includes('asir') || lower.includes('عسير')) return 'منطقة عسير'
+
+      // If it has Arabic text inside, try to extract the Arabic line if multiline
+      const lines = rName.split(/[\r\n]+/)
+      const arabicLine = lines.find((l) => /[\u0600-\u06FF]/.test(l))
+      if (arabicLine) return arabicLine.replace(/^-?\s*/, '').trim()
+      return rName
+    } else {
+      if (lower.includes('riyadh') || lower.includes('الرياض')) return 'Riyadh Province'
+      if (lower.includes('makkah') || lower.includes('مكة')) return 'Makkah Province'
+      if (lower.includes('madinah') || lower.includes('المدينة')) return 'Madinah Province'
+      if (lower.includes('tabuk') || lower.includes('تبوك')) return 'Tabuk Province'
+      if (lower.includes('eastern') || lower.includes('الشرقية')) return 'Eastern Province'
+      if (lower.includes('asir') || lower.includes('عسير')) return 'Asir Province'
+
+      // If multiline, take the first line (usually English)
+      const lines = rName.split(/[\r\n]+/)
+      const englishLine = lines.find((l) => /[a-zA-Z]/.test(l))
+      if (englishLine) return englishLine.replace(/^-?\s*/, '').trim()
+      return rName
+    }
   }
 
-  const createRegionIcon = (regionName: string) => {
-    const html = `
-      <div style="
-        background: rgba(20, 20, 20, 0.9);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 6px;
-        padding: 6px 12px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        font-family: inherit;
-        cursor: pointer;
-        user-select: none;
-        min-width: 100px;
-      ">
-        <div style="font-weight: 700; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-          🏢 <span>${getLocalizedRegionName(regionName)}</span>
-        </div>
-        <div style="
-          border-top: 1px solid #e65100;
-          padding-top: 4px;
-          font-size: 10px;
-          color: #e65100;
-          font-weight: 600;
-          text-transform: uppercase;
-        ">
-          ${isRtl ? 'عرض' : 'Show'}
-        </div>
-      </div>
-    `
-    return L.divIcon({
-      className: 'custom-region-marker',
-      html,
-      iconSize: [120, 50],
-      iconAnchor: [60, 25],
-    })
-  }
+  // Region markers have been replaced by individual project logo markers
 
   const createProjectIcon = (project: Project) => {
     const logoSrc = project.logoUrl || '/BinSaedanLogo.png'
@@ -307,11 +294,11 @@ export default function ProjectsMapSection() {
     return list
   }, [projects, selectedRegion])
 
-  // Filter projects to show detail markers for the selected region
-  const activeProjects = useMemo(() => {
-    if (!selectedRegion) return []
-    return projects.filter((p) => p.provinceRegion?.toLowerCase() === selectedRegion.toLowerCase())
-  }, [projects, selectedRegion])
+  // Filter projects to show markers based on selected region (or show all if no region selected)
+  const displayedProjects = useMemo(() => {
+    if (!selectedRegion) return projectMarkers
+    return projectMarkers.filter((p) => p.provinceRegion?.toLowerCase() === selectedRegion.toLowerCase())
+  }, [projectMarkers, selectedRegion])
 
   return (
     <Box sx={{ py: 8, bgcolor: '#f8fafc', position: 'relative' }}>
@@ -341,8 +328,8 @@ export default function ProjectsMapSection() {
           }}
         >
           <MapContainer
-            center={[30.0444, 31.2357]}
-            zoom={8}
+            center={[24.7136, 46.6753]}
+            zoom={6}
             style={{ width: '100%', height: '100%' }}
             scrollWheelZoom
           >
@@ -353,7 +340,7 @@ export default function ProjectsMapSection() {
 
             <MapController
               selectedRegion={selectedRegion}
-              projects={projects}
+              projects={projectMarkers}
               resetTrigger={resetTrigger}
             />
 
@@ -374,45 +361,17 @@ export default function ProjectsMapSection() {
               ))
             )}
 
-            {/* When no region selected, show high-level Region Summary Markers */}
-            {!selectedRegion &&
-              regionSummaries.map((reg) => (
-                <Marker
-                  key={reg.name}
-                  position={[reg.lat, reg.lng]}
-                  icon={createRegionIcon(reg.name)}
-                  eventHandlers={{
-                    click: () => setSelectedRegion(reg.name),
-                  }}
-                />
-              ))}
-
-            {/* When a region is selected, show individual Project Detail Markers */}
-            {selectedRegion &&
-              activeProjects.map((project) => {
-                let lat = project.mapCentroidLat
-                let lng = project.mapCentroidLng
-
-                if (typeof lat !== 'number' || typeof lng !== 'number') {
-                  if (isPolygon(project.mapGeometryJson) && project.mapGeometryJson.coordinates[0]?.[0]) {
-                    lat = project.mapGeometryJson.coordinates[0][0][1]
-                    lng = project.mapGeometryJson.coordinates[0][0][0]
-                  }
-                }
-
-                if (typeof lat !== 'number' || typeof lng !== 'number') return null
-
-                return (
-                  <Marker
-                    key={project.id}
-                    position={[lat, lng]}
-                    icon={createProjectIcon(project)}
-                    eventHandlers={{
-                      click: () => navigate(`/project/${project.id}`),
-                    }}
-                  />
-                )
-              })}
+            {/* Render all project markers directly with actual project logos */}
+            {displayedProjects.map((project) => (
+              <Marker
+                key={project.id}
+                position={[project.renderLat, project.renderLng]}
+                icon={createProjectIcon(project)}
+                eventHandlers={{
+                  click: () => navigate(`/project/${project.id}`),
+                }}
+              />
+            ))}
           </MapContainer>
 
           {/* Reset Zoom Button Overlay (Bottom Left) */}
