@@ -8,6 +8,7 @@ import InspiringSpacesSection from '../components/home/InspiringSpacesSection'
 import StatsSection from '../components/home/StatsSection'
 import OurFieldsSection from '../components/home/OurFieldsSection'
 import AboutProjectsSection from '../components/home/AboutProjectsSection'
+import ProjectsMapSection from '../components/home/ProjectsMapSection'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import MorphicBackground from '../components/home/MorphicBackground'
 
@@ -29,6 +30,7 @@ export default function Home() {
       <StatsSection />
       <OurFieldsSection />
       <AboutProjectsSection />
+      <ProjectsMapSection />
 
       {/* CMA Section */}
       <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>
