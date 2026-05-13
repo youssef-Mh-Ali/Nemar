@@ -94,10 +94,25 @@ export default function ProjectsMapSection() {
       try {
         const res = await getProjects()
         if (res.success && res.data) {
-          // Filter out legacy Egyptian demo regions (Cairo, Coast, Giza, etc.) to ensure only genuine Saudi FBS projects are mapped
+          // Ensure only genuine Saudi Arabian provinces from FBS data are mapped
+          const saudiProvinces = [
+            'riyadh', 'الرياض',
+            'makkah', 'مكة',
+            'madinah', 'المدينة',
+            'tabuk', 'تبوك',
+            'eastern', 'الشرقية',
+            'asir', 'عسير',
+            'qassim', 'القصيم',
+            'hail', 'حائل',
+            'jazan', 'جازان',
+            'najran', 'نجران',
+            'northern', 'الحدود الشمالية',
+            'jouf', 'الجوف',
+            'bahah', 'الباحة'
+          ]
           const saudiProjects = res.data.filter((p) => {
             const r = (p.provinceRegion || '').toLowerCase()
-            return !r.includes('cairo') && !r.includes('قاهرة') && !r.includes('coast') && !r.includes('ساحل') && !r.includes('giza') && !r.includes('جيزة')
+            return saudiProvinces.some(prov => r.includes(prov))
           })
           setProjects(saudiProjects)
         }
@@ -351,7 +366,7 @@ export default function ProjectsMapSection() {
                   key={`${idx}-${rIdx}`}
                   positions={ring}
                   pathOptions={{
-                    color: '#e91e63', // Pinkish-magenta border like Screenshot 1
+                    color: '#e91e63', // Regional boundary highlight
                     weight: item.isSelected ? 2.5 : 1.5,
                     dashArray: '5, 5',
                     fillColor: '#1b5e20', // Forest green shading
