@@ -83,9 +83,6 @@ export default function ProjectDetails() {
     <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
       <Paper
         sx={(theme) => ({
-          position: 'sticky',
-          top: 64,
-          zIndex: 30,
           borderBottom: 1,
           borderColor: 'divider',
           backgroundColor: alpha(theme.palette.background.paper, 0.6),

@@ -18,7 +18,13 @@ export default function Layout() {
       <Box
         component="main"
         className="main-content"
-        sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          pt: isHome ? 0 : 10,
+        }}
       >
         <Box sx={{ flex: 1, minHeight: 0 }}>
           <Outlet />
