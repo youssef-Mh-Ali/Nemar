@@ -92,6 +92,138 @@ function extractVisionMission(blocks: MarkdownBlock[]) {
   return { vision, mission }
 }
 
+function MemberCard({ member }: { member: { name: string; title: string; description: string; image: string } }) {
+  return (
+    <Card
+      sx={(theme) => ({
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '24px',
+        bgcolor: alpha(theme.palette.background.paper, 0.75),
+        backdropFilter: 'blur(20px)',
+        border: `1px solid ${alpha(theme.palette.background.paper, 0.8)}`,
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        overflow: 'visible',
+        position: 'relative',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.15)}`,
+          bgcolor: alpha(theme.palette.background.paper, 0.95),
+        },
+      })}
+    >
+      <Box sx={{ p: 2.5, pb: 0, display: 'flex', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: 210,
+            height: 230,
+            mt: 1,
+          }}
+        >
+          {/* Top Right Bracket Accent */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -8,
+              right: -8,
+              width: 28,
+              height: 28,
+              borderTop: '2px solid',
+              borderRight: '2px solid',
+              borderColor: 'secondary.main',
+              borderTopRightRadius: '6px',
+            }}
+          />
+          {/* Bottom Left Bracket Accent */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: -8,
+              left: -8,
+              width: 28,
+              height: 28,
+              borderBottom: '2px solid',
+              borderLeft: '2px solid',
+              borderColor: 'secondary.main',
+              borderBottomLeftRadius: '6px',
+            }}
+          />
+          {/* Portrait Image */}
+          <Box
+            component="img"
+            src={member.image}
+            alt={member.name}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center top',
+              borderRadius: '16px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+              bgcolor: 'common.white',
+            }}
+          />
+        </Box>
+      </Box>
+      <CardContent
+        sx={{
+          p: 3,
+          textAlign: 'center',
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              color: 'primary.main',
+              letterSpacing: '-0.3px',
+              lineHeight: 1.3,
+              mb: 0.75,
+            }}
+          >
+            {member.name}
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: 'secondary.main',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              mb: 1.5,
+              display: 'inline-block',
+              bgcolor: 'rgba(201, 162, 39, 0.08)',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 999,
+            }}
+          >
+            {member.title}
+          </Typography>
+        </Box>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            lineHeight: 1.7,
+            fontSize: '0.85rem',
+          }}
+        >
+          {member.description}
+        </Typography>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function AboutUs() {
   const { t, i18n } = useTranslation()
   const language = i18n.resolvedLanguage || i18n.language
@@ -122,9 +254,47 @@ export default function AboutUs() {
     }
   }, [language])
 
+  // Map elements into a precise Tree Structure mirroring the iOS UI/UX reference
+  const chairman = useMemo(() => members.find((m) => m.image.includes('tariq')) || members[2] || members[0], [members])
+  const ceo = useMemo(() => members.find((m) => m.image.includes('faisal')) || members[0], [members])
+  const osama = useMemo(() => members.find((m) => m.image.includes('osama')) || members[1] || members[0], [members])
+  const topRowMembers = useMemo(() => [chairman, ceo, osama], [chairman, ceo, osama])
+
+  const child1 = useMemo(() => members.find((m) => m.image.includes('alrashidi')) || members[3] || members[0], [members])
+  const child2 = useMemo(() => members.find((m) => m.image.includes('alfuraidi')) || members[4] || members[0], [members])
+  const bottomRowMembers = useMemo(() => [child1, child2], [child1, child2])
+
+  // Fallbacks ensuring absolute visual readiness
+  const defaultVisionEn =
+    'To be a leading regional benchmark in creating sustainable, integrated real estate communities that elevate quality of life and deliver exceptional long-term investment value.'
+  const defaultVisionAr =
+    'أن نكون نموذجاً إقليمياً رائداً في تطوير مجتمعات عقارية متكاملة ومستدامة ترتقي بجودة الحياة وتقدم قيمة استثمارية استثنائية على المدى الطويل.'
+  const defaultMissionEn = [
+    'Developing innovative residential and commercial projects with the highest standards of quality and sustainability.',
+    'Fostering long-term partnerships with investors through transparent governance and structured real estate funds.',
+    'Aligning our strategic goals with Saudi Vision 2030 to support vibrant communities and robust economic growth.',
+  ]
+  const defaultMissionAr = [
+    'تطوير مشاريع سكنية وتجارية مبتكرة بأعلى معايير الجودة والاستدامة.',
+    'بناء شراكات طويلة الأمد مع المستثمرين من خلال حوكمة شفافة وصناديق عقارية مهيأة.',
+    'مواءمة أهدافنا الاستراتيجية مع رؤية المملكة 2030 لدعم المجتمعات الحيوية والنمو الاقتصادي المستدام.',
+  ]
+
+  const finalVision = vision.length > 0 ? vision : [language.startsWith('en') ? defaultVisionEn : defaultVisionAr]
+  const finalMission = mission.length > 0 ? mission : language.startsWith('en') ? defaultMissionEn : defaultMissionAr
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
-      <Box sx={(theme) => ({ bgcolor: alpha(theme.palette.primary.main, 0.8), backdropFilter: 'blur(20px)', color: 'white', px: { xs: 2, md: 3 }, py: 6, textAlign: 'center' })}>
+      <Box
+        sx={(theme) => ({
+          bgcolor: alpha(theme.palette.primary.main, 0.8),
+          backdropFilter: 'blur(20px)',
+          color: 'white',
+          px: { xs: 2, md: 3 },
+          py: 6,
+          textAlign: 'center',
+        })}
+      >
         <Container maxWidth="lg">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Typography variant="h3" fontWeight="bold" gutterBottom>
@@ -137,220 +307,511 @@ export default function AboutUs() {
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 5 }}>
+        {/* Company Intro */}
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <Card
             sx={(theme) => ({
-              mb: 4,
+              mb: 6,
               backgroundColor: alpha(theme.palette.background.paper, 0.6),
               backdropFilter: 'blur(16px)',
               border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+              borderRadius: '24px',
             })}
           >
-            <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ color: 'primary.main' }}>
                 {t('about.companyIntroTitle')}
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9, fontSize: '1.02rem' }}>
                 {t('about.companyIntroBody')}
               </Typography>
             </CardContent>
           </Card>
         </motion.div>
 
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
+        {/* Board Members Section Header */}
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Typography variant="h4" fontWeight="800" sx={{ color: 'primary.main', letterSpacing: '-0.5px' }}>
             {t('about.boardMembersTitle')}
           </Typography>
+          <Box
+            sx={{
+              width: 60,
+              height: 4,
+              borderRadius: 2,
+              bgcolor: 'secondary.main',
+              mx: 'auto',
+              mt: 1.5,
+            }}
+          />
         </Box>
 
-        <Grid container spacing={3}>
-          {members.map((member, index) => (
-            <Grid key={member.name} size={{ xs: 12, md: 6, lg: 4 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.08 }}
-                style={{ height: '100%' }}
-              >
-                <Card sx={{ height: '100%' }}>
-                  <Box
-                    sx={{
-                      height: 320,
-                      p: 1.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      bgcolor: 'grey.50',
-                    }}
+        {/* TREE STRUCTURE IMPLEMENTATION */}
+        <Box sx={{ position: 'relative', mb: 8 }}>
+          {/* Top Row: Chairman, CEO, Osama */}
+          <Grid container spacing={3}>
+            {topRowMembers.map((member, index) => (
+              <Grid key={member.name + index} size={{ xs: 12, md: 4 }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  style={{ height: '100%' }}
+                >
+                  <MemberCard member={member} />
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Desktop Tree Connector Lines */}
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              position: 'relative',
+              height: 60,
+              width: '100%',
+            }}
+          >
+            {/* Stem downwards from center card (CEO) */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                width: '2px',
+                height: '30px',
+                bgcolor: 'secondary.main',
+                transform: 'translateX(-50%)',
+                opacity: 0.5,
+              }}
+            />
+            {/* Central Node dot */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '25px',
+                left: '50%',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                border: '2px solid',
+                borderColor: 'secondary.main',
+                bgcolor: 'background.paper',
+                transform: 'translateX(-50%)',
+                zIndex: 2,
+                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
+              }}
+            />
+            {/* Horizontal expansion crossbar connecting the two child centers */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '29px',
+                left: '33.33%',
+                right: '33.33%',
+                height: '2px',
+                bgcolor: 'secondary.main',
+                opacity: 0.5,
+              }}
+            />
+            {/* Left Node dot */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '25px',
+                left: '33.33%',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                border: '2px solid',
+                borderColor: 'secondary.main',
+                bgcolor: 'background.paper',
+                transform: 'translateX(-50%)',
+                zIndex: 2,
+                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
+              }}
+            />
+            {/* Left drop line to Child 1 */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '29px',
+                left: '33.33%',
+                width: '2px',
+                height: '31px',
+                bgcolor: 'secondary.main',
+                transform: 'translateX(-50%)',
+                opacity: 0.5,
+              }}
+            />
+            {/* Right Node dot */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '25px',
+                left: '66.67%',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                border: '2px solid',
+                borderColor: 'secondary.main',
+                bgcolor: 'background.paper',
+                transform: 'translateX(-50%)',
+                zIndex: 2,
+                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
+              }}
+            />
+            {/* Right drop line to Child 2 */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '29px',
+                left: '66.67%',
+                width: '2px',
+                height: '31px',
+                bgcolor: 'secondary.main',
+                transform: 'translateX(-50%)',
+                opacity: 0.5,
+              }}
+            />
+          </Box>
+
+          {/* Mobile Connector */}
+          <Box
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              flexDirection: 'column',
+              alignItems: 'center',
+              my: 2,
+            }}
+          >
+            <Box sx={{ width: 2, height: 20, bgcolor: 'secondary.main', opacity: 0.5 }} />
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                border: '2px solid',
+                borderColor: 'secondary.main',
+                bgcolor: 'background.paper',
+              }}
+            />
+            <Box sx={{ width: 2, height: 20, bgcolor: 'secondary.main', opacity: 0.5 }} />
+          </Box>
+
+          {/* Bottom Row: Centered Child 1 and Child 2 */}
+          <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+            {bottomRowMembers.map((member, index) => (
+              <Grid key={member.name + index} size={{ xs: 12, md: 4 }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  style={{ height: '100%' }}
+                >
+                  <MemberCard member={member} />
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* DISTINCT VISION & MISSION SECTIONS */}
+        <Box sx={{ mt: 6 }}>
+          {loading && (
+            <Typography sx={{ textAlign: 'center', color: 'text.secondary', my: 2 }}>
+              {t('common.loading')}
+            </Typography>
+          )}
+
+          <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {/* VISION SECTION - Luxury Light-Golden Premium Card */}
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                  <Card
+                    sx={(theme) => ({
+                      borderRadius: '24px',
+                      background: 'linear-gradient(135deg, #fefdfa 0%, #f7f2e1 100%)',
+                      border: `1px solid ${alpha(theme.palette.secondary.main, 0.25)}`,
+                      boxShadow: `0 12px 32px ${alpha(theme.palette.secondary.main, 0.08)}`,
+                      overflow: 'hidden',
+                      position: 'relative',
+                    })}
                   >
+                    {/* Ambient Glow */}
                     <Box
-                      component="img"
-                      src={member.image}
-                      alt={member.name}
                       sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
-                        objectPosition: 'center top',
-                        borderRadius: 1.5,
-                        bgcolor: 'white',
+                        position: 'absolute',
+                        top: -40,
+                        right: -40,
+                        width: 140,
+                        height: 140,
+                        borderRadius: '50%',
+                        background: alpha('#c9a227', 0.12),
+                        filter: 'blur(30px)',
                       }}
                     />
+                    <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 40,
+                            height: 40,
+                            borderRadius: '12px',
+                            bgcolor: 'secondary.main',
+                            color: 'common.white',
+                            boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
+                          }}
+                        >
+                          <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
+                        </Box>
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontWeight: 800,
+                            color: 'primary.main',
+                            letterSpacing: '-0.5px',
+                          }}
+                        >
+                          {language.startsWith('en') ? 'Our Vision' : 'الرؤية'}
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 1.5,
+                          position: 'relative',
+                          zIndex: 1,
+                        }}
+                      >
+                        {finalVision.map((p, idx) => (
+                          <Typography
+                            key={idx}
+                            variant="body1"
+                            sx={{
+                              lineHeight: 1.95,
+                              color: 'text.primary',
+                              fontSize: '1.05rem',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {p}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* MISSION SECTION - Detached Minimalist Frosted Strips */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.15 }}
+                >
+                  <Box sx={{ px: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                      <Box
+                        sx={{
+                          width: 4,
+                          height: 24,
+                          borderRadius: 4,
+                          bgcolor: 'primary.main',
+                        }}
+                      />
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: 800,
+                          color: 'primary.main',
+                          letterSpacing: '-0.5px',
+                        }}
+                      >
+                        {language.startsWith('en') ? 'Our Mission' : 'الرسالة'}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {finalMission.map((item, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: idx * 0.08 }}
+                        >
+                          <Card
+                            sx={(theme) => ({
+                              borderRadius: '16px',
+                              bgcolor: alpha(theme.palette.background.paper, 0.7),
+                              backdropFilter: 'blur(20px)',
+                              border: `1px solid ${alpha(theme.palette.divider, 0.4)}`,
+                              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
+                              transition: 'all 0.2s ease-in-out',
+                              '&:hover': {
+                                bgcolor: alpha(theme.palette.background.paper, 0.95),
+                                borderColor: alpha(theme.palette.secondary.main, 0.3),
+                                transform: 'translateX(4px)',
+                              },
+                            })}
+                          >
+                            <CardContent
+                              sx={{
+                                p: '20px !important',
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 2,
+                              }}
+                            >
+                              <CheckCircleRoundedIcon
+                                sx={{
+                                  fontSize: 22,
+                                  color: 'secondary.main',
+                                  mt: '2px',
+                                  flexShrink: 0,
+                                  filter: 'drop-shadow(0 2px 4px rgba(201, 162, 39, 0.3))',
+                                }}
+                              />
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  lineHeight: 1.8,
+                                  color: 'text.secondary',
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {item}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </Box>
                   </Box>
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
-                      {member.name}
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ color: 'primary.main', mb: 1.25, fontWeight: 600 }}>
-                      {member.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {member.description}
-                    </Typography>
+                </motion.div>
+              </Box>
+            </Grid>
+
+            {/* SIDE PANEL - Deep Navy Animated Ambient Card */}
+            <Grid size={{ xs: 12, md: 5 }}>
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(201, 162, 39, 0.2)',
+                    backgroundImage: 'linear-gradient(135deg, #0b1b33 0%, #16325c 100%)',
+                    boxShadow: '0 20px 50px -10px rgba(2, 6, 23, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      p: 4,
+                      minHeight: { xs: 320, md: 480 },
+                      position: 'relative',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      flexGrow: 1,
+                    }}
+                  >
+                    {/* Radial grid subtle background */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: 0.15,
+                        backgroundImage: 'radial-gradient(rgba(201,162,39,0.25) 1px, transparent 1px)',
+                        backgroundSize: '24px 24px',
+                      }}
+                    />
+
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        color: 'rgba(255,255,255,0.7)',
+                      }}
+                    >
+                      <AutoAwesomeRoundedIcon sx={{ fontSize: 18, color: 'rgba(201,162,39,0.95)' }} />
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          letterSpacing: '0.24em',
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                        }}
+                      >
+                        2030
+                      </Typography>
+                    </Box>
+
+                    {/* Ambient Glow Sphere */}
+                    <Box
+                      sx={{
+                        width: 220,
+                        height: 220,
+                        borderRadius: '50%',
+                        position: 'absolute',
+                        top: -40,
+                        right: -50,
+                        background:
+                          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, rgba(201,162,39,0.55) 40%, rgba(201,162,39,0.05) 75%)',
+                        opacity: 0.85,
+                      }}
+                    />
+
+                    {/* Footer text content inside panel */}
+                    <Box sx={{ position: 'relative', mt: 'auto', pt: 6 }}>
+                      <Typography
+                        variant="h3"
+                        sx={{
+                          color: 'common.white',
+                          fontWeight: 800,
+                          fontFamily: "'Playfair Display', Georgia, serif",
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {t('about.animatedPanelTitle')}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: 'rgba(255,255,255,0.85)',
+                          mt: 2,
+                          lineHeight: 1.9,
+                          fontSize: '1.05rem',
+                        }}
+                      >
+                        {t('about.animatedPanelBody')}
+                      </Typography>
+                    </Box>
                   </CardContent>
                 </Card>
               </motion.div>
             </Grid>
-          ))}
-        </Grid>
-
-        <Grid container spacing={3} sx={{ mt: 1 }}>
-          <Grid size={{ xs: 12, md: 7 }}>
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              {loading ? (
-                <Card>
-                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-                    <Typography color="text.secondary">{t('common.loading')}</Typography>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card
-                  sx={{
-                    borderRadius: 4,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    boxShadow: '0 10px 30px rgba(2, 6, 23, 0.08)',
-                    overflow: 'hidden',
-                    bgcolor: 'common.white',
-                  }}
-                >
-                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        borderRadius: 999,
-                        px: 2,
-                        py: 0.65,
-                        bgcolor: 'grey.100',
-                        color: 'primary.main',
-                        fontWeight: 700,
-                        letterSpacing: '0.28em',
-                        textTransform: 'uppercase',
-                        fontSize: 12,
-                      }}
-                    >
-                      {language.startsWith('en') ? 'VISION' : 'الرؤية'}
-                    </Box>
-                    <Box sx={{ mt: 2, display: 'grid', gap: 1.25 }}>
-                      {vision.map((p, idx) => (
-                        <Typography key={idx} variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
-                          {p}
-                        </Typography>
-                      ))}
-                    </Box>
-
-                    <Box sx={{ my: 3, height: 1, bgcolor: 'divider' }} />
-
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        borderRadius: 999,
-                        px: 2,
-                        py: 0.65,
-                        bgcolor: 'grey.100',
-                        color: 'primary.main',
-                        fontWeight: 700,
-                        letterSpacing: '0.28em',
-                        textTransform: 'uppercase',
-                        fontSize: 12,
-                      }}
-                    >
-                      {language.startsWith('en') ? 'MISSION' : 'الرسالة'}
-                    </Box>
-
-                    <Box sx={{ mt: 2, display: 'grid', gap: 1.4 }}>
-                      {mission.map((item, idx) => (
-                        <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
-                          <CheckCircleRoundedIcon sx={{ mt: '2px', fontSize: 18, color: 'rgba(201, 162, 39, 1)' }} />
-                          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
-                            {item}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              )}
-            </motion.div>
           </Grid>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <Card
-                sx={{
-                  height: '100%',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  borderRadius: 4,
-                  border: '1px solid rgba(201, 162, 39, 0.18)',
-                  backgroundImage: 'linear-gradient(135deg, #0b1b33 0%, #16325c 100%)',
-                  boxShadow: '0 20px 50px -20px rgba(2, 6, 23, 0.35)',
-                }}
-              >
-                <CardContent sx={{ p: 3.25, minHeight: 320, position: 'relative' }}>
-                  <Box sx={{ position: 'absolute', inset: 0, opacity: 0.18, backgroundImage: 'radial-gradient(rgba(201,162,39,0.22) 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
-
-                  <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 1, color: 'rgba(255,255,255,0.7)' }}>
-                    <AutoAwesomeRoundedIcon sx={{ fontSize: 16, color: 'rgba(201,162,39,0.95)' }} />
-                    <Typography sx={{ fontSize: 12, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700 }}>
-                      2030
-                    </Typography>
-                  </Box>
-
-                  {/* Orb */}
-                  <Box
-                    sx={{
-                      width: 190,
-                      height: 190,
-                      borderRadius: '50%',
-                      position: 'absolute',
-                      top: -48,
-                      right: -42,
-                      background:
-                        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35) 0%, rgba(201,162,39,0.65) 42%, rgba(201,162,39,0.08) 72%)',
-                      opacity: 0.85,
-                    }}
-                  />
-
-                  {/* Bottom content */}
-                  <Box sx={{ position: 'absolute', left: 26, right: 26, bottom: 26 }}>
-                    <Typography variant="h4" sx={{ color: 'common.white', fontWeight: 800, fontFamily: "'Playfair Display', Georgia, serif" }}>
-                      {t('about.animatedPanelTitle')}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.78)', mt: 1.25, lineHeight: 1.9, maxWidth: 380 }}>
-                      {t('about.animatedPanelBody')}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Grid>
-        </Grid>
+        </Box>
       </Container>
     </Box>
   )
 }
+

@@ -309,7 +309,7 @@ export async function getProjects() {
     // 1. Fetch Projects
     const projectsQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c,
                           Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
-                          Map_Centroid_Lat__c, Map_Centroid_Lng__c
+                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c
                           FROM Project__c 
                           ORDER BY Name ASC`
 
@@ -335,6 +335,16 @@ export async function getProjects() {
     // Transform to application format
     const mappedProjects = sfProjects.map((p) => {
       const availableUnitsCount = Number(p.Available_Units__c || 0)
+      const mapGeometryJson = (() => {
+        const raw = (p.Map_Geometry_JSON__c || '').trim()
+        if (!raw) return undefined
+        try {
+          return JSON.parse(raw)
+        } catch {
+          return undefined
+        }
+      })()
+
       return {
         id: p.Id,
         name: p.Name,
@@ -348,6 +358,8 @@ export async function getProjects() {
         status: 'Active',
         mapCentroidLat: typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined,
         mapCentroidLng: typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined,
+        mapGeometryJson,
+        logoUrl: p.Logo_URL__c || '',
         phases: [],
         // UI Helpers (kept for compatibility)
         hasAvailability: availableUnitsCount > 0,
@@ -428,6 +440,7 @@ export async function getProject(id: string) {
         mapCentroidLat,
         mapCentroidLng,
         mapGeometryJson,
+        logoUrl: p.Logo_URL__c || '',
         notes,
         attachments,
         phases: [],

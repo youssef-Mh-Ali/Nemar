@@ -18,6 +18,7 @@ export interface Project {
   mapCentroidLat?: number;
   mapCentroidLng?: number;
   mapGeometryJson?: unknown;
+  logoUrl?: string;
   notes?: ProjectNote[];
   attachments?: ProjectAttachment[];
   phases: Phase[];
