@@ -214,47 +214,46 @@ export default function ProjectsMapSection() {
   // Region markers have been replaced by individual project logo markers
 
   const createProjectIcon = (project: Project) => {
-    const logoSrc = project.logoUrl || '/BinSaedanLogo.png'
+    // Strictly use FBS logo as requested
+    const logoSrc = '/BinSaedanLogo.png'
     const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
-    const actionBg = isSoldOut ? 'rgba(40,40,40,0.9)' : '#e65100'
+    const actionBg = isSoldOut ? 'rgba(40,40,40,0.95)' : '#e65100'
     const actionText = isSoldOut ? (isRtl ? 'مباع بالكامل' : 'Sold Out') : (isRtl ? 'استكشف' : 'Explore')
-    const actionColor = isSoldOut ? '#aaa' : '#fff'
+    const actionColor = isSoldOut ? '#999' : '#fff'
 
     const html = `
       <div style="
         display: flex;
         flex-direction: column;
-        background: rgba(20, 20, 20, 0.92);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 4px;
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
         overflow: hidden;
-        width: 150px;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        width: 160px;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.5);
         font-family: inherit;
         cursor: pointer;
         user-select: none;
+        transition: transform 0.2s;
       ">
-        <div style="display: flex; align-items: center; padding: 6px; gap: 8px;">
+        <div style="display: flex; align-items: center; padding: 10px; gap: 10px;">
           <div style="
-            width: 28px;
-            height: 28px;
-            background: white;
-            border-radius: 2px;
-            padding: 2px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
           ">
-            <img src="${logoSrc}" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.src='/BinSaedanLogo.png'" />
+            <img src="${logoSrc}" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
           </div>
           <div style="
             flex: 1;
-            font-size: 10px;
-            font-weight: 700;
-            color: white;
-            line-height: 1.2;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            line-height: 1.3;
             text-align: ${isRtl ? 'right' : 'left'};
             overflow: hidden;
             text-overflow: ellipsis;
@@ -269,12 +268,12 @@ export default function ProjectsMapSection() {
           background: ${actionBg};
           color: ${actionColor};
           font-size: 10px;
-          font-weight: 600;
+          font-weight: 700;
           text-align: center;
-          padding: 4px 0;
+          padding: 6px 0;
           border-top: 1px solid rgba(255,255,255,0.05);
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 1px;
         ">
           ${actionText}
         </div>
