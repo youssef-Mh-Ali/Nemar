@@ -275,6 +275,12 @@
     "emailPlaceholder": "ahmed@example.com",
     "phonePlaceholder": "+966 5X XXX XXXX",
     "messagePlaceholder": "How can we help you?",
+    "supplierPdfLabel": "Supplier document (PDF)",
+    "supplierPdfHint": "Upload your company profile or registration document (PDF, max 5 MB).",
+    "supplierPdfRequired": "Please upload a PDF document",
+    "supplierPdfInvalid": "Only PDF files are allowed",
+    "supplierPdfTooLarge": "PDF must be 5 MB or smaller",
+    "supplierPdfSelected": "Selected: {{name}}",
     "submitting": "Sending...",
     "messageSent": "Your message has been sent!",
     "willContactSoon": "We will contact you soon",
@@ -392,7 +398,8 @@
       "error": "An error occurred. Please try again.",
       "validation": {
         "subjectRequired": "Subject is required (min 5 chars)",
-        "descriptionRequired": "Description is required (min 10 chars)"
+        "descriptionRequired": "Description is required (min 10 chars)",
+        "unitRequired": "Please select the unit this request relates to"
       }
     },
     "status": {

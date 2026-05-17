@@ -293,6 +293,12 @@
     "emailPlaceholder": "ahmed@example.com",
     "phonePlaceholder": "+966 5X XXX XXXX",
     "messagePlaceholder": "كيف يمكننا مساعدتك؟",
+    "supplierPdfLabel": "مستند المورد (PDF)",
+    "supplierPdfHint": "ارفع ملف الشركة أو السجل التجاري بصيغة PDF (حد أقصى 5 ميجابايت).",
+    "supplierPdfRequired": "يرجى رفع مستند PDF",
+    "supplierPdfInvalid": "يُسمح بملفات PDF فقط",
+    "supplierPdfTooLarge": "يجب ألا يتجاوز حجم الملف 5 ميجابايت",
+    "supplierPdfSelected": "تم اختيار: {{name}}",
     "submitting": "جاري الإرسال...",
     "messageSent": "تم إرسال رسالتك!",
     "willContactSoon": "سنتواصل معك قريباً",
@@ -392,7 +398,8 @@
       "error": "حدث خطأ. يرجى المحاولة مرة أخرى.",
       "validation": {
         "subjectRequired": "الموضوع مطلوب (5 أحرف على الأقل)",
-        "descriptionRequired": "الوصف مطلوب (10 أحرف على الأقل)"
+        "descriptionRequired": "الوصف مطلوب (10 أحرف على الأقل)",
+        "unitRequired": "يرجى اختيار الوحدة المرتبطة بهذا الطلب"
       }
     },
     "status": {

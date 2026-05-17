@@ -102,7 +102,7 @@ export interface Lead {
   lastName: string;
   email: string;
   phone: string;
-  profile?: "Investor" | "Customer";
+  profile?: "Investor" | "Customer" | "Supplier";
   source: "PWA";
   interestedProjectId?: string;
   interestedPhaseId?: string;

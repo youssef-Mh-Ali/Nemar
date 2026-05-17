@@ -1,3 +1,5 @@
+const { pickId } = require('../lib/sf-pick-id.cjs')
+
 /**
  * Netlify Function: My Opportunities + related Units (SPA)
  *
@@ -31,11 +33,6 @@ function parseCookies(cookieHeader) {
     out[k] = rest.join('=')
   }
   return out
-}
-
-function pickId(value) {
-  const v = String(value || '')
-  return /^[a-zA-Z0-9]{15,18}$/.test(v) ? v : ''
 }
 
 async function getSalesforceAccessToken() {

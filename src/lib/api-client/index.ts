@@ -1017,12 +1017,69 @@ export async function getUnit(id: string) {
   }
 }
 
-// Leads
-export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'source'>) {
-  return fetcher<Lead>('/api/leads', {
-    method: 'POST',
-    body: JSON.stringify(data),
+export type CreateLeadOptions = {
+  supplierPdf?: File
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result !== 'string') {
+        reject(new Error('Failed to read file'))
+        return
+      }
+      const base64 = result.includes(',') ? result.split(',')[1] : result
+      resolve(base64)
+    }
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'))
+    reader.readAsDataURL(file)
   })
+}
+
+// Leads (Salesforce via Netlify Function)
+export async function createLead(
+  data: Omit<Lead, 'id' | 'createdAt' | 'source'>,
+  options?: CreateLeadOptions
+): Promise<ApiResponse<Lead>> {
+  try {
+    const payload: Record<string, unknown> = { ...data, source: 'PWA' }
+
+    if (data.profile === 'Supplier' && options?.supplierPdf) {
+      payload.supplierAttachment = {
+        fileName: options.supplierPdf.name,
+        contentType: options.supplierPdf.type || 'application/pdf',
+        base64: await fileToBase64(options.supplierPdf),
+      }
+    }
+
+    const response = await fetch('/.netlify/functions/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      return { success: false, error: 'Lead submission is unavailable' }
+    }
+
+    const result = (await response.json()) as ApiResponse<Lead>
+    if (!response.ok && result.success !== true) {
+      return {
+        success: false,
+        error: result.error || 'Failed to submit registration',
+      }
+    }
+    return result
+  } catch (error) {
+    console.error('[Leads] createLead error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to submit registration',
+    }
+  }
 }
 
 // Auth
@@ -1056,33 +1113,53 @@ export async function getMyOpportunities() {
   return fetcher<MyOpportunity[]>('/.netlify/functions/my-opportunities')
 }
 
-// Cases
-export async function getCases(token?: string) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+// Cases (owner requests — session cookie auth via Netlify Function)
+async function casesFetcher<T>(
+  method: 'GET' | 'POST',
+  body?: Record<string, unknown>
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch('/.netlify/functions/cases', {
+      method,
+      credentials: 'include',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      return { success: false, error: 'Requests service is unavailable' }
+    }
+
+    const result = (await response.json()) as ApiResponse<T>
+    if (!response.ok && result.success !== true) {
+      return {
+        success: false,
+        error: result.error || 'Request failed',
+      }
+    }
+    return result
+  } catch (error) {
+    console.error('[Cases] request error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Request failed',
+    }
   }
-  return fetcher<Case[]>('/api/cases', { headers })
 }
 
-export async function createCase(
-  data: {
-    unitId?: string
-    subject: string
-    category: string
-    description: string
-  },
-  token?: string
-) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-  return fetcher<Case>('/api/cases', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers,
-  })
+export async function getCases() {
+  return casesFetcher<Case[]>('GET')
+}
+
+export async function createCase(data: {
+  unitId?: string
+  projectName?: string
+  subject: string
+  category: string
+  description: string
+}) {
+  return casesFetcher<Case>('POST', data)
 }
 
 /**
