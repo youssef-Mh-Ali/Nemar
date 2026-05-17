@@ -7,6 +7,7 @@ import { useAuthStore } from '../../lib/store'
 import { logout } from '../../lib/api-client'
 import LanguageToggle from '../ui/LanguageToggle'
 import BrandLogo from './BrandLogo'
+import NavContactActions from './NavContactActions'
 
 /** True when this nav item should show as the current page (nested routes included; home is exact). */
 function isNavPathActive(pathname: string, itemPath: string): boolean {
@@ -95,7 +96,13 @@ export default function Header() {
           })}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+          <Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
+            <NavContactActions compact />
+          </Box>
+          <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
+            <NavContactActions />
+          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }} onClick={() => i18n.changeLanguage(isRtl ? 'en' : 'ar')}>
             <Box component="span" sx={{ textDecoration: isRtl ? 'underline' : 'none' }}>AR</Box>
             <span>/</span>

@@ -19,7 +19,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "view": "View",
-    "more": "More"
+    "more": "More",
+    "call": "Call"
   },
   "footer": {
     "nav": "Footer navigation",
@@ -136,6 +137,8 @@
     "statsDesc": "At Faisal Bin Saedan, we strive to implement modern architectural styles and inspiring innovations with a strong foundation.",
     "stats": {
       "housing": "Housing units",
+      "units": "Units",
+      "projects": "Projects",
       "exhibitions": "Exhibitions",
       "drivethrough": "Drive Through",
       "plaza": "Plaza"
