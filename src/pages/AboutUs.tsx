@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography, Dialog, DialogContent, IconButton } from '@mui/material'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import { alpha } from '@mui/material/styles'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
@@ -94,10 +95,12 @@ function extractVisionMission(blocks: MarkdownBlock[]) {
   return { vision, mission }
 }
 
-function MemberCard({ member }: { member: { name: string; title: string; description: string; image: string } }) {
+function MemberCard({ member, onClick }: { member: { name: string; title: string; description: string; image: string }; onClick?: () => void }) {
   return (
     <Card
+      onClick={onClick}
       sx={(theme) => ({
+        cursor: onClick ? 'pointer' : 'default',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -233,16 +236,7 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
             {member.title}
           </Typography>
         </Box>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            lineHeight: 1.7,
-            fontSize: '0.85rem',
-          }}
-        >
-          {member.description}
-        </Typography>
+        </Box>
       </CardContent>
     </Card>
   )
@@ -253,6 +247,7 @@ export default function AboutUs() {
   const language = i18n.resolvedLanguage || i18n.language
   const [markdown, setMarkdown] = useState('')
   const [loading, setLoading] = useState(true)
+  const [selectedMember, setSelectedMember] = useState<{ name: string; title: string; description: string; image: string } | null>(null)
 
   const members = useMemo(() => getBoardMembers(language), [language])
   const markdownBlocks = useMemo(() => parseMarkdown(markdown), [markdown])
@@ -387,7 +382,7 @@ export default function AboutUs() {
                   transition={{ delay: index * 0.1 }}
                   style={{ height: '100%' }}
                 >
-                  <MemberCard member={member} />
+                  <MemberCard member={member} onClick={() => setSelectedMember(member)} />
                 </motion.div>
               </Grid>
             ))}
@@ -540,7 +535,7 @@ export default function AboutUs() {
                   transition={{ delay: 0.3 + index * 0.1 }}
                   style={{ height: '100%' }}
                 >
-                  <MemberCard member={member} />
+                  <MemberCard member={member} onClick={() => setSelectedMember(member)} />
                 </motion.div>
               </Grid>
             ))}
@@ -838,6 +833,52 @@ export default function AboutUs() {
         </Box>
       </Container>
       </Box>
+
+      {/* Member Details Modal */}
+      <Dialog
+        open={Boolean(selectedMember)}
+        onClose={() => setSelectedMember(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            bgcolor: 'background.paper',
+            backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)',
+            overflow: 'hidden',
+          }
+        }}
+      >
+        {selectedMember && (
+          <>
+            <Box sx={{ position: 'relative', pt: 6, pb: 4, px: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: alpha('#102d4a', 0.03) }}>
+              <IconButton
+                onClick={() => setSelectedMember(null)}
+                sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(0,0,0,0.05)', '&:hover': { bgcolor: 'rgba(0,0,0,0.1)' } }}
+              >
+                <CloseRoundedIcon />
+              </IconButton>
+              
+              <Box sx={{ position: 'relative', width: 220, height: 250 }}>
+                 <Box sx={{ position: 'absolute', bottom: '10%', left: '10%', width: '80%', height: '60%', background: 'radial-gradient(circle, rgba(201,162,39,0.25) 0%, rgba(201,162,39,0.1) 40%, rgba(16,45,74,0) 70%)', zIndex: 0 }} />
+                 <Box sx={{ position: 'absolute', bottom: 0, left: '5%', width: '90%', height: '180px', background: 'linear-gradient(135deg, rgba(201,162,39,0.2) 0%, rgba(16,45,74,0.15) 100%)', borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', zIndex: 1 }} />
+                 <img src={selectedMember.image} alt={selectedMember.name} style={{ position: 'absolute', bottom: 0, left: 0, zIndex: 2, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))', WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)', maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)' }} />
+              </Box>
+            </Box>
+            <DialogContent sx={{ p: { xs: 3, md: 5 }, pt: { xs: 3, md: 4 }, textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, letterSpacing: '-0.5px' }}>
+                {selectedMember.name}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: 'secondary.main', fontWeight: 600, mb: 3, display: 'inline-block', bgcolor: 'rgba(201, 162, 39, 0.08)', px: 2, py: 0.5, borderRadius: 999 }}>
+                {selectedMember.title}
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.85, fontSize: '1.05rem' }}>
+                {selectedMember.description}
+              </Typography>
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </Box>
   )
 }
