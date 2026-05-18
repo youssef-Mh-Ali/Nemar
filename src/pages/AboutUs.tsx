@@ -6,6 +6,8 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { getBoardMembers, loadMissionVisionMarkdown } from '../lib/about/content'
+import FBSVolumesBackground from '../components/about/FBSVolumesBackground'
+
 
 type MarkdownBlock =
   | { type: 'h2'; text: string }
@@ -284,17 +286,19 @@ export default function AboutUs() {
   const finalMission = mission.length > 0 ? mission : language.startsWith('en') ? defaultMissionEn : defaultMissionAr
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
-      <Box
-        sx={(theme) => ({
-          bgcolor: alpha(theme.palette.primary.main, 0.8),
-          backdropFilter: 'blur(20px)',
-          color: 'white',
-          px: { xs: 2, md: 3 },
-          py: 6,
-          textAlign: 'center',
-        })}
-      >
+    <Box sx={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <FBSVolumesBackground />
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={(theme) => ({
+            bgcolor: alpha(theme.palette.primary.main, 0.35),
+            backdropFilter: 'blur(20px)',
+            color: 'white',
+            px: { xs: 2, md: 3 },
+            py: 6,
+            textAlign: 'center',
+          })}
+        >
         <Container maxWidth="lg">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Typography variant="h3" fontWeight="bold" gutterBottom>
@@ -811,7 +815,9 @@ export default function AboutUs() {
           </Grid>
         </Box>
       </Container>
+      </Box>
     </Box>
   )
 }
+
 
