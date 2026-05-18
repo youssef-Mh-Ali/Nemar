@@ -374,7 +374,7 @@ export default function HeroSection() {
                     zIndex: 1,
                     background: featuredVideo?.coverImageUrl 
                       ? `url(${featuredVideo.coverImageUrl}) center/cover` 
-                      : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover',
+                      : 'linear-gradient(135deg, #102d4a 0%, #1e4670 100%)',
                   }}
                 />
               </Box>
