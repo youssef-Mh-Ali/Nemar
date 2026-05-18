@@ -1,4 +1,4 @@
-const { pickId } = require('../lib/sf-pick-id.cjs')
+import { pickId } from '../lib/sf-pick-id.cjs'
 
 /**
  * Netlify Function: My Opportunities + related Units (SPA)
@@ -148,7 +148,7 @@ function unitFromOpportunity(opp) {
   return mapUnitRecord(u)
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== 'GET') {
     return json(405, { success: false, error: 'Method not allowed' })
   }

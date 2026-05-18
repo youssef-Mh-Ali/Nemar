@@ -1,4 +1,4 @@
-const { pickId, pickSfLookup } = require('../lib/sf-pick-id.cjs')
+import { pickId, pickSfLookup } from '../lib/sf-pick-id.cjs'
 
 /**
  * Netlify Function: Owner support requests (Salesforce Case)
@@ -476,7 +476,7 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
   }
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const contactId = await verifySession(event)
     const { accessToken, instanceUrl } = await getSalesforceAccessToken()
