@@ -186,6 +186,8 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
               objectFit: 'contain',
               objectPosition: 'bottom center', // Ground the half-body to the bottom of the container
               filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />
