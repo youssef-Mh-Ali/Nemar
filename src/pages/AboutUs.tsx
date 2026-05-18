@@ -236,7 +236,6 @@ function MemberCard({ member, onClick }: { member: { name: string; title: string
             {member.title}
           </Typography>
         </Box>
-        </Box>
       </CardContent>
     </Card>
   )
