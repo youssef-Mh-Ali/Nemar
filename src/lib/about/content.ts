@@ -1,8 +1,8 @@
-import faisalImg from '../Board members photos/Faisal Bin Saedan.png'
-import osamaImg from '../Board members photos/Ussama Al-dawlty.png'
-import tariqImg from '../Board members photos/Tariq Bin Saedan.png'
-import abdulazizRashidiImg from '../Board members photos/Abd El Aziz Al Rashidy.png'
-import abdulazizSalehImg from '../Board members photos/Abd-el Aziz Saleh.png'
+import faisalImg from '../../Board members photos/Faisal Bin Saedan.png'
+import osamaImg from '../../Board members photos/Ussama Al-dawlty.png'
+import tariqImg from '../../Board members photos/Tariq Bin Saedan.png'
+import abdulazizRashidiImg from '../../Board members photos/Abd El Aziz Al Rashidy.png'
+import abdulazizSalehImg from '../../Board members photos/Abd-el Aziz Saleh.png'
 
 export type BoardMember = {
   nameAr: string

@@ -102,17 +102,26 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '24px',
-        bgcolor: alpha(theme.palette.background.paper, 0.75),
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${alpha(theme.palette.background.paper, 0.8)}`,
+        bgcolor: alpha(theme.palette.background.paper, 0.85), // More solid, less reliant on blur
+        backdropFilter: 'blur(8px)', // Reduced blur for performance
+        border: `1px solid ${alpha(theme.palette.background.paper, 0.9)}`,
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         overflow: 'visible',
         position: 'relative',
+        mt: 8, // Room for the pop-out head
         '&:hover': {
-          transform: 'translateY(-4px)',
+          transform: 'translateY(-6px)',
           boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.15)}`,
-          bgcolor: alpha(theme.palette.background.paper, 0.95),
+          bgcolor: alpha(theme.palette.background.paper, 0.98),
+          borderColor: alpha(theme.palette.secondary.main, 0.3),
+          '& .morphic-blob': {
+            transform: 'scale(1.05) rotate(3deg)', // Simple transform instead of continuous animation
+          },
+          '& .member-portrait': {
+            transform: 'scale(1.05) translateY(-8px)',
+            filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.15))',
+          }
         },
       })}
     >
@@ -121,57 +130,63 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
           sx={{
             position: 'relative',
             width: '100%',
-            maxWidth: 210,
-            height: 230,
-            mt: 1,
+            maxWidth: 220,
+            height: 250,
+            mt: -9, // Pulls the entire image container up, breaking the top card border!
+            mb: 6, // Compensates for the negative mt, so the card height is preserved and doesn't overlap elements below!
           }}
         >
-          {/* Morphic Ambient Glow */}
-          <motion.div
-            animate={{
-              scale: [1, 1.15, 1],
-              rotate: [0, 90, 0],
-              opacity: [0.4, 0.7, 0.4],
-            }}
-            transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
-            style={{
+          {/* Glowing Ambient Backdrop (Replaced expensive blur with pure radial gradient) */}
+          <Box
+            sx={{
               position: 'absolute',
-              top: '5%',
-              left: '5%',
-              width: '90%',
-              height: '90%',
-              background: 'linear-gradient(135deg, rgba(201,162,39,0.5) 0%, rgba(16,45,74,0.4) 100%)',
-              filter: 'blur(24px)',
+              bottom: '10%',
+              left: '10%',
+              width: '80%',
+              height: '60%',
+              background: 'radial-gradient(circle, rgba(201,162,39,0.25) 0%, rgba(201,162,39,0.1) 40%, rgba(16,45,74,0) 70%)',
               zIndex: 0,
-              borderRadius: '50%',
             }}
           />
-          {/* Animated Morphic Portrait */}
+
+          {/* Morphic Blob Background - Removed continuous animation for performance */}
+          <Box
+            className="morphic-blob"
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: '5%',
+              width: '90%',
+              height: '180px', // Shorter than the container (250px), creating the pop-out base
+              background: 'linear-gradient(135deg, rgba(201,162,39,0.2) 0%, rgba(16,45,74,0.15) 100%)',
+              border: '1px solid rgba(201,162,39,0.4)',
+              boxShadow: 'inset 0 0 20px rgba(255,255,255,0.3)',
+              borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', // Organic shape without animating it
+              zIndex: 1,
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          />
+
+          {/* Portrait */}
           <motion.img
+            className="member-portrait"
             src={member.image}
             alt={member.name}
-            animate={{
-              borderRadius: [
-                '60% 40% 30% 70% / 60% 30% 70% 40%',
-                '30% 70% 70% 30% / 30% 30% 70% 70%',
-                '60% 40% 30% 70% / 60% 30% 70% 40%',
-              ],
-              y: [0, -10, 0],
-            }}
-            transition={{
-              borderRadius: { repeat: Infinity, duration: 8, ease: 'easeInOut' },
-              y: { repeat: Infinity, duration: 5, ease: 'easeInOut' },
-            }}
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
             style={{
-              position: 'relative',
-              zIndex: 1,
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              zIndex: 2,
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center top',
-              backgroundColor: 'white',
-              border: '2px solid rgba(255, 255, 255, 0.6)',
-              boxShadow: '0 15px 35px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.5)',
+              objectFit: 'contain',
+              objectPosition: 'bottom center', // Ground the half-body to the bottom of the container
+              filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />
         </Box>
