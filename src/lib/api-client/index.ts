@@ -311,7 +311,7 @@ export async function getProjects() {
                           Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
                           Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c
                           FROM Project__c 
-                          ORDER BY Name ASC`
+                          ORDER BY CreatedDate DESC`
 
     const projectsResult = await salesforceQuery<SalesforceProjectRecord>(projectsQuery)
 
