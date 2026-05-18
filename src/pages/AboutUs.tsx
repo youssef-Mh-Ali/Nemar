@@ -126,47 +126,52 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
             mt: 1,
           }}
         >
-          {/* Top Right Bracket Accent */}
-          <Box
-            sx={{
+          {/* Morphic Ambient Glow */}
+          <motion.div
+            animate={{
+              scale: [1, 1.15, 1],
+              rotate: [0, 90, 0],
+              opacity: [0.4, 0.7, 0.4],
+            }}
+            transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
+            style={{
               position: 'absolute',
-              top: -8,
-              right: -8,
-              width: 28,
-              height: 28,
-              borderTop: '2px solid',
-              borderRight: '2px solid',
-              borderColor: 'secondary.main',
-              borderTopRightRadius: '6px',
+              top: '5%',
+              left: '5%',
+              width: '90%',
+              height: '90%',
+              background: 'linear-gradient(135deg, rgba(201,162,39,0.5) 0%, rgba(16,45,74,0.4) 100%)',
+              filter: 'blur(24px)',
+              zIndex: 0,
+              borderRadius: '50%',
             }}
           />
-          {/* Bottom Left Bracket Accent */}
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: -8,
-              left: -8,
-              width: 28,
-              height: 28,
-              borderBottom: '2px solid',
-              borderLeft: '2px solid',
-              borderColor: 'secondary.main',
-              borderBottomLeftRadius: '6px',
-            }}
-          />
-          {/* Portrait Image */}
-          <Box
-            component="img"
+          {/* Animated Morphic Portrait */}
+          <motion.img
             src={member.image}
             alt={member.name}
-            sx={{
+            animate={{
+              borderRadius: [
+                '60% 40% 30% 70% / 60% 30% 70% 40%',
+                '30% 70% 70% 30% / 30% 30% 70% 70%',
+                '60% 40% 30% 70% / 60% 30% 70% 40%',
+              ],
+              y: [0, -10, 0],
+            }}
+            transition={{
+              borderRadius: { repeat: Infinity, duration: 8, ease: 'easeInOut' },
+              y: { repeat: Infinity, duration: 5, ease: 'easeInOut' },
+            }}
+            style={{
+              position: 'relative',
+              zIndex: 1,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              borderRadius: '16px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-              bgcolor: 'common.white',
+              backgroundColor: 'white',
+              border: '2px solid rgba(255, 255, 255, 0.6)',
+              boxShadow: '0 15px 35px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.5)',
             }}
           />
         </Box>
