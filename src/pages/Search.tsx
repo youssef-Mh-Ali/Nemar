@@ -38,9 +38,13 @@ export default function Search() {
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoadingProjects, setIsLoadingProjects] = useState(false)
 
-  // Set initial filter from URL params
+  // Set initial filter and view from URL params
   useEffect(() => {
     const projectId = searchParams.get('projectId')
+    const view = searchParams.get('view')
+    if (view === 'projects') {
+      setViewMode('projects')
+    }
     if (projectId) {
       setFilters({ ...filters, projectId })
     }

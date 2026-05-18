@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -18,7 +18,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { createCase } from '../../lib/api-client'
-import { useAuthStore } from '../../lib/store'
 import { Unit } from '../../lib/types'
 
 interface CaseFormProps {
@@ -30,18 +29,27 @@ interface CaseFormProps {
 
 export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseFormProps) {
   const { t, i18n } = useTranslation()
-  const { token } = useAuthStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isRtl = i18n.language === 'ar'
 
-  const schema = z.object({
-    unitId: z.string().optional(),
-    subject: z.string().min(5, t('cases.form.validation.subjectRequired')),
-    category: z.enum(['Maintenance', 'Inquiry', 'Complaint', 'Documentation', 'Other']),
-    description: z.string().min(10, t('cases.form.validation.descriptionRequired')),
-  })
+  const schema = z
+    .object({
+      unitId: z.string().optional(),
+      subject: z.string().min(5, t('cases.form.validation.subjectRequired')),
+      category: z.enum(['Maintenance', 'Inquiry', 'Complaint', 'Documentation', 'Other']),
+      description: z.string().min(10, t('cases.form.validation.descriptionRequired')),
+    })
+    .superRefine((data, ctx) => {
+      if (units.length > 0 && !data.unitId?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['unitId'],
+          message: t('cases.form.validation.unitRequired'),
+        })
+      }
+    })
 
   type FormData = z.infer<typeof schema>
 
@@ -49,13 +57,27 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       category: 'Inquiry',
+      unitId: units.length === 1 ? units[0].id : '',
     },
   })
+
+  useEffect(() => {
+    if (!isOpen) return
+    reset({
+      category: 'Inquiry',
+      unitId: units.length === 1 ? units[0].id : '',
+      subject: '',
+      description: '',
+    })
+    setError(null)
+    setIsSuccess(false)
+  }, [isOpen, units, reset])
 
   const categoryOptions = [
     { value: 'Maintenance', label: t('cases.category.maintenance') },
@@ -70,15 +92,20 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
     setError(null)
 
     try {
-      const response = await createCase(
-        {
-          unitId: data.unitId || undefined,
-          subject: data.subject,
-          category: data.category,
-          description: data.description,
-        },
-        token || undefined
-      )
+      const selectedUnit = data.unitId ? units.find((u) => u.id === data.unitId) : undefined
+      const projectName = selectedUnit
+        ? isRtl
+          ? selectedUnit.projectNameAr || selectedUnit.projectName
+          : selectedUnit.projectName || selectedUnit.projectNameAr
+        : undefined
+
+      const response = await createCase({
+        unitId: data.unitId?.trim() || undefined,
+        projectName,
+        subject: data.subject,
+        category: data.category,
+        description: data.description,
+      })
 
       if (response.success) {
         setIsSuccess(true)
@@ -165,17 +192,20 @@ export default function CaseForm({ isOpen, onClose, units, onSuccess }: CaseForm
                 <TextField
                   {...register('unitId')}
                   select
+                  required
                   label={t('cases.form.unit')}
                   fullWidth
                   error={!!errors.unitId}
                   helperText={errors.unitId?.message}
                   variant="outlined"
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  onChange={(e) => setValue('unitId', e.target.value, { shouldValidate: true })}
                 >
                   <MenuItem value="">{t('cases.form.chooseUnit')}</MenuItem>
                   {units.map((u) => (
                     <MenuItem key={u.id} value={u.id}>
-                      {u.unitNumber} - {isRtl ? u.projectNameAr : u.projectName}
+                      {u.unitNumber}
+                      {u.projectName ? ` — ${isRtl ? u.projectNameAr || u.projectName : u.projectName}` : ''}
                     </MenuItem>
                   ))}
                 </TextField>

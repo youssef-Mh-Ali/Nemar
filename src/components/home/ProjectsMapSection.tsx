@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Box, Container, Typography, Button, Paper } from '@mui/material'
-import { MapContainer, TileLayer, Marker, Polygon, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polygon, Tooltip, useMap } from 'react-leaflet'
 import L, { LatLngExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +29,31 @@ function isMultiPolygon(g: unknown): g is GeoJsonMultiPolygon {
 function ringToLatLngs(ring: number[][]): LatLngExpression[] {
   // GeoJSON: [lng, lat] -> Leaflet: [lat, lng]
   return ring.map(([lng, lat]) => [lat, lng])
+}
+
+function createMapPinIcon(fill: string) {
+  return L.divIcon({
+    className: 'project-map-pin',
+    html: `
+      <div style="display:flex;justify-content:center;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
+        <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24C32 7.163 24.837 0 16 0z" fill="${fill}" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"/>
+          <circle cx="16" cy="15" r="5" fill="white" fill-opacity="0.95"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    tooltipAnchor: [0, -36],
+  })
+}
+
+const availablePinIcon = createMapPinIcon('#e65100')
+const soldOutPinIcon = createMapPinIcon('#6b7280')
+
+function getProjectPinIcon(project: Project) {
+  const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
+  return isSoldOut ? soldOutPinIcon : availablePinIcon
 }
 
 // Controller component to handle smooth zoom and bounds fitting
@@ -211,69 +236,6 @@ export default function ProjectsMapSection() {
     }
   }
 
-  // Region markers have been replaced by individual project logo markers
-
-  const createProjectIcon = (project: Project) => {
-    // Strictly use FBS logo as requested
-    const logoSrc = '/BinSaedanLogo.png'
-    const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
-    const actionBg = isSoldOut ? 'rgba(40,40,40,0.95)' : '#e65100'
-    const actionText = isSoldOut ? (isRtl ? 'مباع بالكامل' : 'Sold Out') : (isRtl ? 'استكشف' : 'Explore')
-    const actionColor = isSoldOut ? '#999' : '#fff'
-
-    const html = `
-      <div style="
-        display: flex;
-        flex-direction: column;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        overflow: hidden;
-        width: 140px;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.5);
-        font-family: inherit;
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.2s;
-      ">
-        <div style="padding: 12px; text-align: center;">
-          <div style="
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.95);
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-          ">
-            ${isRtl ? project.nameAr : project.name}
-          </div>
-        </div>
-        <div style="
-          background: ${actionBg};
-          color: ${actionColor};
-          font-size: 10px;
-          font-weight: 700;
-          text-align: center;
-          padding: 6px 0;
-          border-top: 1px solid rgba(255,255,255,0.05);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        ">
-          ${actionText}
-        </div>
-      </div>
-    `
-    return L.divIcon({
-      className: 'custom-project-marker',
-      html,
-      iconSize: [150, 56],
-      iconAnchor: [75, 56],
-    })
-  }
 
   // Extract all polygon geometries to render background contexts
   const allPolygons = useMemo(() => {
@@ -363,17 +325,34 @@ export default function ProjectsMapSection() {
               ))
             )}
 
-            {/* Render all project markers directly with actual project logos */}
-            {displayedProjects.map((project) => (
-              <Marker
-                key={project.id}
-                position={[project.renderLat, project.renderLng]}
-                icon={createProjectIcon(project)}
-                eventHandlers={{
-                  click: () => navigate(`/project/${project.id}`),
-                }}
-              />
-            ))}
+            {displayedProjects.map((project) => {
+              const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
+              const projectName = isRtl ? project.nameAr : project.name
+              const statusLabel = isSoldOut
+                ? isRtl
+                  ? 'مباع بالكامل'
+                  : 'Sold Out'
+                : isRtl
+                  ? 'استكشف'
+                  : 'Explore'
+
+              return (
+                <Marker
+                  key={project.id}
+                  position={[project.renderLat, project.renderLng]}
+                  icon={getProjectPinIcon(project)}
+                  eventHandlers={{
+                    click: () => navigate(`/project/${project.id}`),
+                  }}
+                >
+                  <Tooltip direction="top" offset={[0, -36]} opacity={0.95}>
+                    <span style={{ fontWeight: 600 }}>{projectName}</span>
+                    <br />
+                    <span style={{ fontSize: 11, opacity: 0.85 }}>{statusLabel}</span>
+                  </Tooltip>
+                </Marker>
+              )
+            })}
           </MapContainer>
 
           {/* Reset Zoom Button Overlay (Bottom Left) */}

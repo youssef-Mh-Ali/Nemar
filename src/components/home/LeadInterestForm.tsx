@@ -14,7 +14,7 @@ import {
   MenuItem,
   FormHelperText,
 } from '@mui/material'
-import { CheckCircle } from '@mui/icons-material'
+import { CheckCircle, UploadFile } from '@mui/icons-material'
 import { Send } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -50,9 +50,11 @@ export type LeadInterestFormProps = {
 
 type FormData = z.infer<ReturnType<typeof getSchema>>
 
+const MAX_SUPPLIER_PDF_BYTES = 5 * 1024 * 1024
+
 const getSchema = (t: (key: string) => string) =>
   z.object({
-    profile: z.enum(['Investor', 'Customer']),
+    profile: z.enum(['Investor', 'Customer', 'Supplier']),
     name: z.string().min(2, t('registerInterest.firstNameRequired')),
     email: z.union([z.string().email(t('registerInterest.emailInvalid')), z.literal('')]).optional(),
     phone: z.string().min(9, t('registerInterest.phoneInvalid')),
@@ -97,6 +99,8 @@ export default function LeadInterestForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [supplierPdf, setSupplierPdf] = useState<File | null>(null)
+  const [supplierPdfError, setSupplierPdfError] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(false)
 
@@ -118,6 +122,8 @@ export default function LeadInterestForm({
 
   const regionWatch = watch('region')
   const cityWatch = watch('city')
+  const profileWatch = watch('profile')
+  const isSupplier = profileWatch === 'Supplier'
 
   const regions = useMemo(() => {
     const set = new Set<string>()
@@ -220,6 +226,8 @@ export default function LeadInterestForm({
     reset(buildEmptyDefaults(projectId))
     setError(null)
     setIsSuccess(false)
+    setSupplierPdf(null)
+    setSupplierPdfError(null)
   }, [active, projectId, reset, mode, unitId])
 
   // When project is pre-selected (e.g. unit page), fill region & city from project list or unit fallbacks
@@ -285,9 +293,28 @@ export default function LeadInterestForm({
     })
   }, [projectLocked, regionWatch, cityWatch, lockedProject, fallbackProvinceRegion, fallbackCity])
 
+  const validateSupplierPdf = (file: File | null): string | null => {
+    if (!file) return t('contact.supplierPdfRequired')
+    const isPdf =
+      file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+    if (!isPdf) return t('contact.supplierPdfInvalid')
+    if (file.size > MAX_SUPPLIER_PDF_BYTES) return t('contact.supplierPdfTooLarge')
+    return null
+  }
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     setError(null)
+    setSupplierPdfError(null)
+
+    if (data.profile === 'Supplier') {
+      const pdfError = validateSupplierPdf(supplierPdf)
+      if (pdfError) {
+        setSupplierPdfError(pdfError)
+        setIsSubmitting(false)
+        return
+      }
+    }
 
     try {
       const parts = data.name.trim().split(/\s+/).filter(Boolean)
@@ -307,20 +334,24 @@ export default function LeadInterestForm({
       ].filter(Boolean)
       const message = meta.length ? `${data.message}\n\n${meta.join('\n')}` : data.message
 
-      const response = await createLead({
-        profile: data.profile,
-        firstName,
-        lastName,
-        phone: data.phone,
-        email: data.email || '',
-        message,
-        interestedProjectId: effectiveProjectId,
-        interestedPhaseId: phaseId,
-        interestedUnitId: unitId,
-      })
+      const response = await createLead(
+        {
+          profile: data.profile,
+          firstName,
+          lastName,
+          phone: data.phone,
+          email: data.email || '',
+          message,
+          interestedProjectId: effectiveProjectId,
+          interestedPhaseId: phaseId,
+          interestedUnitId: unitId,
+        },
+        data.profile === 'Supplier' && supplierPdf ? { supplierPdf } : undefined
+      )
 
       if (response.success) {
         setIsSuccess(true)
+        setSupplierPdf(null)
         reset(buildEmptyDefaults(projectId))
         if (isInline) {
           setTimeout(() => setIsSuccess(false), 5000)
@@ -369,7 +400,12 @@ export default function LeadInterestForm({
                 exclusive
                 value={field.value}
                 onChange={(_, next) => {
-                  if (next) field.onChange(next)
+                  if (!next) return
+                  field.onChange(next)
+                  if (next !== 'Supplier') {
+                    setSupplierPdf(null)
+                    setSupplierPdfError(null)
+                  }
                 }}
                 fullWidth
                 sx={{
@@ -378,13 +414,16 @@ export default function LeadInterestForm({
                   borderColor: 'divider',
                   borderRadius: 999,
                   overflow: 'hidden',
+                  flexWrap: { xs: 'wrap', sm: 'nowrap' },
                   '& .MuiToggleButton-root': {
                     flex: 1,
                     py: 1.25,
+                    px: { xs: 1, sm: 1.5 },
                     border: 0,
                     borderRadius: 0,
                     textTransform: 'none',
                     fontWeight: 600,
+                    fontSize: { xs: '0.75rem', sm: '0.8125rem' },
                     color: 'text.secondary',
                   },
                   '& .MuiToggleButton-root.Mui-selected': {
@@ -399,6 +438,7 @@ export default function LeadInterestForm({
               >
                 <ToggleButton value="Investor">{t('contact.profileOptions.investor')}</ToggleButton>
                 <ToggleButton value="Customer">{t('contact.profileOptions.customer')}</ToggleButton>
+                <ToggleButton value="Supplier">{t('contact.profileOptions.supplier')}</ToggleButton>
               </ToggleButtonGroup>
             )}
           />
@@ -429,6 +469,36 @@ export default function LeadInterestForm({
             helperText={errors.email?.message}
           />
         </Grid>
+        {isSupplier && (
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+              {t('contact.supplierPdfLabel')}
+            </Typography>
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<UploadFile />}
+              fullWidth
+              sx={{ py: 1.5, justifyContent: 'flex-start', textTransform: 'none' }}
+            >
+              {supplierPdf
+                ? t('contact.supplierPdfSelected', { name: supplierPdf.name })
+                : t('contact.supplierPdfLabel')}
+              <input
+                type="file"
+                hidden
+                accept="application/pdf,.pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null
+                  setSupplierPdf(file)
+                  setSupplierPdfError(file ? validateSupplierPdf(file) : t('contact.supplierPdfRequired'))
+                  e.target.value = ''
+                }}
+              />
+            </Button>
+            <FormHelperText error={!!supplierPdfError}>{supplierPdfError || t('contact.supplierPdfHint')}</FormHelperText>
+          </Grid>
+        )}
         <Grid size={{ xs: 12 }}>
           <TextField
             {...register('phone')}

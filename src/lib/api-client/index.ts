@@ -394,6 +394,96 @@ export async function getProjects() {
   }
 }
 
+function parseSalesforceAggregateCount(record: Record<string, unknown> | undefined): number {
+  if (!record) return 0
+  for (const [key, val] of Object.entries(record)) {
+    if (key === 'attributes') continue
+    if (typeof val === 'number' && Number.isFinite(val)) return val
+    if (typeof val === 'string' && val.trim() !== '' && !Number.isNaN(Number(val))) {
+      return Number(val)
+    }
+  }
+  return 0
+}
+
+export async function getHomePageStats() {
+  const CACHE_KEY = 'binsaedan_home_stats_cache_v2'
+  const CACHE_TTL = 5 * 60 * 1000
+
+  try {
+    const cached = sessionStorage.getItem(CACHE_KEY)
+    if (cached) {
+      const { timestamp, data } = JSON.parse(cached) as {
+        timestamp: number
+        data: { unitsCount: number; projectsCount: number }
+      }
+      if (Date.now() - timestamp < CACHE_TTL) {
+        return { success: true, data }
+      }
+    }
+  } catch (e) {
+    console.warn('[Home Stats] Cache parse error', e)
+    sessionStorage.removeItem(CACHE_KEY)
+  }
+
+  try {
+    const [projectsRes, unitsFetchResult] = await Promise.all([
+      getProjects(),
+      salesforceFetchUnits({ page: 1, pageSize: 1 }),
+    ])
+
+    let projectsCount =
+      projectsRes.success && projectsRes.data ? projectsRes.data.length : 0
+    let unitsCount = 0
+    if (unitsFetchResult.success && unitsFetchResult.data) {
+      unitsCount =
+        unitsFetchResult.data.pagination?.totalCount ??
+        unitsFetchResult.data.units?.length ??
+        0
+    }
+
+    // SOQL COUNT fallback when list/search APIs return empty (e.g. permissions differ per endpoint)
+    if (projectsCount === 0) {
+      try {
+        const projectsCountResult = await salesforceQuery<Record<string, unknown>>(
+          'SELECT COUNT(Id) projectCount FROM Project__c'
+        )
+        projectsCount = parseSalesforceAggregateCount(projectsCountResult.records?.[0])
+      } catch (e) {
+        console.warn('[Home Stats] Project COUNT fallback failed:', e)
+      }
+    }
+
+    if (unitsCount === 0) {
+      try {
+        const unitsCountResult = await salesforceQuery<Record<string, unknown>>(
+          'SELECT COUNT(Id) unitCount FROM Unit__c'
+        )
+        unitsCount = parseSalesforceAggregateCount(unitsCountResult.records?.[0])
+      } catch (e) {
+        console.warn('[Home Stats] Unit COUNT fallback failed:', e)
+      }
+    }
+
+    const data = { unitsCount, projectsCount }
+
+    console.log('[Home Stats] Loaded counts:', data)
+
+    // Avoid caching stale zeros from a partial/failed load
+    if (projectsRes.success || unitsFetchResult.success) {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }))
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error('[Home Stats] Failed to load counts from Salesforce:', error)
+    return {
+      success: false,
+      error: 'Failed to load home page stats from Salesforce',
+    }
+  }
+}
+
 export async function getProject(id: string) {
   console.log('[Project] Fetching project from Salesforce:', id)
 
@@ -696,8 +786,9 @@ export async function searchUnits(filters?: UnitFilters) {
   try {
     const result = await salesforceFetchUnits((filters || {}) as Record<string, unknown>)
 
-    if (result.success && result.data && result.data.units) {
-      const mappedUnits = result.data.units.map(mapSalesforceUnit)
+    if (result.success && result.data) {
+      const rawUnits = result.data.units || []
+      const mappedUnits = rawUnits.map(mapSalesforceUnit)
       console.log('[Units] ✅ Loaded from Salesforce:', mappedUnits.length)
       return {
         success: true,
@@ -926,12 +1017,69 @@ export async function getUnit(id: string) {
   }
 }
 
-// Leads
-export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'source'>) {
-  return fetcher<Lead>('/api/leads', {
-    method: 'POST',
-    body: JSON.stringify(data),
+export type CreateLeadOptions = {
+  supplierPdf?: File
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result !== 'string') {
+        reject(new Error('Failed to read file'))
+        return
+      }
+      const base64 = result.includes(',') ? result.split(',')[1] : result
+      resolve(base64)
+    }
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'))
+    reader.readAsDataURL(file)
   })
+}
+
+// Leads (Salesforce via Netlify Function)
+export async function createLead(
+  data: Omit<Lead, 'id' | 'createdAt' | 'source'>,
+  options?: CreateLeadOptions
+): Promise<ApiResponse<Lead>> {
+  try {
+    const payload: Record<string, unknown> = { ...data, source: 'PWA' }
+
+    if (data.profile === 'Supplier' && options?.supplierPdf) {
+      payload.supplierAttachment = {
+        fileName: options.supplierPdf.name,
+        contentType: options.supplierPdf.type || 'application/pdf',
+        base64: await fileToBase64(options.supplierPdf),
+      }
+    }
+
+    const response = await fetch('/.netlify/functions/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      return { success: false, error: 'Lead submission is unavailable' }
+    }
+
+    const result = (await response.json()) as ApiResponse<Lead>
+    if (!response.ok && result.success !== true) {
+      return {
+        success: false,
+        error: result.error || 'Failed to submit registration',
+      }
+    }
+    return result
+  } catch (error) {
+    console.error('[Leads] createLead error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to submit registration',
+    }
+  }
 }
 
 // Auth
@@ -965,33 +1113,53 @@ export async function getMyOpportunities() {
   return fetcher<MyOpportunity[]>('/.netlify/functions/my-opportunities')
 }
 
-// Cases
-export async function getCases(token?: string) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+// Cases (owner requests — session cookie auth via Netlify Function)
+async function casesFetcher<T>(
+  method: 'GET' | 'POST',
+  body?: Record<string, unknown>
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch('/.netlify/functions/cases', {
+      method,
+      credentials: 'include',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      return { success: false, error: 'Requests service is unavailable' }
+    }
+
+    const result = (await response.json()) as ApiResponse<T>
+    if (!response.ok && result.success !== true) {
+      return {
+        success: false,
+        error: result.error || 'Request failed',
+      }
+    }
+    return result
+  } catch (error) {
+    console.error('[Cases] request error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Request failed',
+    }
   }
-  return fetcher<Case[]>('/api/cases', { headers })
 }
 
-export async function createCase(
-  data: {
-    unitId?: string
-    subject: string
-    category: string
-    description: string
-  },
-  token?: string
-) {
-  const headers: HeadersInit = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-  return fetcher<Case>('/api/cases', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers,
-  })
+export async function getCases() {
+  return casesFetcher<Case[]>('GET')
+}
+
+export async function createCase(data: {
+  unitId?: string
+  projectName?: string
+  subject: string
+  category: string
+  description: string
+}) {
+  return casesFetcher<Case>('POST', data)
 }
 
 /**

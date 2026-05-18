@@ -45,7 +45,7 @@ export default function Community() {
     async function loadData() {
       setIsLoading(true)
       try {
-        const [oppRes, casesRes] = await Promise.all([getMyOpportunities(), getCases(undefined)])
+        const [oppRes, casesRes] = await Promise.all([getMyOpportunities(), getCases()])
 
         if (oppRes.success && oppRes.data) {
           setOpportunities(oppRes.data)
@@ -65,7 +65,7 @@ export default function Community() {
   }, [user, navigate])
 
   const refreshCases = async () => {
-    const casesRes = await getCases(undefined)
+    const casesRes = await getCases()
     if (casesRes.success && casesRes.data) {
       setCases(casesRes.data)
     }

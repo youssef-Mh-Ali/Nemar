@@ -1,12 +1,14 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AppBar, Toolbar, Box, Button, IconButton } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { LogOut, User, Search, ArrowLeft, ArrowRight } from 'lucide-react'
+import { LogOut, MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
 import { logout } from '../../lib/api-client'
-import LanguageToggle from '../ui/LanguageToggle'
 import BrandLogo from './BrandLogo'
+import NavContactActions from './NavContactActions'
+import ContactUsFormModal from './ContactUsFormModal'
 
 /** True when this nav item should show as the current page (nested routes included; home is exact). */
 function isNavPathActive(pathname: string, itemPath: string): boolean {
@@ -20,6 +22,7 @@ export default function Header() {
   const { user, clearAuth } = useAuthStore()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
+  const [contactFormOpen, setContactFormOpen] = useState(false)
 
   const navItems = [
     { path: '/', label: t('common.home') },
@@ -95,7 +98,43 @@ export default function Header() {
           })}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setContactFormOpen(true)}
+            startIcon={<MessageSquare size={16} />}
+            sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.8125rem',
+              borderColor: (theme) => alpha(theme.palette.primary.main, 0.35),
+              color: 'primary.main',
+              '&:hover': {
+                borderColor: 'primary.main',
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+              },
+            }}
+          >
+            {t('common.contact')}
+          </Button>
+          <IconButton
+            onClick={() => setContactFormOpen(true)}
+            aria-label={t('common.contact')}
+            sx={{
+              display: { xs: 'inline-flex', sm: 'none' },
+              color: 'primary.main',
+            }}
+          >
+            <MessageSquare size={20} />
+          </IconButton>
+          <Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
+            <NavContactActions compact />
+          </Box>
+          <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
+            <NavContactActions />
+          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }} onClick={() => i18n.changeLanguage(isRtl ? 'en' : 'ar')}>
             <Box component="span" sx={{ textDecoration: isRtl ? 'underline' : 'none' }}>AR</Box>
             <span>/</span>
@@ -119,6 +158,8 @@ export default function Header() {
           )}
         </Box>
       </Toolbar>
+
+      <ContactUsFormModal open={contactFormOpen} onClose={() => setContactFormOpen(false)} />
     </AppBar>
   )
 }

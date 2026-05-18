@@ -229,3 +229,8 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #718096;
 }
+
+.leaflet-div-icon.project-map-pin {
+  background: transparent;
+  border: none;
+}
