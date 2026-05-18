@@ -1,3 +1,9 @@
+import faisalImg from '../Board members photos/Faisal Bin Saedan.png'
+import osamaImg from '../Board members photos/Ussama Al-dawlty.png'
+import tariqImg from '../Board members photos/Tariq Bin Saedan.png'
+import abdulazizRashidiImg from '../Board members photos/Abd El Aziz Al Rashidy.png'
+import abdulazizSalehImg from '../Board members photos/Abd-el Aziz Saleh.png'
+
 export type BoardMember = {
   nameAr: string
   nameEn: string
@@ -18,7 +24,7 @@ export const boardMembers: BoardMember[] = [
       'رئيس تنفيذي ومؤسس لشركات عقارية واستثمارية، يتمتع بخبرة واسعة في الإدارة والتطوير العقاري، وشغل مناصب قيادية في عدة جهات وشارك في مجالس إدارات وصناديق استثمارية.',
     descriptionEn:
       'Executive leader and founder of real estate and investment companies with broad experience in management and real estate development, and a track record of leadership roles across boards and investment funds.',
-    image: '/images/board/faisal-bin-saedan.jpg',
+    image: faisalImg,
   },
   {
     nameAr: 'أسامة يوسف الدولتلي',
@@ -29,7 +35,7 @@ export const boardMembers: BoardMember[] = [
       'يمتلك خبرة واسعة في التطوير العقاري وإدارة المشاريع، وقاد مشاريع استراتيجية كبرى أسهمت في تعزيز محفظة الشركة بخبرة تنفيذية تتجاوز 25 عاماً.',
     descriptionEn:
       'Seasoned leader in real estate development and project management who has led major strategic initiatives that strengthened the company portfolio, backed by over 25 years of execution experience.',
-    image: '/images/board/osama-aldawtali.jpg',
+    image: osamaImg,
   },
   {
     nameAr: 'طارق بن سعيدان',
@@ -40,7 +46,7 @@ export const boardMembers: BoardMember[] = [
       'يتمتع بخبرة تتجاوز 25 عاماً في إدارة الاستثمارات العقارية وتطوير الأعمال، ويتميز برؤية استراتيجية شاملة وقدرة عالية على تحويل الفرص الاستثمارية إلى مشاريع ذات قيمة مضافة.',
     descriptionEn:
       'Brings 25+ years in real estate investment management and business development, with a strategic outlook and strong capability to transform opportunities into high-value projects.',
-    image: '/images/board/tariq-bin-saedan.jpg',
+    image: tariqImg,
   },
   {
     nameAr: 'عبدالعزيز عوجان الرشيدي',
@@ -51,7 +57,7 @@ export const boardMembers: BoardMember[] = [
       'يمتلك خبرة تتجاوز 25 عاماً في قيادة الاستراتيجيات المالية والاستثمارية، وقاد عمليات تمويل لمشاريع كبيرة وأسهم في تعزيز كفاءة رأس المال وتحقيق نمو مستدام للمجموعة.',
     descriptionEn:
       'Board member with more than 25 years in financial and investment strategy leadership, driving large-scale project financing and capital-efficiency initiatives for sustainable growth.',
-    image: '/images/board/abdulaziz-alrashidi.png',
+    image: abdulazizRashidiImg,
   },
   {
     nameAr: 'عبدالعزيز الفريدي',
@@ -62,7 +68,7 @@ export const boardMembers: BoardMember[] = [
       'قيادي تنفيذي بخبرة تتجاوز 21 عاماً في إدارة المشاريع الكبرى والعمليات الاستراتيجية، مع قدرة متميزة على بناء فرق عالية الأداء وتحويل التحديات إلى فرص نمو.',
     descriptionEn:
       'Executive leader with 21+ years in mega projects and strategic operations, known for building high-performance teams and turning complex challenges into growth opportunities.',
-    image: '/images/board/abdulaziz-alfuraidi.png',
+    image: abdulazizSalehImg,
   },
 ]
 
