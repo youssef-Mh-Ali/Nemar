@@ -36,7 +36,7 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif',
+    fontFamily: '"PP Neue Montreal Arabic", "PP Telegraf", system-ui, sans-serif',
     h1: {
       fontWeight: 600,
       fontSize: '2rem',

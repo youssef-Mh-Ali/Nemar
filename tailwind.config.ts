@@ -5,9 +5,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ["'Playfair Display'", 'Georgia', 'serif'],
-        arabic: ['Tajawal', 'system-ui', 'sans-serif'],
+        sans: ['"PP Telegraf"', 'system-ui', 'sans-serif'],
+        display: ['"PP Telegraf"', 'system-ui', 'sans-serif'],
+        arabic: ['"PP Neue Montreal Arabic"', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: 'hsl(var(--primary))',
