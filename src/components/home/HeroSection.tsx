@@ -228,11 +228,25 @@ export default function HeroSection() {
       )
     }
 
+    let finalIframeUrl = featuredVideo.videoUrl.trim()
+    const separator = finalIframeUrl.includes('?') ? '&' : '?'
+    if (!finalIframeUrl.includes('autoplay=')) {
+      finalIframeUrl += `${separator}autoplay=1&mute=1&playsinline=1`
+    }
+    if (finalIframeUrl.includes('youtube.com') || finalIframeUrl.includes('youtu.be')) {
+      if (!finalIframeUrl.includes('controls=')) {
+        finalIframeUrl += '&controls=0'
+      }
+      if (!finalIframeUrl.includes('loop=')) {
+        finalIframeUrl += '&loop=1'
+      }
+    }
+
     return (
       <VideoCover aspectRatio={aspectRatio} mediaType="iframe">
         <Box
           component="iframe"
-          src={featuredVideo.videoUrl.trim()}
+          src={finalIframeUrl}
           onLoad={() => setIsVideoPlaying(true)}
           sx={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none', display: 'block' }}
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
@@ -295,7 +309,7 @@ export default function HeroSection() {
                   color: '#102d4a',
                   lineHeight: 1.05,
                   letterSpacing: '-0.03em',
-                  textShadow: '0 4px 30px rgba(255,255,255,0.7)',
+                  textShadow: '0 0 20px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.6), 0 0 80px rgba(255,255,255,0.3)',
                 }}
               >
                 {t('home.heroTitle')}<br />{t('home.heroSubtitle')}
@@ -313,7 +327,7 @@ export default function HeroSection() {
                   fontWeight: 500,
                   lineHeight: 1.5,
                   fontSize: { xs: '1rem', md: '1.25rem' },
-                  textShadow: '0 2px 15px rgba(255,255,255,0.8)',
+                  textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.7)',
                 }}
               >
                 {t('home.heroDescription')}
