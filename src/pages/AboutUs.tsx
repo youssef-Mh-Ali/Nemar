@@ -101,7 +101,7 @@ function MemberCard({ member, onClick }: { member: { name: string; title: string
       onClick={onClick}
       sx={(theme) => ({
         cursor: onClick ? 'pointer' : 'default',
-        height: '100%',
+        height: 'calc(100% - 64px)', // Account for mt: 8 (64px) to prevent layout overflow
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '24px',
@@ -394,6 +394,7 @@ export default function AboutUs() {
               position: 'relative',
               height: 60,
               width: '100%',
+              mt: 4, // Add breathing room from the cards above
             }}
           >
             {/* Stem downwards from center card (CEO) */}
