@@ -56,6 +56,31 @@ function getProjectPinIcon(project: Project) {
   return isSoldOut ? soldOutPinIcon : availablePinIcon
 }
 
+function createPOIPinIcon() {
+  return L.divIcon({
+    className: 'poi-map-pin',
+    html: `
+      <div style="display:flex;justify-content:center;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="background:#1a365d;border-radius:50%;padding:4px;border:2px solid white;">
+          <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" fill="white"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    tooltipAnchor: [0, -14],
+  })
+}
+
+const poiIcon = createPOIPinIcon()
+
+const POIs = [
+  { id: 'ruh', lat: 24.9576, lng: 46.6988, nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport' },
+  { id: 'jed', lat: 21.6702, lng: 39.1565, nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport' },
+  { id: 'dmm', lat: 26.4712, lng: 49.7979, nameAr: 'مطار الملك فهد الدولي', nameEn: 'King Fahd International Airport' },
+]
+
+
 // Controller component to handle smooth zoom and bounds fitting
 function MapController({
   selectedRegion,
@@ -353,6 +378,20 @@ export default function ProjectsMapSection() {
                 </Marker>
               )
             })}
+
+            {/* POI Markers */}
+            {(!selectedRegion || selectedRegion === '') && POIs.map((poi) => (
+              <Marker
+                key={poi.id}
+                position={[poi.lat, poi.lng]}
+                icon={poiIcon}
+                zIndexOffset={100} // Keep POIs above standard pins
+              >
+                <Tooltip direction="top" offset={[0, -14]} opacity={0.95}>
+                  <span style={{ fontWeight: 600 }}>{isRtl ? poi.nameAr : poi.nameEn}</span>
+                </Tooltip>
+              </Marker>
+            ))}
           </MapContainer>
 
           {/* Reset Zoom Button Overlay (Bottom Left) */}

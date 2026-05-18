@@ -245,38 +245,19 @@ export default function HeroSection() {
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', pt: { xs: 10, md: 12 }, pb: { xs: 8, md: 4 } }}>
-      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 10, px: { xs: 2, md: 4, lg: 6 } }}>
-        <Grid container spacing={4} alignItems="center" justifyContent="center">
+      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 10, px: { xs: 2, md: 4, lg: 6 }, height: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
+        
+        <Box sx={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', my: { xs: 8, md: 10 } }}>
           
-          {/* Left Column: Main Title */}
-          <Grid item xs={12} md={4} lg={3} sx={{ textAlign: { xs: 'center', md: 'left' } }}>
-            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '3rem', md: '4rem', lg: '5rem' },
-                  fontWeight: 500,
-                  color: '#102d4a',
-                  lineHeight: 1.1,
-                  letterSpacing: '-0.02em',
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {t('home.heroTitle')}{' '}
-                {t('home.heroSubtitle')}
-              </Typography>
-            </motion.div>
-          </Grid>
-
-          {/* Center Column: Video Rectangle */}
-          <Grid item xs={12} md={4} lg={6} sx={{ display: 'flex', justifyContent: 'center', zIndex: 1 }}>
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }} style={{ width: '100%', maxWidth: '550px', aspectRatio: '4/5' }}>
+          {/* Center Square Video */}
+          <Box sx={{ width: { xs: '100%', sm: '80%', md: '500px', lg: '600px' }, aspectRatio: '1/1', position: 'relative', zIndex: 1 }}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: 'easeOut' }} style={{ width: '100%', height: '100%' }}>
               <Box
                 sx={{
                   width: '100%',
                   height: '100%',
                   overflow: 'hidden',
-                  borderRadius: 0, // Sharp corners like the screenshot
+                  borderRadius: 0, // Sharp corners
                   boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                   position: 'relative',
                   bgcolor: '#e2e8f0',
@@ -293,7 +274,7 @@ export default function HeroSection() {
                       height: '100%',
                       background: featuredVideo?.coverImageUrl 
                         ? `url(${featuredVideo.coverImageUrl}) center/cover` 
-                        : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover', // Glass building fallback
+                        : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover',
                     }}
                   />
                 ) : (
@@ -301,10 +282,29 @@ export default function HeroSection() {
                 )}
               </Box>
             </motion.div>
-          </Grid>
+          </Box>
 
-          {/* Right Column: Description */}
-          <Grid item xs={12} md={4} lg={3} sx={{ textAlign: { xs: 'center', md: 'left' }, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%', alignSelf: 'flex-end', pb: { md: 10 } }}>
+          {/* Overlapping Main Title (Absolute to left) */}
+          <Box sx={{ position: 'absolute', left: { xs: 0, md: '2%', lg: '5%' }, top: { xs: '-60px', md: '45%' }, transform: { xs: 'none', md: 'translateY(-50%)' }, zIndex: 10, pointerEvents: 'none', maxWidth: { xs: '100%', md: '650px', lg: '800px' } }}>
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}>
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: { xs: '3rem', sm: '4rem', md: '5.5rem', lg: '7rem' },
+                  fontWeight: 400,
+                  color: '#102d4a',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.03em',
+                  textShadow: '0 4px 30px rgba(255,255,255,0.7)',
+                }}
+              >
+                {t('home.heroTitle')}<br />{t('home.heroSubtitle')}
+              </Typography>
+            </motion.div>
+          </Box>
+
+          {/* Overlapping Description (Absolute to right bottom) */}
+          <Box sx={{ position: 'absolute', right: { xs: 0, md: '2%', lg: '5%' }, bottom: { xs: '-100px', md: '10%' }, zIndex: 10, maxWidth: { xs: '100%', sm: '80%', md: '320px', lg: '380px' }, textAlign: { xs: 'center', md: 'left' } }}>
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}>
               <Typography
                 variant="body1"
@@ -312,23 +312,23 @@ export default function HeroSection() {
                   color: '#102d4a',
                   fontWeight: 500,
                   lineHeight: 1.5,
-                  fontSize: '1.2rem',
+                  fontSize: { xs: '1rem', md: '1.25rem' },
+                  textShadow: '0 2px 15px rgba(255,255,255,0.8)',
                 }}
               >
                 {t('home.heroDescription')}
               </Typography>
             </motion.div>
-          </Grid>
-
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Scroll Down Section */}
-        <Box sx={{ mt: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', color: '#102d4a' }} onClick={scrollToProjects}>
-            <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}>
-              <ChevronDown size={20} />
-            </motion.div>
-            <Typography variant="body2" fontWeight="600" sx={{ letterSpacing: '0.05em' }}>
+        <Box sx={{ position: 'absolute', bottom: { xs: 10, md: 30 }, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#102d4a' }} onClick={scrollToProjects}>
+            <Typography variant="body2" fontWeight="500" sx={{ letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <motion.span animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }} style={{ display: 'inline-block' }}>
+                &darr;
+              </motion.span>
               {t('home.scrollDown', 'Scroll down')}
             </Typography>
           </Box>
