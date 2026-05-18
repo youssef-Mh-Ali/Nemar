@@ -32,6 +32,7 @@ export default function HeroSection() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [instagramEmbedFailed, setInstagramEmbedFailed] = useState(false)
+  const [showFallback, setShowFallback] = useState(true)
   const [aspectRatio, setAspectRatio] = useState<number>(4 / 5)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -247,7 +248,9 @@ export default function HeroSection() {
         <Box
           component="iframe"
           src={finalIframeUrl}
-          onLoad={() => setIsVideoPlaying(true)}
+          onLoad={() => {
+            setTimeout(() => setIsVideoPlaying(true), 500)
+          }}
           sx={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none', display: 'block' }}
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
           allowFullScreen
@@ -261,10 +264,53 @@ export default function HeroSection() {
     <Box sx={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', pt: { xs: 10, md: 12 }, pb: { xs: 8, md: 4 } }}>
       <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 10, px: { xs: 2, md: 4, lg: 6 }, height: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
         
-        <Box sx={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', my: { xs: 8, md: 10 } }}>
+        <Box sx={{ 
+          position: 'relative', 
+          width: '100%', 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          gap: { xs: 8, md: 4, lg: 8 },
+          my: { xs: 8, md: 10 } 
+        }}>
           
-          {/* Center Square Video */}
-          <Box sx={{ width: { xs: '100%', sm: '80%', md: '500px', lg: '600px' }, aspectRatio: '1/1', position: 'relative', zIndex: 1 }}>
+          {/* Main Title & Description */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 4, md: 6 }, flex: 1, zIndex: 10, maxWidth: { xs: '100%', md: '50%' } }}>
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}>
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: { xs: '3rem', sm: '4rem', md: '4rem', lg: '5rem' },
+                  fontWeight: 400,
+                  color: '#102d4a',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.03em',
+                  textShadow: '0 0 20px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.6)',
+                }}
+              >
+                {t('home.heroTitle')}<br />{t('home.heroSubtitle')}
+              </Typography>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#102d4a',
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  fontSize: { xs: '1rem', md: '1.25rem' },
+                  maxWidth: '400px'
+                }}
+              >
+                {t('home.heroDescription')}
+              </Typography>
+            </motion.div>
+          </Box>
+
+          {/* Center Square Video Container */}
+          <Box sx={{ width: { xs: '100%', sm: '80%', md: '450px', lg: '550px' }, aspectRatio: '1/1', position: 'relative', zIndex: 1, flexShrink: 0 }}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: 'easeOut' }} style={{ width: '100%', height: '100%' }}>
               <Box
                 sx={{
@@ -281,57 +327,57 @@ export default function HeroSection() {
                   '& > *': { width: '100%', height: '100%' }
                 }}
               >
-                {!featuredVideo || !featuredVideo.videoUrl || isLoading ? (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      background: featuredVideo?.coverImageUrl 
-                        ? `url(${featuredVideo.coverImageUrl}) center/cover` 
-                        : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover',
-                    }}
-                  />
-                ) : (
-                  renderVideo()
-                )}
+                {/* Fallback Video (Fades out when Salesforce video plays or when it finishes) */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 2,
+                    opacity: showFallback && !isVideoPlaying ? 1 : 0,
+                    transition: 'opacity 0.8s ease',
+                    pointerEvents: 'none',
+                    '& > *': { width: '100%', height: '100%' }
+                  }}
+                >
+                  <VideoCover aspectRatio={1} mediaType="video">
+                    <video
+                      src="/herosectionfallback.mp4"
+                      autoPlay
+                      muted
+                      playsInline
+                      loop={!featuredVideo}
+                      onEnded={() => setShowFallback(false)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </VideoCover>
+                </Box>
+
+                {/* Main Video Component (Fades in) */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 3,
+                    opacity: isVideoPlaying ? 1 : 0,
+                    transition: 'opacity 0.8s ease',
+                    '& > *': { width: '100%', height: '100%' }
+                  }}
+                >
+                  {renderVideo()}
+                </Box>
+
+                {/* Underlay Cover Image */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 1,
+                    background: featuredVideo?.coverImageUrl 
+                      ? `url(${featuredVideo.coverImageUrl}) center/cover` 
+                      : 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop") center/cover',
+                  }}
+                />
               </Box>
-            </motion.div>
-          </Box>
-
-          {/* Overlapping Main Title (Absolute to left) */}
-          <Box sx={{ position: 'absolute', left: { xs: 0, md: '2%', lg: '5%' }, top: { xs: '-60px', md: '45%' }, transform: { xs: 'none', md: 'translateY(-50%)' }, zIndex: 10, pointerEvents: 'none', maxWidth: { xs: '100%', md: '650px', lg: '800px' } }}>
-            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '3rem', sm: '4rem', md: '5.5rem', lg: '7rem' },
-                  fontWeight: 400,
-                  color: '#102d4a',
-                  lineHeight: 1.05,
-                  letterSpacing: '-0.03em',
-                  textShadow: '0 0 20px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.6), 0 0 80px rgba(255,255,255,0.3)',
-                }}
-              >
-                {t('home.heroTitle')}<br />{t('home.heroSubtitle')}
-              </Typography>
-            </motion.div>
-          </Box>
-
-          {/* Overlapping Description (Absolute to right bottom) */}
-          <Box sx={{ position: 'absolute', right: { xs: 0, md: '2%', lg: '5%' }, bottom: { xs: '-100px', md: '10%' }, zIndex: 10, maxWidth: { xs: '100%', sm: '80%', md: '320px', lg: '380px' }, textAlign: { xs: 'center', md: 'left' } }}>
-            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: '#102d4a',
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  fontSize: { xs: '1rem', md: '1.25rem' },
-                  textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.7)',
-                }}
-              >
-                {t('home.heroDescription')}
-              </Typography>
             </motion.div>
           </Box>
         </Box>
