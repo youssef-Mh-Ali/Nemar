@@ -75,11 +75,16 @@ export default function NavContactActions({ compact = false }: NavContactActions
         component="a"
         href={COMPANY_PHONE_TEL}
         size="small"
-        startIcon={<Phone size={16} />}
-        sx={actionButtonSx}
+        sx={{
+          ...actionButtonSx,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}
         aria-label={callLabel}
       >
-        {callLabel}
+        <Phone size={16} />
+        <Box component="span" sx={{ mt: 0.2 }}>{callLabel}</Box>
       </Button>
       <Button
         component="a"
@@ -87,9 +92,11 @@ export default function NavContactActions({ compact = false }: NavContactActions
         target="_blank"
         rel="noopener noreferrer"
         size="small"
-        startIcon={<WhatsAppIcon size={16} />}
         sx={{
           ...actionButtonSx,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
           color: '#128C7E',
           borderColor: alpha('#25D366', 0.35),
           '&:hover': {
@@ -99,7 +106,8 @@ export default function NavContactActions({ compact = false }: NavContactActions
         }}
         aria-label={whatsappLabel}
       >
-        {whatsappLabel}
+        <WhatsAppIcon size={16} />
+        <Box component="span" sx={{ mt: 0.2 }}>{whatsappLabel}</Box>
       </Button>
     </Box>
   )

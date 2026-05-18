@@ -29,7 +29,7 @@ export default function Header() {
     { path: '/about-us', label: t('common.aboutUs') },
     { path: '/achievements', label: t('common.achievements') },
     { path: '/community', label: t('common.community') },
-    { path: '/contact', label: t('common.contact') },
+    { path: '/contact', label: t('common.support', 'Support') },
   ]
 
   const canShowBack = location.pathname !== '/'
@@ -103,9 +103,13 @@ export default function Header() {
             variant="outlined"
             size="small"
             onClick={() => setContactFormOpen(true)}
-            startIcon={<MessageSquare size={16} />}
             sx={{
               display: { xs: 'none', sm: 'inline-flex' },
+              alignItems: 'center',
+              gap: 1,
+              px: 1.5,
+              py: 0.75,
+              borderRadius: 1.5,
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '0.8125rem',
@@ -117,7 +121,8 @@ export default function Header() {
               },
             }}
           >
-            {t('common.contact')}
+            <MessageSquare size={16} />
+            <Box component="span" sx={{ mt: 0.2 }}>{t('common.contact')}</Box>
           </Button>
           <IconButton
             onClick={() => setContactFormOpen(true)}
