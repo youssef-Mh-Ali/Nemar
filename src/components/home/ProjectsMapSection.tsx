@@ -56,13 +56,36 @@ function getProjectPinIcon(project: Project) {
   return isSoldOut ? soldOutPinIcon : availablePinIcon
 }
 
-function createPOIPinIcon() {
+type POIType = 'airport' | 'hospital' | 'university' | 'school'
+
+function createPOIPinIcon(type: POIType) {
+  let svgPath = '';
+  let bgColor = '#1a365d'; // default dark blue for airport
+  
+  switch (type) {
+    case 'airport':
+      svgPath = '<path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" fill="white"/>';
+      break;
+    case 'hospital':
+      bgColor = '#d32f2f'; // Red
+      svgPath = '<path d="M19 3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM13 17H11V13H7V11H11V7H13V11H17V13H13V17Z" fill="white"/>';
+      break;
+    case 'university':
+      bgColor = '#388e3c'; // Green
+      svgPath = '<path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9Z" fill="white"/>';
+      break;
+    case 'school':
+      bgColor = '#f57c00'; // Orange
+      svgPath = '<path d="M12 3L2 12H5V21H19V12H22L12 3ZM12 7.7C13.27 7.7 14.3 8.73 14.3 10C14.3 11.27 13.27 12.3 12 12.3C10.73 12.3 9.7 11.27 9.7 10C9.7 8.73 10.73 7.7 12 7.7ZM16 19H8V15C8 13.68 10.66 13 12 13C13.34 13 16 15V19Z" fill="white"/>';
+      break;
+  }
+
   return L.divIcon({
     className: 'poi-map-pin',
     html: `
       <div style="display:flex;justify-content:center;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="background:#1a365d;border-radius:50%;padding:4px;border:2px solid white;">
-          <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" fill="white"/>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="background:${bgColor};border-radius:50%;padding:4px;border:2px solid white;">
+          ${svgPath}
         </svg>
       </div>
     `,
@@ -72,12 +95,32 @@ function createPOIPinIcon() {
   })
 }
 
-const poiIcon = createPOIPinIcon()
+// Pre-create icons to avoid recreating on each render
+const icons = {
+  airport: createPOIPinIcon('airport'),
+  hospital: createPOIPinIcon('hospital'),
+  university: createPOIPinIcon('university'),
+  school: createPOIPinIcon('school'),
+}
 
-const POIs = [
-  { id: 'ruh', lat: 24.9576, lng: 46.6988, nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport' },
-  { id: 'jed', lat: 21.6702, lng: 39.1565, nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport' },
-  { id: 'dmm', lat: 26.4712, lng: 49.7979, nameAr: 'مطار الملك فهد الدولي', nameEn: 'King Fahd International Airport' },
+const POIs: Array<{ id: string, lat: number, lng: number, nameAr: string, nameEn: string, type: POIType }> = [
+  // Airports
+  { id: 'ruh-airport', lat: 24.9576, lng: 46.6988, nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport', type: 'airport' },
+  { id: 'jed-airport', lat: 21.6702, lng: 39.1565, nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport', type: 'airport' },
+  { id: 'dmm-airport', lat: 26.4712, lng: 49.7979, nameAr: 'مطار الملك فهد الدولي', nameEn: 'King Fahd International Airport', type: 'airport' },
+  
+  // Big Shot Hospitals
+  { id: 'ruh-hospital-1', lat: 24.6725, lng: 46.6783, nameAr: 'مستشفى الملك فيصل التخصصي (الرياض)', nameEn: 'King Faisal Specialist Hospital (Riyadh)', type: 'hospital' },
+  { id: 'jed-hospital-1', lat: 21.5642, lng: 39.1670, nameAr: 'مستشفى الملك فيصل التخصصي (جدة)', nameEn: 'King Faisal Specialist Hospital (Jeddah)', type: 'hospital' },
+  
+  // Big Shot Universities
+  { id: 'ruh-uni-1', lat: 24.7170, lng: 46.6231, nameAr: 'جامعة الملك سعود', nameEn: 'King Saud University', type: 'university' },
+  { id: 'jed-uni-1', lat: 21.4925, lng: 39.2458, nameAr: 'جامعة الملك عبدالعزيز', nameEn: 'King Abdulaziz University', type: 'university' },
+  { id: 'dmm-uni-1', lat: 26.3073, lng: 50.1479, nameAr: 'جامعة الملك فهد للبترول والمعادن', nameEn: 'KFUPM', type: 'university' },
+  
+  // Big Shot Schools
+  { id: 'ruh-school-1', lat: 24.8116, lng: 46.5168, nameAr: 'مدارس مسك', nameEn: 'Misk Schools', type: 'school' },
+  { id: 'jed-school-1', lat: 21.5034, lng: 39.2003, nameAr: 'مدارس دار الفكر', nameEn: 'Dar Al Fikr Schools', type: 'school' },
 ]
 
 
@@ -384,7 +427,7 @@ export default function ProjectsMapSection() {
               <Marker
                 key={poi.id}
                 position={[poi.lat, poi.lng]}
-                icon={poiIcon}
+                icon={icons[poi.type]}
                 zIndexOffset={100} // Keep POIs above standard pins
               >
                 <Tooltip direction="top" offset={[0, -14]} opacity={0.95}>

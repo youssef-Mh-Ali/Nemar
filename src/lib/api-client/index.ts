@@ -226,8 +226,8 @@ async function getProjectNotesAndAttachments(projectId: string) {
   return { notes, attachments }
 }
 
-async function getProjectsCoverImages(projectIds: string[]) {
-  if (projectIds.length === 0) return new Map<string, string>()
+async function getProjectsMedia(projectIds: string[]) {
+  if (projectIds.length === 0) return new Map<string, { heroUrl?: string; logoUrl?: string; defaultUrl?: string; videoUrl?: string }>()
 
   const idsSoql = projectIds.map((id) => `'${id}'`).join(',')
   const linksQuery = `SELECT ContentDocumentId, LinkedEntityId
@@ -237,7 +237,7 @@ async function getProjectsCoverImages(projectIds: string[]) {
   const links = linksResult.records || []
 
   const contentDocumentIds = Array.from(new Set(links.map((l) => l.ContentDocumentId).filter(Boolean)))
-  if (contentDocumentIds.length === 0) return new Map<string, string>()
+  if (contentDocumentIds.length === 0) return new Map<string, { heroUrl?: string; logoUrl?: string; defaultUrl?: string; videoUrl?: string }>()
 
   const docIdsSoql = contentDocumentIds.map((id) => `'${id}'`).join(',')
   const versionsQuery = `SELECT Id, Title, FileExtension, FileType, ContentDocumentId, CreatedDate
@@ -254,32 +254,126 @@ async function getProjectsCoverImages(projectIds: string[]) {
     if (!versionByDocId.has(v.ContentDocumentId)) versionByDocId.set(v.ContentDocumentId, v)
   }
 
-  const isImage = (ext?: string) => {
+  const isMedia = (ext?: string) => {
     const e = (ext || '').toLowerCase()
-    return e === 'png' || e === 'jpg' || e === 'jpeg'
+    return e === 'png' || e === 'jpg' || e === 'jpeg' || e === 'webp' || e === 'mp4' || e === 'webm' || e === 'mov'
   }
 
-  const coverByProjectId = new Map<string, string>()
+  const mediaByProjectId = new Map<string, { 
+    heroUrl?: string; 
+    logoUrl?: string; 
+    defaultUrl?: string; 
+    videoUrl?: string; 
+    topPlanUrl?: string;
+    brochureUrl?: string;
+    gallery?: Array<{ url: string; tagEn: string; tagAr: string; }>;
+  }>()
   for (const link of links) {
     const v = versionByDocId.get(link.ContentDocumentId)
     if (!v) continue
-    if (!isImage(v.FileExtension)) continue
-    if (coverByProjectId.has(link.LinkedEntityId)) continue
-    coverByProjectId.set(
-      link.LinkedEntityId,
-      `/.netlify/functions/salesforce-file?versionId=${encodeURIComponent(v.Id)}`
-    )
+    if (!isMedia(v.FileExtension)) continue
+
+    const projectId = link.LinkedEntityId;
+    if (!mediaByProjectId.has(projectId)) {
+      mediaByProjectId.set(projectId, { gallery: [] })
+    }
+    const media = mediaByProjectId.get(projectId)!;
+
+    const title = (v.Title || '').toLowerCase()
+    const url = `/.netlify/functions/salesforce-file?versionId=${encodeURIComponent(v.Id)}`
+
+    if (title.includes('project-logo') || title.includes('project logo')) {
+      if (!media.logoUrl) media.logoUrl = url;
+    } else if (title.includes('project-hero') || title.includes('project hero')) {
+      if (!media.heroUrl) media.heroUrl = url;
+    } else if (title.includes('project-video-advert') || title.includes('video advert')) {
+      if (!media.videoUrl) media.videoUrl = url;
+    } else if (title.includes('project-top-plan') || title.includes('project top plan')) {
+      if (!media.topPlanUrl) media.topPlanUrl = url;
+    } else if (title.includes('project-brochure') || title.includes('project brochure')) {
+      if (!media.brochureUrl) media.brochureUrl = url;
+    } else if (title.includes('project-gallery') || title.includes('project gallery')) {
+      let tagEn = 'Inspiring Interiors';
+      let tagAr = 'مساحات داخلية تلهمك';
+      
+      if (title.includes('exterior')) {
+        tagEn = 'Amazing Exteriors';
+        tagAr = 'واجهات تأسر الأبصار';
+      } else if (title.includes('kitchen')) {
+        tagEn = 'A Kitchen that Feels Like Home';
+        tagAr = 'مطبخ ينبض بالدفء والسكينة';
+      } else if (title.includes('reception')) {
+        tagEn = 'Welcoming Elegance';
+        tagAr = 'فخامة الاستقبال وحفاوة اللقاء';
+      } else if (title.includes('bedroom')) {
+        tagEn = 'Serene Sanctuaries';
+        tagAr = 'ملاذ السكينة والهدوء';
+      }
+      
+      media.gallery!.push({ url, tagEn, tagAr });
+    } else {
+      if (!media.defaultUrl) media.defaultUrl = url;
+    }
   }
 
-  return coverByProjectId
+  return mediaByProjectId
 }
 
-function pickCoverFromAttachments(attachments: Array<{ fileExtension?: string; url: string }>) {
-  const isImage = (ext?: string) => {
+function pickMediaFromAttachments(attachments: Array<{ title: string; fileExtension?: string; url: string }>) {
+  const isMedia = (ext?: string) => {
     const e = (ext || '').toLowerCase()
-    return e === 'png' || e === 'jpg' || e === 'jpeg'
+    return e === 'png' || e === 'jpg' || e === 'jpeg' || e === 'webp' || e === 'mp4' || e === 'webm' || e === 'mov' || e === 'pdf'
   }
-  return attachments.find((a) => isImage(a.fileExtension))?.url
+  
+  const media: { 
+    heroUrl?: string; 
+    logoUrl?: string; 
+    defaultUrl?: string; 
+    videoUrl?: string; 
+    topPlanUrl?: string; 
+    brochureUrl?: string;
+    gallery: Array<{ url: string; tagEn: string; tagAr: string; }>;
+  } = { gallery: [] }
+  
+  for (const a of attachments) {
+    if (isMedia(a.fileExtension)) {
+      const title = (a.title || '').toLowerCase()
+      if (title.includes('project-logo') || title.includes('project logo')) {
+        if (!media.logoUrl) media.logoUrl = a.url;
+      } else if (title.includes('project-hero') || title.includes('project hero')) {
+        if (!media.heroUrl) media.heroUrl = a.url;
+      } else if (title.includes('project-video-advert') || title.includes('video advert')) {
+        if (!media.videoUrl) media.videoUrl = a.url;
+      } else if (title.includes('project-top-plan') || title.includes('project top plan')) {
+        if (!media.topPlanUrl) media.topPlanUrl = a.url;
+      } else if (title.includes('project-brochure') || title.includes('project brochure')) {
+        if (!media.brochureUrl) media.brochureUrl = a.url;
+      } else if (title.includes('project-gallery') || title.includes('project gallery')) {
+        let tagEn = 'Inspiring Interiors';
+        let tagAr = 'مساحات داخلية تلهمك';
+        
+        if (title.includes('exterior')) {
+          tagEn = 'Amazing Exteriors';
+          tagAr = 'واجهات تأسر الأبصار';
+        } else if (title.includes('kitchen')) {
+          tagEn = 'A Kitchen that Feels Like Home';
+          tagAr = 'مطبخ ينبض بالدفء والسكينة';
+        } else if (title.includes('reception')) {
+          tagEn = 'Welcoming Elegance';
+          tagAr = 'فخامة الاستقبال وحفاوة اللقاء';
+        } else if (title.includes('bedroom')) {
+          tagEn = 'Serene Sanctuaries';
+          tagAr = 'ملاذ السكينة والهدوء';
+        }
+        
+        media.gallery.push({ url: a.url, tagEn, tagAr });
+      } else {
+        if (!media.defaultUrl) media.defaultUrl = a.url;
+      }
+    }
+  }
+  
+  return media;
 }
 
 // Projects
@@ -330,7 +424,7 @@ export async function getProjects() {
     }
 
     const projectIds = sfProjects.map((p) => p.Id)
-    const coverByProjectId = await getProjectsCoverImages(projectIds)
+    const mediaByProjectId = await getProjectsMedia(projectIds)
 
     // Transform to application format
     const mappedProjects = sfProjects.map((p) => {
@@ -345,6 +439,8 @@ export async function getProjects() {
         }
       })()
 
+      const media = mediaByProjectId.get(p.Id) || {}
+
       return {
         id: p.Id,
         name: p.Name,
@@ -353,13 +449,15 @@ export async function getProjects() {
         city: p.City__c?.trim() || undefined,
         location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
-        coverImageUrl: coverByProjectId.get(p.Id) || p.Hero_Image_URL__c || p.Logo_URL__c || '',
-        featuredVideoUrl: '',
+        coverImageUrl: media.heroUrl || media.defaultUrl || p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        featuredVideoUrl: media.videoUrl || '',
         status: 'Active',
         mapCentroidLat: typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined,
         mapCentroidLng: typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined,
         mapGeometryJson,
-        logoUrl: p.Logo_URL__c || '',
+        logoUrl: media.logoUrl || p.Logo_URL__c || '',
+        topPlanUrl: media.topPlanUrl,
+        gallery: media.gallery || [],
         phases: [],
         // UI Helpers (kept for compatibility)
         hasAvailability: availableUnitsCount > 0,
@@ -502,7 +600,7 @@ export async function getProject(id: string) {
     }
 
     const { notes, attachments } = await getProjectNotesAndAttachments(id)
-    const coverFromAttachment = pickCoverFromAttachments(attachments)
+    const media = pickMediaFromAttachments(attachments)
     const availableUnitsCount = Number(p.Available_Units__c || 0)
     const mapCentroidLat = typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined
     const mapCentroidLng = typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined
@@ -524,13 +622,16 @@ export async function getProject(id: string) {
         nameAr: p.Name,
         location: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
         locationAr: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
-        coverImageUrl: coverFromAttachment || p.Hero_Image_URL__c || p.Logo_URL__c || '',
-        featuredVideoUrl: '',
+        coverImageUrl: media.heroUrl || media.defaultUrl || p.Hero_Image_URL__c || p.Logo_URL__c || '',
+        featuredVideoUrl: media.videoUrl || '',
         status: 'Active',
         mapCentroidLat,
         mapCentroidLng,
         mapGeometryJson,
-        logoUrl: p.Logo_URL__c || '',
+        logoUrl: media.logoUrl || p.Logo_URL__c || '',
+        topPlanUrl: media.topPlanUrl,
+        brochureUrl: media.brochureUrl,
+        gallery: media.gallery,
         notes,
         attachments,
         phases: [],

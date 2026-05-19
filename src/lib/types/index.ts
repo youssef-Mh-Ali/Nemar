@@ -19,8 +19,11 @@ export interface Project {
   mapCentroidLng?: number;
   mapGeometryJson?: unknown;
   logoUrl?: string;
+  topPlanUrl?: string;
+  brochureUrl?: string;
   notes?: ProjectNote[];
   attachments?: ProjectAttachment[];
+  gallery?: Array<{ url: string; tagEn: string; tagAr: string; }>;
   phases: Phase[];
 }
 

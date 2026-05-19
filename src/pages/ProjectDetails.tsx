@@ -14,14 +14,22 @@ import {
   Link as MuiLink,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { ArrowRight, FileText, Image as ImageIcon, ExternalLink } from 'lucide-react'
+import { ArrowRight, FileText, Image as ImageIcon, ExternalLink, MapPin, Play } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { getProject } from '../lib/api-client'
 import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
 import OpenStreetProjectMap from '../components/ui/OpenStreetProjectMap'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
+import NearbyAmenities from '../components/project/NearbyAmenities'
+import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
+import CircularGallery from '../components/reactbits/CircularGallery'
+import ProjectGalleryViewer from '../components/project/ProjectGalleryViewer'
 
 type ProjectWithUi = Project & { hasAvailability?: boolean; availablePhasesCount?: number; nameEn?: string; locationEn?: string }
+
+const MotionBox = motion.create(Box)
+const MotionCard = motion.create(Card)
 
 export default function ProjectDetails() {
   const { t, i18n } = useTranslation()
@@ -30,6 +38,10 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<ProjectWithUi | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isBrochureOpen, setIsBrochureOpen] = useState(false)
+  const [galleryViewerOpen, setGalleryViewerOpen] = useState(false)
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null)
+  const [selectedGalleryTag, setSelectedGalleryTag] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -77,170 +89,398 @@ export default function ProjectDetails() {
   }
 
   const notes: ProjectNote[] = project.notes || []
-  const attachments: ProjectAttachment[] = project.attachments || []
+  
+  // Filter out the attachments that are mapped to specific visual spots
+  const attachments: ProjectAttachment[] = (project.attachments || []).filter(a => {
+    const title = (a.title || '').toLowerCase()
+    return !title.includes('project-logo') && 
+           !title.includes('project logo') && 
+           !title.includes('project-video-advert') && 
+           !title.includes('video advert') && 
+           !title.includes('project-top-plan') && 
+           !title.includes('project top plan') && 
+           !title.includes('project-hero') && 
+           !title.includes('project hero') &&
+           !title.includes('project-brochure') &&
+           !title.includes('project brochure')
+  })
+
+  // Determine if video is native
+  const isNativeVideo = project.featuredVideoUrl && 
+                        (project.featuredVideoUrl.endsWith('.mp4') || 
+                         project.featuredVideoUrl.endsWith('.webm') ||
+                         project.featuredVideoUrl.includes('salesforce-file'))
+
+  // Format gallery for CircularGallery
+  const galleryItems = useMemo(() => {
+    return (project.gallery || []).map(g => ({
+      image: g.url,
+      text: i18n.language === 'ar' ? g.tagAr : g.tagEn
+    }));
+  }, [project.gallery, i18n.language]);
+
+  const handleGalleryClick = (clickedMedia: any) => {
+    setSelectedGalleryImage(clickedMedia.image);
+    setSelectedGalleryTag(clickedMedia.text);
+    setGalleryViewerOpen(true);
+  };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f4f7fa', pb: 10 }}>
+      {/* Sticky Header */}
       <Paper
         sx={(theme) => ({
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
           borderBottom: 1,
           borderColor: 'divider',
-          backgroundColor: alpha(theme.palette.background.paper, 0.6),
-          backdropFilter: 'blur(16px)',
+          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: 'blur(20px)',
         })}
         elevation={0}
       >
-        <Container maxWidth="lg" sx={{ py: 1 }}>
+        <Container maxWidth="xl" sx={{ py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Button startIcon={<ArrowRight />} onClick={() => navigate(-1)} sx={{ color: 'text.secondary' }}>
               {t('common.back', 'Back')}
             </Button>
-            <Button component={RouterLink} to={`/search?projectId=${project.id}`} variant="outlined" size="small">
+            <Button component={RouterLink} to={`/search?projectId=${project.id}`} variant="outlined" size="small" sx={{ borderRadius: 8, px: 3 }}>
               {t('home.viewUnits', 'View units')}
             </Button>
           </Box>
         </Container>
       </Paper>
 
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Card
-          sx={(theme) => ({
-            overflow: 'hidden',
-            borderRadius: 2,
-            mb: 3,
-            backgroundColor: alpha(theme.palette.background.paper, 0.6),
-            backdropFilter: 'blur(16px)',
-            border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
-          })}
-        >
-          {project.coverImageUrl ? (
-            <Box
-              component="img"
-              src={project.coverImageUrl}
-              alt={title}
-              sx={{ width: '100%', height: { xs: 220, md: 360 }, objectFit: 'cover', display: 'block' }}
-            />
-          ) : (
-            <Box sx={{ height: { xs: 220, md: 360 }, bgcolor: 'grey.100' }} />
-          )}
-          <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-              <Typography variant="h5" fontWeight="bold">
-                {title}
-              </Typography>
-              {typeof project.availablePhasesCount === 'number' && (
-                <Chip
-                  size="small"
-                  color={project.availablePhasesCount > 0 ? 'success' : 'default'}
-                  label={
-                    project.availablePhasesCount > 0
-                      ? t('home.phasesAvailable', { count: project.availablePhasesCount })
-                      : t('home.soldOut', 'Sold out')
-                  }
-                />
+      {/* Hero Section */}
+      <Box sx={{ position: 'relative', height: { xs: '60vh', md: '75vh' }, minHeight: 400, overflow: 'hidden' }}>
+        <Box 
+          component="img" 
+          src={project.coverImageUrl || '/placeholder.jpg'} 
+          alt={title}
+          sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 100%)' }} />
+
+        {/* Animated Sun Flare 1 */}
+        <MotionBox
+          animate={{
+            opacity: [0.3, 0.7, 0.3],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 8,
+            ease: "easeInOut",
+            repeat: Infinity,
+          }}
+          sx={{
+            position: 'absolute',
+            top: '-20%',
+            right: '-10%',
+            width: { xs: '120vw', md: '60vw' },
+            height: { xs: '120vw', md: '60vw' },
+            background: 'radial-gradient(circle, rgba(255,220,150,0.4) 0%, rgba(255,200,100,0.15) 30%, rgba(255,255,255,0) 70%)',
+            mixBlendMode: 'screen',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Animated Sun Flare 2 */}
+        <MotionBox
+          animate={{
+            opacity: [0.1, 0.5, 0.1],
+            scale: [0.8, 1.1, 0.8],
+          }}
+          transition={{
+            duration: 12,
+            ease: "easeInOut",
+            repeat: Infinity,
+            delay: 2,
+          }}
+          sx={{
+            position: 'absolute',
+            bottom: '10%',
+            left: '-20%',
+            width: { xs: '150vw', md: '80vw' },
+            height: { xs: '150vw', md: '80vw' },
+            background: 'radial-gradient(circle, rgba(255,180,120,0.3) 0%, rgba(255,150,80,0.1) 40%, rgba(255,255,255,0) 70%)',
+            mixBlendMode: 'screen',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+        
+        <Container maxWidth="xl" sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', pb: 6 }}>
+          <MotionBox 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            sx={{ width: '100%', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'flex-start', md: 'flex-end' }, justifyContent: 'space-between', gap: 3 }}
+          >
+            <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+              {project.logoUrl && (
+                <Box 
+                  sx={{ 
+                    width: { xs: 80, md: 120 }, 
+                    height: { xs: 80, md: 120 }, 
+                    bgcolor: 'white', 
+                    borderRadius: 4, 
+                    p: 1.5, 
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.2)' 
+                  }}
+                >
+                  <Box component="img" src={project.logoUrl} alt="Logo" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </Box>
               )}
-            </Box>
-            <Typography variant="body2" color="text.secondary">
-              {location}
-            </Typography>
-            <Box sx={{ mt: 3 }}>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                onClick={() => setIsRegisterModalOpen(true)}
-                sx={{
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 'semibold',
-                }}
-              >
-                {t('home.registerInterest')}
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Box sx={{ mb: 3 }}>
-          <OpenStreetProjectMap
-            centroid={
-              typeof project.mapCentroidLat === 'number' && typeof project.mapCentroidLng === 'number'
-                ? { lat: project.mapCentroidLat, lng: project.mapCentroidLng }
-                : undefined
-            }
-            geometry={project.mapGeometryJson}
-            height={360}
-          />
-        </Box>
-
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card
-              sx={(theme) => ({
-                backgroundColor: alpha(theme.palette.background.paper, 0.6),
-                backdropFilter: 'blur(16px)',
-                border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
-              })}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <FileText size={18} />
-                  <Typography variant="h6" fontWeight="semibold">
-                    {t('project.notes', 'Notes')}
+              <Box>
+                <Typography variant="h2" sx={{ color: 'white', fontWeight: 'bold', textShadow: '0 4px 12px rgba(0,0,0,0.3)', mb: 1, fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
+                  {title}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'rgba(255,255,255,0.9)' }}>
+                  <MapPin size={18} />
+                  <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                    {location}
                   </Typography>
                 </Box>
-                {notes.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
-                    {t('project.noNotes', 'No notes')}
-                  </Typography>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {notes.map((n) => (
-                      <MuiLink key={n.id} href={n.url} target="_blank" rel="noreferrer" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                        <ExternalLink size={16} />
-                        {n.title}
-                      </MuiLink>
-                    ))}
+              </Box>
+            </Box>
+
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => setIsRegisterModalOpen(true)}
+              sx={{
+                py: 2,
+                px: 5,
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                borderRadius: 8,
+                bgcolor: 'white',
+                color: 'primary.main',
+                '&:hover': { bgcolor: 'grey.100' },
+                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+              }}
+            >
+              {t('home.registerInterest')}
+            </Button>
+          </MotionBox>
+        </Container>
+      </Box>
+
+      {/* Main Content */}
+      <Container maxWidth="xl" sx={{ mt: -4, position: 'relative', zIndex: 10 }}>
+        
+        {/* Availability Badge */}
+        {typeof project.availablePhasesCount === 'number' && (
+          <MotionBox initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} sx={{ mb: 4 }}>
+            <Chip
+              size="medium"
+              color={project.availablePhasesCount > 0 ? 'success' : 'default'}
+              label={
+                project.availablePhasesCount > 0
+                  ? t('home.phasesAvailable', { count: project.availablePhasesCount })
+                  : t('home.soldOut', 'Sold out')
+              }
+              sx={{ fontWeight: 'bold', fontSize: '1rem', py: 2.5, px: 2, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+            />
+          </MotionBox>
+        )}
+
+        <Grid container spacing={4}>
+          
+          {/* Left Column: Visuals & Map */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            
+            {/* Video Advert Section */}
+            {project.featuredVideoUrl && (
+              <MotionBox
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                sx={{ mb: 4, position: 'relative', borderRadius: 4, overflow: 'hidden' }}
+              >
+                {/* Animated Gradient Frame */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: -2,
+                    background: 'linear-gradient(45deg, #FF8A00, #E52E71, #FF8A00)',
+                    backgroundSize: '200% 200%',
+                    animation: 'gradient-border 3s ease infinite',
+                    zIndex: 0,
+                    borderRadius: 4,
+                    '@keyframes gradient-border': {
+                      '0%': { backgroundPosition: '0% 50%' },
+                      '50%': { backgroundPosition: '100% 50%' },
+                      '100%': { backgroundPosition: '0% 50%' },
+                    }
+                  }}
+                />
+                
+                {/* Video Container */}
+                <Box sx={{ position: 'relative', zIndex: 1, width: '100%', borderRadius: 'calc(16px - 2px)', overflow: 'hidden', bgcolor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {isNativeVideo ? (
+                    <video src={project.featuredVideoUrl} autoPlay muted loop playsInline controls style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', maxHeight: '80vh' }} />
+                  ) : (
+                    <Box component="iframe" src={project.featuredVideoUrl} sx={{ width: '100%', aspectRatio: '16/9', border: 'none', display: 'block' }} allow="autoplay; encrypted-media; fullscreen" allowFullScreen />
+                  )}
+                </Box>
+              </MotionBox>
+            )}
+
+            {/* Circular Gallery Section */}
+            {galleryItems.length > 0 && (
+              <MotionCard
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                sx={{ mb: 4, borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: '#1a1a1a' }}
+              >
+                <CardContent sx={{ p: 0, position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', top: 24, left: 24, zIndex: 10 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
+                      <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                        <ImageIcon size={24} />
+                      </Box>
+                      <Typography variant="h6" fontWeight="bold">{t('project.gallery', 'Project Gallery')}</Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mt: 1, ml: 1 }}>
+                      {t('project.galleryHint', 'Drag to explore. Click to view.')}
+                    </Typography>
                   </Box>
-                )}
+                  
+                  <Box sx={{ width: '100%', height: { xs: 400, md: 600 } }}>
+                    <CircularGallery 
+                      items={galleryItems} 
+                      bend={3} 
+                      textColor="#ffffff" 
+                      borderRadius={0.05} 
+                      onClick={handleGalleryClick} 
+                    />
+                  </Box>
+                </CardContent>
+              </MotionCard>
+            )}
+
+            {/* Top Plan Section */}
+            {project.topPlanUrl && (
+              <MotionCard
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                sx={{ mb: 4, borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: 'white' }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>Master Plan</Typography>
+                  <Box sx={{ width: '100%', borderRadius: 3, overflow: 'hidden', bgcolor: 'grey.50' }}>
+                    <Box component="img" src={project.topPlanUrl} alt="Top Plan" sx={{ width: '100%', height: 'auto', display: 'block' }} />
+                  </Box>
+                </CardContent>
+              </MotionCard>
+            )}
+
+            {/* Map Section */}
+            <MotionCard
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+              sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: 'white', mb: { xs: 4, lg: 0 } }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>Location</Typography>
+                <Box sx={{ borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
+                  <OpenStreetProjectMap
+                    centroid={
+                      typeof project.mapCentroidLat === 'number' && typeof project.mapCentroidLng === 'number'
+                        ? { lat: project.mapCentroidLat, lng: project.mapCentroidLng }
+                        : undefined
+                    }
+                    geometry={project.mapGeometryJson}
+                    height={400}
+                  />
+                </Box>
+                <NearbyAmenities lat={project.mapCentroidLat} lng={project.mapCentroidLng} />
               </CardContent>
-            </Card>
+            </MotionCard>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card
-              sx={(theme) => ({
-                backgroundColor: alpha(theme.palette.background.paper, 0.6),
-                backdropFilter: 'blur(16px)',
-                border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
-              })}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <ImageIcon size={18} />
-                  <Typography variant="h6" fontWeight="semibold">
-                    {t('project.attachments', 'Attachments')}
-                  </Typography>
-                </Box>
-                {attachments.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
-                    {t('project.noAttachments', 'No attachments')}
-                  </Typography>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {attachments.map((a) => (
-                      <MuiLink key={a.id} href={a.url} target="_blank" rel="noreferrer" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                        <ExternalLink size={16} />
-                        {a.title}
-                      </MuiLink>
-                    ))}
+          {/* Right Column: Details & Attachments */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 100 }}>
+              
+              {/* Notes */}
+              <MotionCard
+                initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                sx={{ borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,0.05)', border: '1px solid rgba(255,255,255,0.8)', bgcolor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)' }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                    <Box sx={{ p: 1, borderRadius: 2, bgcolor: 'primary.50', color: 'primary.main' }}><FileText size={20} /></Box>
+                    <Typography variant="h6" fontWeight="bold">{t('project.notes', 'Notes')}</Typography>
                   </Box>
-                )}
-              </CardContent>
-            </Card>
+                  {notes.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">{t('project.noNotes', 'No notes available')}</Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {notes.map((n) => (
+                        <MuiLink key={n.id} href={n.url} target="_blank" rel="noreferrer" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, borderRadius: 2, bgcolor: 'white', textDecoration: 'none', color: 'text.primary', transition: 'all 0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', color: 'primary.main' } }}>
+                          <FileText size={18} opacity={0.6} />
+                          <Typography variant="body2" fontWeight="medium" sx={{ flexGrow: 1 }}>{n.title}</Typography>
+                          <ExternalLink size={16} opacity={0.4} />
+                        </MuiLink>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </MotionCard>
+
+              {/* Brochure CTA */}
+              {project.brochureUrl && (
+                <MotionCard
+                  initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                  sx={{ borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid rgba(255,255,255,0.8)', bgcolor: 'white', overflow: 'hidden' }}
+                >
+                  <Box sx={{ position: 'relative', p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, rgba(230, 81, 0, 0.05) 0%, rgba(230, 81, 0, 0) 100%)' }}>
+                    <Box sx={{ p: 2, borderRadius: '50%', bgcolor: 'primary.50', color: 'primary.main', mb: 2 }}>
+                      <FileText size={32} />
+                    </Box>
+                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>{t('project.brochure', 'Project Brochure')}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                      {t('project.brochureDesc', 'Explore the interactive digital brochure for full project details.')}
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      fullWidth
+                      onClick={() => setIsBrochureOpen(true)}
+                      sx={{ borderRadius: 8, py: 1.5, fontWeight: 'bold' }}
+                    >
+                      {t('project.viewBrochure', 'View Interactive Brochure')}
+                    </Button>
+                  </Box>
+                </MotionCard>
+              )}
+
+              {/* Attachments */}
+              <MotionCard
+                initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                sx={{ borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,0.05)', border: '1px solid rgba(255,255,255,0.8)', bgcolor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)' }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                    <Box sx={{ p: 1, borderRadius: 2, bgcolor: 'primary.50', color: 'primary.main' }}><ImageIcon size={20} /></Box>
+                    <Typography variant="h6" fontWeight="bold">{t('project.attachments', 'Attachments')}</Typography>
+                  </Box>
+                  {attachments.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">{t('project.noAttachments', 'No attachments available')}</Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {attachments.map((a) => (
+                        <MuiLink key={a.id} href={a.url} target="_blank" rel="noreferrer" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, borderRadius: 2, bgcolor: 'white', textDecoration: 'none', color: 'text.primary', transition: 'all 0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', color: 'primary.main' } }}>
+                          <ImageIcon size={18} opacity={0.6} />
+                          <Typography variant="body2" fontWeight="medium" sx={{ flexGrow: 1 }}>{a.title}</Typography>
+                          <ExternalLink size={16} opacity={0.4} />
+                        </MuiLink>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </MotionCard>
+
+            </Box>
           </Grid>
         </Grid>
       </Container>
@@ -253,7 +493,21 @@ export default function ProjectDetails() {
         fallbackProvinceRegion={project.provinceRegion}
         fallbackCity={project.city}
       />
+
+      {project.brochureUrl && (
+        <ProjectBrochureViewer 
+          open={isBrochureOpen}
+          onClose={() => setIsBrochureOpen(false)}
+          pdfUrl={project.brochureUrl}
+        />
+      )}
+
+      <ProjectGalleryViewer
+        isOpen={galleryViewerOpen}
+        onClose={() => setGalleryViewerOpen(false)}
+        imageUrl={selectedGalleryImage}
+        tagText={selectedGalleryTag}
+      />
     </Box>
   )
 }
-
