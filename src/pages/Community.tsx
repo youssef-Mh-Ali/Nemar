@@ -49,6 +49,7 @@ export default function Community() {
 
         if (oppRes.success && oppRes.data) {
           setOpportunities(oppRes.data)
+          console.log('oppRes.data', oppRes.data)
           setUnits(oppRes.data.flatMap((o) => o.units || []))
         }
         if (casesRes.success && casesRes.data) {
