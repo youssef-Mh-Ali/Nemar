@@ -67,6 +67,15 @@ export default function ProjectDetails() {
     return i18n.language === 'ar' ? project.locationAr : project.location
   }, [project, i18n.language])
 
+  // Format gallery for CircularGallery
+  const galleryItems = useMemo(() => {
+    if (!project) return []
+    return (project.gallery || []).map(g => ({
+      image: g.url,
+      text: i18n.language === 'ar' ? g.tagAr : g.tagEn
+    }))
+  }, [project, i18n.language])
+
   if (isLoading) {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -111,13 +120,6 @@ export default function ProjectDetails() {
                          project.featuredVideoUrl.endsWith('.webm') ||
                          project.featuredVideoUrl.includes('salesforce-file'))
 
-  // Format gallery for CircularGallery
-  const galleryItems = useMemo(() => {
-    return (project.gallery || []).map(g => ({
-      image: g.url,
-      text: i18n.language === 'ar' ? g.tagAr : g.tagEn
-    }));
-  }, [project.gallery, i18n.language]);
 
   const handleGalleryClick = (clickedMedia: any) => {
     setSelectedGalleryImage(clickedMedia.image);
