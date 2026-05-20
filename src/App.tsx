@@ -15,6 +15,8 @@ import ComingSoon from './pages/ComingSoon'
 import AboutUs from './pages/AboutUs'
 import Achievements from './pages/Achievements'
 import LatestReleases from './pages/LatestReleases'
+import News from './pages/News'
+import NewsArticle from './pages/NewsArticle'
 import CollaborationComingSoon from './pages/CollaborationComingSoon'
 import Toast from './components/ui/Toast'
 
@@ -73,6 +75,8 @@ function App() {
           <Route path="about-us" element={<AboutUs />} />
           <Route path="achievements" element={<Achievements />} />
           <Route path="latest-releases" element={<LatestReleases />} />
+          <Route path="news" element={<News />} />
+          <Route path="news/:id" element={<NewsArticle />} />
           <Route path="collaboration-coming-soon" element={<CollaborationComingSoon />} />
           <Route
             path="community"

@@ -8,6 +8,7 @@
     "contact": "Contact Us",
     "support": "Support",
     "latestReleases": "Latest Releases",
+    "news": "News",
     "login": "Login",
     "logout": "Logout",
     "back": "Back",
@@ -461,5 +462,20 @@
     "noNotes": "No notes",
     "attachments": "Attachments",
     "noAttachments": "No attachments"
+  },
+  "news": {
+    "title": "Latest Press Releases and Real Estate News",
+    "readingTime": "Reading time: {{minutes}} minutes",
+    "share": "Share",
+    "followUs": "Follow Us",
+    "relatedPosts": "Related Posts",
+    "backToListings": "Back to listings",
+    "year": "Year",
+    "month": "Month",
+    "businessSegment": "Business Segment",
+    "searchKeywords": "Search keywords",
+    "all": "All",
+    "select": "Select",
+    "empty": "No news articles found."
   }
 }

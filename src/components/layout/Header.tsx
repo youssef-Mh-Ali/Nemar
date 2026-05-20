@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AppBar, Toolbar, Box, Button, IconButton } from '@mui/material'
+import { AppBar, Toolbar, Box, Button, IconButton, Menu, MenuItem } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { LogOut, MessageSquare } from 'lucide-react'
+import { LogOut, MessageSquare, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../lib/store'
 import { logout } from '../../lib/api-client'
@@ -23,11 +23,16 @@ export default function Header() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
   const [contactFormOpen, setContactFormOpen] = useState(false)
+  const [moreMenuAnchor, setMoreMenuAnchor] = useState<null | HTMLElement>(null)
 
-  const navItems = [
+  const mainNavItems = [
     { path: '/', label: t('common.home') },
     { path: '/about-us', label: t('common.aboutUs') },
     { path: '/achievements', label: t('common.achievements') },
+    { path: '/news', label: t('common.news', 'News') },
+  ]
+
+  const moreNavItems = [
     { path: '/latest-releases', label: t('common.latestReleases', 'Latest Releases') },
     { path: '/community', label: t('common.community') },
     { path: '/contact', label: t('common.support', 'Support') },
@@ -64,8 +69,8 @@ export default function Header() {
           </Link>
         </Box>
 
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          {navItems.map((item) => {
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: { md: 2, lg: 4 }, alignItems: 'center', justifyContent: 'center', flexGrow: 1, mx: { md: 2, lg: 4 } }}>
+          {mainNavItems.map((item) => {
             const active = isNavPathActive(location.pathname, item.path)
             return (
               <Box
@@ -97,6 +102,56 @@ export default function Header() {
               </Box>
             )
           })}
+
+          <Box
+            onClick={(e) => setMoreMenuAnchor(e.currentTarget)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              color: 'primary.main',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              '&:hover': { opacity: 0.8 },
+            }}
+          >
+            {t('common.more', 'More')} <ChevronDown size={16} />
+          </Box>
+          <Menu
+            anchorEl={moreMenuAnchor}
+            open={Boolean(moreMenuAnchor)}
+            onClose={() => setMoreMenuAnchor(null)}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                minWidth: 150,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              }
+            }}
+          >
+            {moreNavItems.map((item) => (
+              <MenuItem
+                key={item.path}
+                component={Link}
+                to={item.path}
+                onClick={() => setMoreMenuAnchor(null)}
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                  py: 1.5,
+                  ...(isNavPathActive(location.pathname, item.path) && {
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
+                    fontWeight: 700,
+                  })
+                }}
+              >
+                {item.label}
+              </MenuItem>
+            ))}
+          </Menu>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>

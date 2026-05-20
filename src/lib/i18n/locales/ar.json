@@ -8,6 +8,7 @@
     "contact": "تواصل معنا",
     "support": "الدعم",
     "latestReleases": "احدث اصداراتنا",
+    "news": "اخبارنا",
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
     "back": "رجوع",
@@ -461,5 +462,20 @@
     "noNotes": "لا توجد ملاحظات",
     "attachments": "المرفقات والصور",
     "noAttachments": "لا توجد مرفقات"
+  },
+  "news": {
+    "title": "أحدث البيانات الصحفية والأخبار العقارية",
+    "readingTime": "وقت القراءة: {{minutes}} دقائق",
+    "share": "مشاركة",
+    "followUs": "تابعنا",
+    "relatedPosts": "أخبار ذات صلة",
+    "backToListings": "العودة للقائمة",
+    "year": "السنة",
+    "month": "الشهر",
+    "businessSegment": "قطاع الأعمال",
+    "searchKeywords": "البحث بكلمات مفتاحية",
+    "all": "الكل",
+    "select": "اختر",
+    "empty": "لا توجد أخبار"
   }
 }
