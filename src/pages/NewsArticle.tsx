@@ -61,7 +61,8 @@ export default function NewsArticle() {
     return Math.max(1, Math.ceil(words / 200))
   }
 
-  const readingTime = calculateReadingTime(article?.body || '')
+  const contentHtml = article?.body || (article as any)?.Body__c || (article as any)?.content || (article as any)?.Content__c || ''
+  const readingTime = calculateReadingTime(contentHtml)
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -190,7 +191,7 @@ export default function NewsArticle() {
             '& li': { mb: 1 },
             '& blockquote': { borderLeft: '4px solid', borderColor: 'primary.main', pl: 3, py: 1, my: 4, fontStyle: 'italic', color: 'text.secondary', bgcolor: 'rgba(0,0,0,0.02)' }
           }}
-          dangerouslySetInnerHTML={{ __html: article.body || '' }}
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
 
         <Divider sx={{ my: 8 }} />
