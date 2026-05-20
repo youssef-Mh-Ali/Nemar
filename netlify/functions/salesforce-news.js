@@ -74,17 +74,28 @@ exports.handler = async (event) => {
         }
 
         // Step 2: Forward request to Salesforce NewsArticles REST API
-        const requestParams = new URLSearchParams(event.rawQuery || '');
-        const recordId = requestParams.get('recordId');
+        const queryParams = event.queryStringParameters || {};
+        const recordId = queryParams.recordId;
         
         let sfApiUrl = '';
         if (recordId) {
             // Remove recordId from query params so it's not sent as a regular filter
-            requestParams.delete('recordId');
-            const queryString = requestParams.toString();
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(queryParams)) {
+                if (key !== 'recordId' && value !== undefined) {
+                    params.append(key, value);
+                }
+            }
+            const queryString = params.toString();
             sfApiUrl = `${tokenInstanceUrl}/services/apexrest/NewsArticles/v1/articles/${recordId}${queryString ? '?' + queryString : ''}`;
         } else {
-            const queryString = requestParams.toString();
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(queryParams)) {
+                if (value !== undefined) {
+                    params.append(key, value);
+                }
+            }
+            const queryString = params.toString();
             sfApiUrl = `${tokenInstanceUrl}/services/apexrest/NewsArticles/v1/articles${queryString ? '?' + queryString : ''}`;
         }
 
