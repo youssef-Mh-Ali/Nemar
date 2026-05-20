@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography, Dialog, DialogContent, IconButton } from '@mui/material'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import { alpha } from '@mui/material/styles'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { getBoardMembers, loadMissionVisionMarkdown } from '../lib/about/content'
+import FBSVolumesBackground from '../components/about/FBSVolumesBackground'
+
 
 type MarkdownBlock =
   | { type: 'h2'; text: string }
@@ -92,25 +95,36 @@ function extractVisionMission(blocks: MarkdownBlock[]) {
   return { vision, mission }
 }
 
-function MemberCard({ member }: { member: { name: string; title: string; description: string; image: string } }) {
+function MemberCard({ member, onClick }: { member: { name: string; title: string; description: string; image: string }; onClick?: () => void }) {
   return (
     <Card
+      onClick={onClick}
       sx={(theme) => ({
-        height: '100%',
+        cursor: onClick ? 'pointer' : 'default',
+        height: 'calc(100% - 64px)', // Account for mt: 8 (64px) to prevent layout overflow
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '24px',
-        bgcolor: alpha(theme.palette.background.paper, 0.75),
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${alpha(theme.palette.background.paper, 0.8)}`,
+        bgcolor: alpha(theme.palette.background.paper, 0.85), // More solid, less reliant on blur
+        backdropFilter: 'blur(8px)', // Reduced blur for performance
+        border: `1px solid ${alpha(theme.palette.background.paper, 0.9)}`,
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         overflow: 'visible',
         position: 'relative',
+        mt: 8, // Room for the pop-out head
         '&:hover': {
-          transform: 'translateY(-4px)',
+          transform: 'translateY(-6px)',
           boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.15)}`,
-          bgcolor: alpha(theme.palette.background.paper, 0.95),
+          bgcolor: alpha(theme.palette.background.paper, 0.98),
+          borderColor: alpha(theme.palette.secondary.main, 0.3),
+          '& .morphic-blob': {
+            transform: 'scale(1.05) rotate(3deg)', // Simple transform instead of continuous animation
+          },
+          '& .member-portrait': {
+            transform: 'scale(1.05) translateY(-8px)',
+            filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.15))',
+          }
         },
       })}
     >
@@ -119,52 +133,65 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
           sx={{
             position: 'relative',
             width: '100%',
-            maxWidth: 210,
-            height: 230,
-            mt: 1,
+            maxWidth: 220,
+            height: 250,
+            mt: -9, // Pulls the entire image container up, breaking the top card border!
+            mb: 6, // Compensates for the negative mt, so the card height is preserved and doesn't overlap elements below!
           }}
         >
-          {/* Top Right Bracket Accent */}
+          {/* Glowing Ambient Backdrop (Replaced expensive blur with pure radial gradient) */}
           <Box
             sx={{
               position: 'absolute',
-              top: -8,
-              right: -8,
-              width: 28,
-              height: 28,
-              borderTop: '2px solid',
-              borderRight: '2px solid',
-              borderColor: 'secondary.main',
-              borderTopRightRadius: '6px',
+              bottom: '10%',
+              left: '10%',
+              width: '80%',
+              height: '60%',
+              background: 'radial-gradient(circle, rgba(201,162,39,0.25) 0%, rgba(201,162,39,0.1) 40%, rgba(16,45,74,0) 70%)',
+              zIndex: 0,
             }}
           />
-          {/* Bottom Left Bracket Accent */}
+
+          {/* Morphic Blob Background - Removed continuous animation for performance */}
           <Box
+            className="morphic-blob"
             sx={{
               position: 'absolute',
-              bottom: -8,
-              left: -8,
-              width: 28,
-              height: 28,
-              borderBottom: '2px solid',
-              borderLeft: '2px solid',
-              borderColor: 'secondary.main',
-              borderBottomLeftRadius: '6px',
+              bottom: 0,
+              left: '5%',
+              width: '90%',
+              height: '180px', // Shorter than the container (250px), creating the pop-out base
+              background: 'linear-gradient(135deg, rgba(201,162,39,0.2) 0%, rgba(16,45,74,0.15) 100%)',
+              border: '1px solid rgba(201,162,39,0.4)',
+              boxShadow: 'inset 0 0 20px rgba(255,255,255,0.3)',
+              borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', // Organic shape without animating it
+              zIndex: 1,
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />
-          {/* Portrait Image */}
-          <Box
-            component="img"
+
+          {/* Portrait */}
+          <motion.img
+            className="member-portrait"
             src={member.image}
             alt={member.name}
-            sx={{
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              zIndex: 2,
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center top',
-              borderRadius: '16px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-              bgcolor: 'common.white',
+              objectFit: 'contain',
+              objectPosition: 'bottom center', // Ground the half-body to the bottom of the container
+              filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />
         </Box>
@@ -209,16 +236,6 @@ function MemberCard({ member }: { member: { name: string; title: string; descrip
             {member.title}
           </Typography>
         </Box>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            lineHeight: 1.7,
-            fontSize: '0.85rem',
-          }}
-        >
-          {member.description}
-        </Typography>
       </CardContent>
     </Card>
   )
@@ -229,6 +246,7 @@ export default function AboutUs() {
   const language = i18n.resolvedLanguage || i18n.language
   const [markdown, setMarkdown] = useState('')
   const [loading, setLoading] = useState(true)
+  const [selectedMember, setSelectedMember] = useState<{ name: string; title: string; description: string; image: string } | null>(null)
 
   const members = useMemo(() => getBoardMembers(language), [language])
   const markdownBlocks = useMemo(() => parseMarkdown(markdown), [markdown])
@@ -284,17 +302,19 @@ export default function AboutUs() {
   const finalMission = mission.length > 0 ? mission : language.startsWith('en') ? defaultMissionEn : defaultMissionAr
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent' }}>
-      <Box
-        sx={(theme) => ({
-          bgcolor: alpha(theme.palette.primary.main, 0.8),
-          backdropFilter: 'blur(20px)',
-          color: 'white',
-          px: { xs: 2, md: 3 },
-          py: 6,
-          textAlign: 'center',
-        })}
-      >
+    <Box sx={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <FBSVolumesBackground />
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={(theme) => ({
+            bgcolor: alpha(theme.palette.primary.main, 0.35),
+            backdropFilter: 'blur(20px)',
+            color: 'white',
+            px: { xs: 2, md: 3 },
+            py: 6,
+            textAlign: 'center',
+          })}
+        >
         <Container maxWidth="lg">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Typography variant="h3" fontWeight="bold" gutterBottom>
@@ -361,7 +381,7 @@ export default function AboutUs() {
                   transition={{ delay: index * 0.1 }}
                   style={{ height: '100%' }}
                 >
-                  <MemberCard member={member} />
+                  <MemberCard member={member} onClick={() => setSelectedMember(member)} />
                 </motion.div>
               </Grid>
             ))}
@@ -374,6 +394,7 @@ export default function AboutUs() {
               position: 'relative',
               height: 60,
               width: '100%',
+              mt: 4, // Add breathing room from the cards above
             }}
           >
             {/* Stem downwards from center card (CEO) */}
@@ -514,7 +535,7 @@ export default function AboutUs() {
                   transition={{ delay: 0.3 + index * 0.1 }}
                   style={{ height: '100%' }}
                 >
-                  <MemberCard member={member} />
+                  <MemberCard member={member} onClick={() => setSelectedMember(member)} />
                 </motion.div>
               </Grid>
             ))}
@@ -811,7 +832,55 @@ export default function AboutUs() {
           </Grid>
         </Box>
       </Container>
+      </Box>
+
+      {/* Member Details Modal */}
+      <Dialog
+        open={Boolean(selectedMember)}
+        onClose={() => setSelectedMember(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            bgcolor: 'background.paper',
+            backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)',
+            overflow: 'hidden',
+          }
+        }}
+      >
+        {selectedMember && (
+          <>
+            <Box sx={{ position: 'relative', pt: 6, pb: 4, px: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: alpha('#102d4a', 0.03) }}>
+              <IconButton
+                onClick={() => setSelectedMember(null)}
+                sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(0,0,0,0.05)', '&:hover': { bgcolor: 'rgba(0,0,0,0.1)' } }}
+              >
+                <CloseRoundedIcon />
+              </IconButton>
+              
+              <Box sx={{ position: 'relative', width: 220, height: 250 }}>
+                 <Box sx={{ position: 'absolute', bottom: '10%', left: '10%', width: '80%', height: '60%', background: 'radial-gradient(circle, rgba(201,162,39,0.25) 0%, rgba(201,162,39,0.1) 40%, rgba(16,45,74,0) 70%)', zIndex: 0 }} />
+                 <Box sx={{ position: 'absolute', bottom: 0, left: '5%', width: '90%', height: '180px', background: 'linear-gradient(135deg, rgba(201,162,39,0.2) 0%, rgba(16,45,74,0.15) 100%)', borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', zIndex: 1 }} />
+                 <img src={selectedMember.image} alt={selectedMember.name} style={{ position: 'absolute', bottom: 0, left: 0, zIndex: 2, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))', WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)', maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)' }} />
+              </Box>
+            </Box>
+            <DialogContent sx={{ p: { xs: 3, md: 5 }, pt: { xs: 3, md: 4 }, textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, letterSpacing: '-0.5px' }}>
+                {selectedMember.name}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: 'secondary.main', fontWeight: 600, mb: 3, display: 'inline-block', bgcolor: 'rgba(201, 162, 39, 0.08)', px: 2, py: 0.5, borderRadius: 999 }}>
+                {selectedMember.title}
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.85, fontSize: '1.05rem' }}>
+                {selectedMember.description}
+              </Typography>
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </Box>
   )
 }
+
 

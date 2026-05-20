@@ -43,10 +43,12 @@ export default function OpenStreetProjectMap({
   centroid,
   geometry,
   height = 360,
+  zoom = 13,
 }: {
   centroid?: { lat: number; lng: number }
   geometry?: unknown
   height?: number
+  zoom?: number
 }) {
   const polygons = useMemo(() => {
     if (isPolygon(geometry)) {
@@ -75,7 +77,7 @@ export default function OpenStreetProjectMap({
     <Box sx={{ width: '100%', height, borderRadius: 2, overflow: 'hidden', border: 1, borderColor: 'divider' }}>
       <MapContainer
         center={center}
-        zoom={13}
+        zoom={zoom}
         style={{ width: '100%', height: '100%' }}
         scrollWheelZoom
       >

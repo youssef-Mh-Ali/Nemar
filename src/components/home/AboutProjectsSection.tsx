@@ -158,22 +158,35 @@ export default function AboutProjectsSection() {
                             },
                           }}
                         />
-                        <Chip
-                          label={
-                            project.hasAvailability
-                              ? t('home.phasesAvailable', { count: project.availablePhasesCount })
-                              : t('home.soldOut')
-                          }
-                          color={project.hasAvailability ? 'success' : 'error'}
-                          size="small"
-                          sx={{
-                            position: 'absolute',
-                            top: 16,
-                            right: 16,
-                            backdropFilter: 'blur(4px)',
-                            bgcolor: project.hasAvailability ? 'rgba(46, 125, 50, 0.8)' : 'rgba(211, 47, 47, 0.8)',
-                          }}
-                        />
+                        <Box sx={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 1, alignItems: 'center', zIndex: 10 }}>
+                          {project.logoUrl && (
+                            <Box 
+                              sx={{ 
+                                width: 36, 
+                                height: 36, 
+                                bgcolor: 'white', 
+                                borderRadius: 1.5, 
+                                p: 0.5, 
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)' 
+                              }}
+                            >
+                              <Box component="img" src={project.logoUrl} alt="Logo" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            </Box>
+                          )}
+                          <Chip
+                            label={
+                              project.hasAvailability
+                                ? t('home.phasesAvailable', { count: project.availablePhasesCount })
+                                : t('home.soldOut')
+                            }
+                            color={project.hasAvailability ? 'success' : 'error'}
+                            size="small"
+                            sx={{
+                              backdropFilter: 'blur(4px)',
+                              bgcolor: project.hasAvailability ? 'rgba(46, 125, 50, 0.8)' : 'rgba(211, 47, 47, 0.8)',
+                            }}
+                          />
+                        </Box>
                         <Box
                           sx={{
                             position: 'absolute',
