@@ -117,13 +117,7 @@ export default function ProjectBrochureViewer({ pdfUrl }: ProjectBrochureViewerP
         sx={{ 
           width: '100%', 
           height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          // Override library default backgrounds if necessary to fit our dark theme
-          '& .flippy-container': {
-            bgcolor: 'transparent !important'
-          }
+          bgcolor: 'transparent', // Let wrapper's dark background show through the empty spaces around the book
         }} 
       />
 
