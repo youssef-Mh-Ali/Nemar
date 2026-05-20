@@ -25,6 +25,7 @@ import NearbyAmenities from '../components/project/NearbyAmenities'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
 import CircularGallery from '../components/reactbits/CircularGallery'
 import ProjectGalleryViewer from '../components/project/ProjectGalleryViewer'
+import InteractiveTopPlan from '../components/project/InteractiveTopPlan'
 
 type ProjectWithUi = Project & { hasAvailability?: boolean; availablePhasesCount?: number; nameEn?: string; locationEn?: string }
 
@@ -362,20 +363,7 @@ export default function ProjectDetails() {
               </MotionCard>
             )}
 
-            {/* Top Plan Section */}
-            {project.topPlanUrl && (
-              <MotionCard
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-                sx={{ mb: 4, borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: 'white' }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>Master Plan</Typography>
-                  <Box sx={{ width: '100%', borderRadius: 3, overflow: 'hidden', bgcolor: 'grey.50' }}>
-                    <Box component="img" src={project.topPlanUrl} alt="Top Plan" sx={{ width: '100%', height: 'auto', display: 'block' }} />
-                  </Box>
-                </CardContent>
-              </MotionCard>
-            )}
+
 
             {/* Brochure Section */}
             {project.brochureUrl && (
@@ -424,6 +412,11 @@ export default function ProjectDetails() {
           <Grid size={{ xs: 12, lg: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 100 }}>
               
+              {/* Interactive Master Plan */}
+              {project.topPlanUrl && (
+                <InteractiveTopPlan imageUrl={project.topPlanUrl} />
+              )}
+
               {/* Notes */}
               <MotionCard
                 initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
