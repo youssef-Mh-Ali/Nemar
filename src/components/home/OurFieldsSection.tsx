@@ -48,7 +48,7 @@ export default function OurFieldsSection() {
 
         <Grid container spacing={4}>
           {FIELDS.map((field, index) => (
-            <Grid item xs={12} md={6} key={field.id}>
+            <Grid size={{ xs: 12, md: 6 }} key={field.id}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
