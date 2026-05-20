@@ -3,7 +3,7 @@
     "home": "Home",
     "search": "Search",
     "aboutUs": "About Us",
-    "achievements": "Achievements",
+    "achievements": "Our Achievements",
     "community": "My Community",
     "contact": "Contact Us",
     "support": "Support",
@@ -144,6 +144,18 @@
       "exhibitions": "Exhibitions",
       "drivethrough": "Drive Through",
       "plaza": "Plaza"
+    },
+    "fields": {
+      "title": "Our Fields",
+      "readMore": "Read More →",
+      "residential": {
+        "title": "Residential",
+        "description": "Faisal bin Saedan residential projects provide inspiring havens with sustainable environmental designs that meet all your basic and luxury needs, from internal protection and living services to stunning views, as they are designed to suit your distinctive lifestyle."
+      },
+      "commercial": {
+        "title": "Commercial",
+        "description": "Our carefully selected commercial buildings inspire you to pursue your entrepreneurial dreams, as we provide the ideal starting point for whatever your business growth may be, from retail and entertainment venues to modern office space."
+      }
     }
   },
   "collaboration": {
@@ -165,10 +177,7 @@
     "filterResults": "Filter Results",
     "reset": "Reset",
     "project": "Project",
-    "phase": "Phase",
     "bedrooms": "Number of Rooms",
-    "status": "Status",
-    "deliveryYear": "Delivery Year",
     "priceRange": "Price Range",
     "applyFilters": "Apply Filters",
     "previous": "Previous",
@@ -188,15 +197,11 @@
     "options": {
       "all": "All",
       "allProjects": "All Projects",
-      "allPhases": "All Phases",
       "oneRoom": "1 Room",
       "twoRooms": "2 Rooms",
       "threeRooms": "3 Rooms",
       "fourRooms": "4 Rooms",
       "fivePlusRooms": "5+ Rooms",
-      "available": "Available",
-      "reserved": "Reserved",
-      "sold": "Sold",
       "price": {
         "opt1": "Less than 1 Million SAR",
         "opt2": "1 - 2 Million SAR",
@@ -454,6 +459,22 @@
     "callNow": "Call now",
     "copyright": "Broker Property Management. All rights reserved.",
     "whatsapp": "Chat on WhatsApp"
+  },
+  "latestReleasesPage": {
+    "title": "Latest Releases",
+    "subtitle": "Explore our portfolio of residential and commercial developments across Saudi Arabia.",
+    "status": {
+      "active": "Active",
+      "completed": "Completed"
+    },
+    "count_one": "{{count}} project",
+    "count_other": "{{count}} projects",
+    "empty": {
+      "title": "No projects found",
+      "description": "Check back soon for new releases with available units."
+    },
+    "viewProject": "View project",
+    "noImage": "No image available"
   },
   "project": {
     "notFound": "Project not found",

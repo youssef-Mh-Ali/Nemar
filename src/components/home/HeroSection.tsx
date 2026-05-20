@@ -389,7 +389,6 @@ export default function HeroSection() {
               <motion.span animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }} style={{ display: 'inline-block' }}>
                 &darr;
               </motion.span>
-              {t('home.scrollDown', 'Scroll down')}
             </Typography>
           </Box>
         </Box>

@@ -93,7 +93,9 @@ export default function Search() {
     loadProjects()
   }, [viewMode])
 
-  const activeFiltersCount = Object.values(filters).filter((v) => v !== undefined).length
+  const activeFiltersCount = Object.entries(filters).filter(
+    ([key, value]) => value !== undefined && key !== 'page' && key !== 'pageSize'
+  ).length
 
   const projectLocations = useMemo<ProjectLocation[]>(() => {
     return (projects || [])

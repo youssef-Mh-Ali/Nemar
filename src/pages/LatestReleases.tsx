@@ -1,158 +1,359 @@
-import { useEffect, useState } from 'react'
-import { Container, Typography, Box, Grid, Card, CardContent, CircularProgress, Button } from '@mui/material'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Grid,
+  Skeleton,
+  Typography,
+} from '@mui/material'
+import { alpha } from '@mui/material/styles'
+import { motion } from 'framer-motion'
+import { Building2, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { getProjects } from '../lib/api-client'
 import type { Project } from '../lib/types'
-import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import LazyImage from '../components/ui/LazyImage'
 
-function ProjectCarousel({ project }: { project: Project }) {
-  const { i18n } = useTranslation()
+type ProjectWithAvailability = Project & {
+  hasAvailability?: boolean
+  availablePhasesCount?: number
+}
+
+function getAvailableCount(project: ProjectWithAvailability): number {
+  const fromPhases = project.phases?.filter((p) => p.status === 'Available').length ?? 0
+  if (fromPhases > 0) return fromPhases
+  return project.availablePhasesCount ?? 0
+}
+
+function projectHasAvailability(project: ProjectWithAvailability): boolean {
+  if (project.hasAvailability) return true
+  return getAvailableCount(project) > 0
+}
+
+function ProjectCard({ project, index }: { project: ProjectWithAvailability; index: number }) {
+  const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  // Collect images from coverImageUrl and attachments
-  const images = [
-    project.coverImageUrl,
-    ...(project.attachments?.filter(a => a.fileType?.startsWith('image/') || a.url.match(/\.(jpeg|jpg|gif|png)$/i)).map(a => a.url) || [])
-  ].filter(Boolean)
-
-  if (images.length === 0) {
-    return (
-      <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: 'grey.200', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography color="text.secondary">No images available</Typography>
-      </Box>
-    )
-  }
-
-  const nextSlide = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setCurrentIndex((prev) => (prev + 1) % images.length)
-  }
-
-  const prevSlide = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
-  }
+  const name = isRtl ? project.nameAr : project.name
+  const location = isRtl ? project.locationAr : project.location
+  const description = isRtl ? project.descriptionAr : project.description
+  const available = getAvailableCount(project)
+  const isActive = project.status === 'Active'
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-      <Box
-        component="img"
-        src={images[currentIndex]}
-        alt="Project Image"
-        sx={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s' }}
-      />
-      {images.length > 1 && (
-        <>
-          <Box sx={{ position: 'absolute', top: '50%', left: 8, transform: 'translateY(-50%)', zIndex: 2 }}>
-            <Button
-              onClick={isRtl ? nextSlide : prevSlide}
-              sx={{ minWidth: 0, p: 1, bgcolor: 'rgba(255,255,255,0.8)', color: 'primary.main', '&:hover': { bgcolor: 'white' }, borderRadius: '50%' }}
+    <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.36) }}
+        style={{ height: '100%' }}
+      >
+        <Card
+          component={Link}
+          to={`/project/${project.id}`}
+          sx={(theme) => ({
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            textDecoration: 'none',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            bgcolor: alpha(theme.palette.background.paper, 0.85),
+            backdropFilter: 'blur(16px)',
+            border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+            boxShadow: '0 8px 24px rgba(2, 6, 23, 0.06)',
+            transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+            '&:hover': {
+              transform: 'translateY(-6px)',
+              boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.12)}`,
+            },
+          })}
+        >
+          <Box sx={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', bgcolor: 'grey.100' }}>
+            {project.coverImageUrl ? (
+              <LazyImage
+                src={project.coverImageUrl}
+                alt={name}
+                objectFit="cover"
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  transition: 'transform 0.4s ease',
+                  '.MuiCard-root:hover &': { transform: 'scale(1.04)' },
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'text.secondary',
+                }}
+              >
+                <Typography variant="body2">{t('latestReleasesPage.noImage')}</Typography>
+              </Box>
+            )}
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(to top, rgba(16, 45, 74, 0.75) 0%, rgba(16, 45, 74, 0.15) 45%, transparent 100%)',
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 12,
+                ...(isRtl ? { left: 12 } : { right: 12 }),
+                display: 'flex',
+                gap: 1,
+                flexWrap: 'wrap',
+                justifyContent: isRtl ? 'flex-start' : 'flex-end',
+              }}
             >
-              {isRtl ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
-            </Button>
+              <Chip
+                size="small"
+                label={
+                  isActive
+                    ? t('latestReleasesPage.status.active')
+                    : t('latestReleasesPage.status.completed')
+                }
+                color={isActive ? 'success' : 'default'}
+                sx={{ bgcolor: 'rgba(255,255,255,0.92)', fontWeight: 600 }}
+              />
+              {available > 0 && (
+                <Chip
+                  size="small"
+                  label={t('home.phasesAvailable', { count: available })}
+                  sx={{ bgcolor: 'rgba(255,255,255,0.92)', fontWeight: 600 }}
+                />
+              )}
+            </Box>
+            {project.logoUrl && (
+              <Box
+                component="img"
+                src={project.logoUrl}
+                alt=""
+                sx={{
+                  position: 'absolute',
+                  bottom: 12,
+                  ...(isRtl ? { right: 12 } : { left: 12 }),
+                  height: 36,
+                  maxWidth: 100,
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.35))',
+                }}
+              />
+            )}
           </Box>
-          <Box sx={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', zIndex: 2 }}>
-            <Button
-              onClick={isRtl ? prevSlide : nextSlide}
-              sx={{ minWidth: 0, p: 1, bgcolor: 'rgba(255,255,255,0.8)', color: 'primary.main', '&:hover': { bgcolor: 'white' }, borderRadius: '50%' }}
+
+          <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2.5, gap: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: 'primary.main',
+                lineHeight: 1.3,
+                textAlign: isRtl ? 'right' : 'left',
+              }}
             >
-              {isRtl ? <ArrowLeft size={20} /> : <ArrowRight size={20} />}
+              {name}
+            </Typography>
+            {location && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  color: 'text.secondary',
+                  flexDirection: isRtl ? 'row-reverse' : 'row',
+                  justifyContent: isRtl ? 'flex-end' : 'flex-start',
+                }}
+              >
+                <MapPin size={15} />
+                <Typography variant="body2">{location}</Typography>
+              </Box>
+            )}
+            {description && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  flexGrow: 1,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  lineHeight: 1.6,
+                  textAlign: isRtl ? 'right' : 'left',
+                }}
+              >
+                {description}
+              </Typography>
+            )}
+            <Button
+              variant="text"
+              size="small"
+              sx={{
+                alignSelf: isRtl ? 'flex-end' : 'flex-start',
+                mt: 0.5,
+                px: 0,
+                fontWeight: 600,
+              }}
+            >
+              {t('latestReleasesPage.viewProject')}
             </Button>
-          </Box>
-          <Box sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 1 }}>
-            {images.map((_, i) => (
-              <Box key={i} sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: i === currentIndex ? 'primary.main' : 'rgba(255,255,255,0.6)', transition: 'background-color 0.2s' }} />
-            ))}
-          </Box>
-        </>
-      )}
-    </Box>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </Grid>
+  )
+}
+
+function ProjectCardSkeleton() {
+  return (
+    <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+      <Card sx={{ borderRadius: '20px', overflow: 'hidden' }}>
+        <Skeleton variant="rectangular" sx={{ aspectRatio: '16/10' }} />
+        <CardContent>
+          <Skeleton height={28} width="70%" sx={{ mb: 1 }} />
+          <Skeleton height={20} width="45%" sx={{ mb: 1.5 }} />
+          <Skeleton height={16} />
+          <Skeleton height={16} width="90%" sx={{ mt: 0.5 }} />
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }
 
 export default function LatestReleases() {
   const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
   const isRtl = i18n.language === 'ar'
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<ProjectWithAvailability[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     async function loadProjects() {
       try {
         const res = await getProjects()
-        if (res.success && res.data) {
+        if (!cancelled && res.success && res.data) {
           setProjects(res.data)
         }
       } catch (err) {
         console.error('Failed to load projects', err)
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
-    loadProjects()
+    void loadProjects()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
+  const filteredProjects = useMemo(
+    () => projects.filter(projectHasAvailability),
+    [projects]
+  )
+
+  const countLabel = t('latestReleasesPage.count', { count: filteredProjects.length })
+
   return (
-    <Box sx={{ py: { xs: 12, md: 16 }, minHeight: '100vh', bgcolor: '#f8fafc' }}>
-      <Container maxWidth="xl">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <Typography variant="h1" sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, fontWeight: 600, color: 'primary.main', mb: 2, textAlign: isRtl ? 'right' : 'left' }}>
-            {t('latestReleases', 'Our Latest Releases')}
+    <Box sx={{ minHeight: '100vh', bgcolor: 'transparent', pb: { xs: 6, md: 10 } }}>
+      <Box
+        sx={(theme) => ({
+          bgcolor: alpha(theme.palette.primary.main, 0.85),
+          backdropFilter: 'blur(20px)',
+          color: 'common.white',
+          py: { xs: 5, md: 7 },
+          textAlign: 'center',
+        })}
+      >
+        <Container maxWidth="lg">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+                mb: 1.5,
+                opacity: 0.9,
+              }}
+            >
+              <Building2 size={22} />
+              <Typography variant="overline" sx={{ letterSpacing: '0.2em', fontWeight: 600 }}>
+                {t('common.latestReleases')}
+              </Typography>
+            </Box>
+            <Typography variant="h3" fontWeight={700} gutterBottom>
+              {t('latestReleasesPage.title')}
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'rgba(255,255,255,0.85)',
+                maxWidth: '40rem',
+                mx: 'auto',
+                fontWeight: 400,
+                fontSize: { xs: '1rem', md: '1.15rem' },
+                lineHeight: 1.6,
+              }}
+            >
+              {t('latestReleasesPage.subtitle')}
+            </Typography>
+          </motion.div>
+        </Container>
+      </Box>
+
+      <Container maxWidth="xl" sx={{ pt: { xs: 4, md: 5 }, px: { xs: 2, md: 4 } }}>
+        {!isLoading && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ textAlign: isRtl ? 'left' : 'right', mb: 3 }}
+          >
+            {countLabel}
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 8, maxWidth: '800px', textAlign: isRtl ? 'right' : 'left', fontSize: '1.1rem' }}>
-            {isRtl 
-              ? 'اكتشف أحدث مشاريعنا العقارية المصممة لتلبية تطلعاتك بأعلى معايير الجودة والابتكار.' 
-              : 'Discover our latest real estate projects designed to meet your aspirations with the highest standards of quality and innovation.'}
-          </Typography>
-        </motion.div>
+        )}
 
         {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-            <CircularProgress />
+          <Grid container spacing={3}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ProjectCardSkeleton key={i} />
+            ))}
+          </Grid>
+        ) : filteredProjects.length === 0 ? (
+          <Box
+            sx={(theme) => ({
+              textAlign: 'center',
+              py: 10,
+              px: 3,
+              borderRadius: 3,
+              bgcolor: alpha(theme.palette.background.paper, 0.6),
+              border: `1px dashed ${alpha(theme.palette.divider, 0.4)}`,
+            })}
+          >
+            <Building2 size={48} style={{ opacity: 0.35, marginBottom: 16 }} />
+            <Typography variant="h6" color="primary.main" gutterBottom>
+              {t('latestReleasesPage.empty.title')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 360, mx: 'auto' }}>
+              {t('latestReleasesPage.empty.description')}
+            </Typography>
           </Box>
         ) : (
-          <Grid container spacing={4}>
-            {projects.map((project, index) => (
-              <Grid item xs={12} md={6} lg={4} key={project.id}>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.1 }} style={{ height: '100%' }}>
-                  <Card 
-                    sx={{ 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      cursor: 'pointer',
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                    onClick={() => navigate(`/project/${project.id}`)}
-                  >
-                    <ProjectCarousel project={project} />
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                        <Typography variant="h3" sx={{ fontSize: '1.25rem', fontWeight: 600, color: 'primary.main' }}>
-                          {isRtl ? project.nameAr : project.name}
-                        </Typography>
-                        {project.logoUrl && (
-                          <Box component="img" src={project.logoUrl} alt="Logo" sx={{ height: 32, objectFit: 'contain', ml: 2 }} />
-                        )}
-                      </Box>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {isRtl ? project.locationAr : project.location}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {isRtl ? project.descriptionAr : project.description}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </Grid>
+          <Grid container spacing={3}>
+            {filteredProjects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </Grid>
         )}

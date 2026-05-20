@@ -783,8 +783,14 @@ function mapSalesforceUnit(sfUnit: SalesforceUnitDTO): Unit {
 export async function searchUnits(filters?: UnitFilters) {
   console.log('[Units] Searching units from Salesforce...')
 
+  const availableOnlyFilters: UnitFilters = {
+    ...(filters || {}),
+    status: 'Available',
+    phaseId: undefined,
+  }
+
   try {
-    const result = await salesforceFetchUnits((filters || {}) as Record<string, unknown>)
+    const result = await salesforceFetchUnits(availableOnlyFilters as Record<string, unknown>)
 
     if (result.success && result.data) {
       const rawUnits = result.data.units || []
