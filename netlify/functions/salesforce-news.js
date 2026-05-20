@@ -105,6 +105,12 @@ exports.handler = async (event) => {
                 body: JSON.stringify({ sfApiUrl, recordId, queryParams })
             };
         }
+        if (queryParams.__token === 'true') {
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ accessToken })
+            };
+        }
 
         console.log('[Salesforce News Function] Calling SF API:', sfApiUrl);
 
