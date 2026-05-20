@@ -99,19 +99,6 @@ exports.handler = async (event) => {
             sfApiUrl = `${tokenInstanceUrl}/services/apexrest/NewsArticles/v1/articles${queryString ? '?' + queryString : ''}`;
         }
 
-        if (queryParams.__debug === 'true') {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ sfApiUrl, recordId, queryParams })
-            };
-        }
-        if (queryParams.__token === 'true') {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ accessToken })
-            };
-        }
-
         console.log('[Salesforce News Function] Calling SF API:', sfApiUrl);
 
         try {
