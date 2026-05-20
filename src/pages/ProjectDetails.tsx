@@ -385,27 +385,6 @@ export default function ProjectDetails() {
               </MotionCard>
             )}
 
-            {/* Map Section */}
-            <MotionCard
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-              sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: 'white', mb: { xs: 4, lg: 0 } }}
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>Location</Typography>
-                <Box sx={{ borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
-                  <OpenStreetProjectMap
-                    centroid={
-                      typeof project.mapCentroidLat === 'number' && typeof project.mapCentroidLng === 'number'
-                        ? { lat: project.mapCentroidLat, lng: project.mapCentroidLng }
-                        : undefined
-                    }
-                    geometry={project.mapGeometryJson}
-                    height={400}
-                  />
-                </Box>
-                <NearbyAmenities lat={project.mapCentroidLat} lng={project.mapCentroidLng} />
-              </CardContent>
-            </MotionCard>
           </Grid>
 
           {/* Right Column: Details & Attachments */}
@@ -416,6 +395,29 @@ export default function ProjectDetails() {
               {project.topPlanUrl && (
                 <InteractiveTopPlan imageUrl={project.topPlanUrl} />
               )}
+
+              {/* Map Section (Location) */}
+              <MotionCard
+                initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+                sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', border: '1px solid rgba(255,255,255,0.8)', bgcolor: 'white' }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>{t('project.location', 'Location')}</Typography>
+                  <Box sx={{ borderRadius: 3, overflow: 'hidden', position: 'relative', mb: 3 }}>
+                    <OpenStreetProjectMap
+                      centroid={
+                        typeof project.mapCentroidLat === 'number' && typeof project.mapCentroidLng === 'number'
+                          ? { lat: project.mapCentroidLat, lng: project.mapCentroidLng }
+                          : undefined
+                      }
+                      geometry={project.mapGeometryJson}
+                      height={300}
+                      zoom={16}
+                    />
+                  </Box>
+                  <NearbyAmenities lat={project.mapCentroidLat} lng={project.mapCentroidLng} />
+                </CardContent>
+              </MotionCard>
 
               {/* Notes */}
               <MotionCard

@@ -73,9 +73,9 @@ export default function InteractiveTopPlan({ imageUrl }: InteractiveTopPlanProps
             variant="contained" 
             fullWidth 
             onClick={() => setIsFullscreen(true)}
-            startIcon={<Move size={16} />}
-            sx={{ borderRadius: 8, fontWeight: 'bold' }}
+            sx={{ borderRadius: 8, fontWeight: 'bold', display: 'flex', gap: 1 }}
           >
+            <Move size={16} />
             Interactive View
           </Button>
         </CardContent>
