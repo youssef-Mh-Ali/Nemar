@@ -1,25 +1,22 @@
 /**
- * Netlify Function: Salesforce File Proxy
+ * Netlify Function: Salesforce File Proxy (v2)
  * Proxies a Salesforce ContentVersion VersionData binary to the client.
+ * Uses Web API Response stream to bypass the 6MB payload limit for large PDFs.
  *
  * Usage:
  *   /.netlify/functions/salesforce-file?versionId=068XXXXXXXXXXXXXXX
  */
-exports.handler = async (event) => {
-  if (event.httpMethod !== "GET") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
+export default async (req) => {
+  if (req.method !== "GET") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
   try {
-    const versionId = event.queryStringParameters?.versionId;
+    const url = new URL(req.url);
+    const versionId = url.searchParams.get("versionId");
+    
     if (!versionId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "versionId is required" }),
-      };
+      return new Response(JSON.stringify({ error: "versionId is required" }), { status: 400 });
     }
 
     // Get Salesforce credentials from environment variables
@@ -30,10 +27,7 @@ exports.handler = async (event) => {
 
     if (!clientId || !clientSecret || !tokenUrl) {
       console.error("[Salesforce File Function] Missing credentials");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Salesforce credentials not configured" }),
-      };
+      return new Response(JSON.stringify({ error: "Salesforce credentials not configured" }), { status: 500 });
     }
 
     // Step 1: Get access token
@@ -52,10 +46,7 @@ exports.handler = async (event) => {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error("[Salesforce File Function] Token request failed:", tokenResponse.status, errorText);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Failed to authenticate with Salesforce" }),
-      };
+      return new Response(JSON.stringify({ error: "Failed to authenticate with Salesforce" }), { status: 500 });
     }
 
     const tokenData = await tokenResponse.json();
@@ -64,16 +55,11 @@ exports.handler = async (event) => {
 
     if (!accessToken || !tokenInstanceUrl) {
       console.error("[Salesforce File Function] Invalid token response");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Invalid token response from Salesforce" }),
-      };
+      return new Response(JSON.stringify({ error: "Invalid token response from Salesforce" }), { status: 500 });
     }
 
     // Step 2: Fetch VersionData (binary)
-    const sfUrl = `${tokenInstanceUrl}/services/data/v59.0/sobjects/ContentVersion/${encodeURIComponent(
-      versionId
-    )}/VersionData`;
+    const sfUrl = `${tokenInstanceUrl}/services/data/v59.0/sobjects/ContentVersion/${encodeURIComponent(versionId)}/VersionData`;
 
     const sfResponse = await fetch(sfUrl, {
       method: "GET",
@@ -85,31 +71,24 @@ exports.handler = async (event) => {
     if (!sfResponse.ok) {
       const errorText = await sfResponse.text();
       console.error("[Salesforce File Function] VersionData fetch failed:", sfResponse.status, errorText);
-      return {
-        statusCode: sfResponse.status,
-        body: JSON.stringify({ error: "Failed to fetch file from Salesforce" }),
-      };
+      return new Response(JSON.stringify({ error: "Failed to fetch file from Salesforce" }), { status: sfResponse.status });
     }
 
-    const arrayBuffer = await sfResponse.arrayBuffer();
-    const contentType = sfResponse.headers.get("content-type") || "application/octet-stream";
-
-    return {
-      statusCode: 200,
+    // Proxy the stream directly to bypass the 6MB limit
+    return new Response(sfResponse.body, {
+      status: 200,
       headers: {
-        "Content-Type": contentType,
-        // Cache for a short period to reduce load; safe because VersionData is immutable for a versionId
+        "Content-Type": sfResponse.headers.get("content-type") || "application/octet-stream",
         "Cache-Control": "public, max-age=300",
-      },
-      body: Buffer.from(arrayBuffer).toString("base64"),
-      isBase64Encoded: true,
-    };
+      }
+    });
+
   } catch (error) {
     console.error("[Salesforce File Function] Unexpected error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
-    };
+    return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };
 
+export const config = {
+  path: "/.netlify/functions/salesforce-file"
+};
