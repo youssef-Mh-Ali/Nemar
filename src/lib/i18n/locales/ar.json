@@ -246,7 +246,7 @@
     "casesCount": "طلباتي",
     "paymentPlan": "خطة الدفع",
     "fullyPaid": "مدفوعة بالكامل",
-    "newRequest": "+ طلب جديد",
+    "newRequest": "طلب جديد",
     "noRequests": "لا توجد طلبات",
     "deliveryDate": "التسليم: {{date}}"
   },

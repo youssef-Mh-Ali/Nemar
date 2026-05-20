@@ -16,7 +16,7 @@ export default function OurFieldsSection() {
       titleAr: 'المشاريع السكنية',
       descEn: 'Faisal bin Saedan residential projects provide inspiring havens with sustainable environmental designs that meet all your basic and luxury needs, from internal protection and living services to stunning views, as they are designed to suit your distinctive lifestyle.',
       descAr: 'توفر مشاريع فيصل بن سعيدان السكنية ملاذات ملهمة بتصاميم بيئية مستدامة تلبي جميع احتياجاتك الأساسية والفاخرة، صُممت لتناسب أسلوب حياتك المميز.',
-      link: '/search?type=residential'
+      link: '/search?view=projects'
     },
     {
       id: 'commercial',
@@ -25,7 +25,7 @@ export default function OurFieldsSection() {
       titleAr: 'المشاريع التجارية',
       descEn: 'Our carefully selected commercial buildings inspire you to pursue your entrepreneurial dreams, as we provide the ideal starting point for whatever your business growth may be, from retail and entertainment venues to modern office space.',
       descAr: 'تلهمك مبانينا التجارية المختارة بعناية لتحقيق أحلامك الريادية، حيث نوفر نقطة الانطلاق المثالية لنمو أعمالك، من مساحات التجزئة والترفيه إلى المساحات المكتبية الحديثة.',
-      link: '/search?type=commercial'
+      link: '/search?view=projects'
     }
   ]
 

@@ -343,7 +343,7 @@
     "casesCount": "My Requests",
     "paymentPlan": "Payment Plan",
     "fullyPaid": "Fully Paid",
-    "newRequest": "+ New Request",
+    "newRequest": "New Request",
     "noRequests": "No Requests",
     "deliveryDate": "Delivery: {{date}}"
   },

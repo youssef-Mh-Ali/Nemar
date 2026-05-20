@@ -1,4 +1,4 @@
-const { pickId, pickSfLookup } = require('../lib/sf-pick-id.cjs')
+import { pickId, pickSfLookup } from '../lib/sf-pick-id.cjs'
 
 /**
  * Netlify Function: Owner support requests (Salesforce Case)
@@ -10,6 +10,8 @@ const { pickId, pickSfLookup } = require('../lib/sf-pick-id.cjs')
  * - SALESFORCE_* credentials, SESSION_JWT_SECRET
  * - SALESFORCE_CASE_UNIT_FIELD (default Unit__c)
  * - SALESFORCE_CASE_CATEGORY_FIELD (default Type)
+ * - SALESFORCE_CASE_MOBILE_FIELD (default Mobile_Number__c)
+ * - SALESFORCE_CONTACT_MOBILE_FIELD (optional Contact field to prefer)
  * - SALESFORCE_CASE_ORIGIN (default PWA)
  */
 
@@ -149,6 +151,34 @@ async function verifySession(event) {
   }
 
   return contactId
+}
+
+async function getContactMobile(instanceUrl, accessToken, contactId) {
+  const preferred = process.env.SALESFORCE_CONTACT_MOBILE_FIELD
+  const fieldSets = [
+    preferred ? [preferred, 'MobilePhone', 'Phone'] : null,
+    ['MobilePhone', 'Phone', 'Mobile_Number__c'],
+    ['MobilePhone', 'Phone'],
+  ].filter(Boolean)
+
+  for (const fields of fieldSets) {
+    const unique = [...new Set(fields)]
+    try {
+      const soql = `SELECT ${unique.join(', ')} FROM Contact WHERE Id = '${contactId}' LIMIT 1`
+      const res = await sfQuery(instanceUrl, accessToken, soql)
+      const record = (res.records || [])[0]
+      if (!record) return ''
+      for (const field of unique) {
+        const value = String(record[field] || '').trim()
+        if (value) return value
+      }
+      return ''
+    } catch {
+      // Field may not exist in org — try next set
+    }
+  }
+
+  return ''
 }
 
 function mapStatus(sfStatus) {
@@ -382,7 +412,17 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
   const unitField = process.env.SALESFORCE_CASE_UNIT_FIELD || 'Unit__c'
   const projectField = process.env.SALESFORCE_CASE_PROJECT_FIELD || 'Project__c'
   const categoryField = process.env.SALESFORCE_CASE_CATEGORY_FIELD || 'Type'
+  const mobileField = process.env.SALESFORCE_CASE_MOBILE_FIELD || 'Mobile_Number__c'
   const origin = process.env.SALESFORCE_CASE_ORIGIN || 'PWA'
+
+  const mobileNumber = await getContactMobile(instanceUrl, accessToken, contactId)
+  if (!mobileNumber) {
+    const err = new Error(
+      'Your account has no mobile number on file. Please contact support to update your profile.'
+    )
+    err.statusCode = 400
+    throw err
+  }
 
   const { unitIds, unitToProject } = await getOwnerUnitsContext(instanceUrl, accessToken, contactId)
 
@@ -421,6 +461,7 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
     Status: 'New',
     Origin: origin,
     [projectField]: projectName,
+    [mobileField]: mobileNumber,
   }
 
   if (unitId) payload[unitField] = unitId
@@ -432,6 +473,7 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
   try {
     createResult = await sfCreate(instanceUrl, accessToken, objectName, payload)
   } catch (firstError) {
+    console.error('[cases] Error creating case:', firstError)
     const fallback = {
       ContactId: contactId,
       Subject: subject,
@@ -439,6 +481,7 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
       Status: 'New',
       Origin: origin,
       [projectField]: projectName,
+      [mobileField]: mobileNumber,
     }
     if (unitId) fallback[unitField] = unitId
     console.warn('[cases] Retrying with core fields:', firstError.message)
@@ -476,7 +519,7 @@ async function createCaseRecord(instanceUrl, accessToken, contactId, body) {
   }
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const contactId = await verifySession(event)
     const { accessToken, instanceUrl } = await getSalesforceAccessToken()
