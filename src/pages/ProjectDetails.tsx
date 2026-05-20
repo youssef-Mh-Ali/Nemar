@@ -38,7 +38,6 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<ProjectWithUi | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
-  const [isBrochureOpen, setIsBrochureOpen] = useState(false)
   const [galleryViewerOpen, setGalleryViewerOpen] = useState(false)
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null)
   const [selectedGalleryTag, setSelectedGalleryTag] = useState<string | null>(null)
@@ -376,6 +375,26 @@ export default function ProjectDetails() {
               </MotionCard>
             )}
 
+            {/* Brochure Section */}
+            {project.brochureUrl && (
+              <MotionCard
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                sx={{ mb: 4, borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.5)', bgcolor: '#1a1a1a' }}
+              >
+                <CardContent sx={{ p: 0, position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', top: 24, left: 24, zIndex: 10, pointerEvents: 'none' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
+                      <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                        <FileText size={24} />
+                      </Box>
+                      <Typography variant="h6" fontWeight="bold">{t('project.brochure', 'Project Brochure')}</Typography>
+                    </Box>
+                  </Box>
+                  <ProjectBrochureViewer pdfUrl={project.brochureUrl} />
+                </CardContent>
+              </MotionCard>
+            )}
+
             {/* Map Section */}
             <MotionCard
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
@@ -429,32 +448,6 @@ export default function ProjectDetails() {
                 </CardContent>
               </MotionCard>
 
-              {/* Brochure CTA */}
-              {project.brochureUrl && (
-                <MotionCard
-                  initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                  sx={{ borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid rgba(255,255,255,0.8)', bgcolor: 'white', overflow: 'hidden' }}
-                >
-                  <Box sx={{ position: 'relative', p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, rgba(230, 81, 0, 0.05) 0%, rgba(230, 81, 0, 0) 100%)' }}>
-                    <Box sx={{ p: 2, borderRadius: '50%', bgcolor: 'primary.50', color: 'primary.main', mb: 2 }}>
-                      <FileText size={32} />
-                    </Box>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>{t('project.brochure', 'Project Brochure')}</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                      {t('project.brochureDesc', 'Explore the interactive digital brochure for full project details.')}
-                    </Typography>
-                    <Button 
-                      variant="contained" 
-                      color="primary" 
-                      fullWidth
-                      onClick={() => setIsBrochureOpen(true)}
-                      sx={{ borderRadius: 8, py: 1.5, fontWeight: 'bold' }}
-                    >
-                      {t('project.viewBrochure', 'View Interactive Brochure')}
-                    </Button>
-                  </Box>
-                </MotionCard>
-              )}
 
               {/* Attachments */}
               <MotionCard
@@ -496,13 +489,6 @@ export default function ProjectDetails() {
         fallbackCity={project.city}
       />
 
-      {project.brochureUrl && (
-        <ProjectBrochureViewer 
-          open={isBrochureOpen}
-          onClose={() => setIsBrochureOpen(false)}
-          pdfUrl={project.brochureUrl}
-        />
-      )}
 
       <ProjectGalleryViewer
         isOpen={galleryViewerOpen}

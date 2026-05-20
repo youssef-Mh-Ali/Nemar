@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { 
-  Dialog, 
-  IconButton, 
   Box, 
   CircularProgress,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material';
-import { X, Maximize, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Maximize, Minimize } from 'lucide-react';
 import { Flipbook, setWorkerSrc } from 'flippy-pdf';
 import 'flippy-pdf/style.css';
 import workerUrl from 'flippy-pdf/worker?url';
@@ -16,20 +15,38 @@ import { useTranslation } from 'react-i18next';
 setWorkerSrc(workerUrl);
 
 interface ProjectBrochureViewerProps {
-  open: boolean;
-  onClose: () => void;
   pdfUrl: string;
 }
 
-export default function ProjectBrochureViewer({ open, onClose, pdfUrl }: ProjectBrochureViewerProps) {
+export default function ProjectBrochureViewer({ pdfUrl }: ProjectBrochureViewerProps) {
   const { t } = useTranslation();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const flipbookRef = useRef<Flipbook | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    if (!open || !containerRef.current || !pdfUrl) return;
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      wrapperRef.current?.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    if (!containerRef.current || !pdfUrl) return;
 
     setIsLoading(true);
     setError(null);
@@ -58,18 +75,19 @@ export default function ProjectBrochureViewer({ open, onClose, pdfUrl }: Project
       fb.destroy();
       flipbookRef.current = null;
     };
-  }, [open, pdfUrl]);
+  }, [pdfUrl]);
 
   return (
-    <Dialog
-      fullScreen
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          bgcolor: '#1a1a1a', // Dark theme for better contrast with pages
-          overflow: 'hidden'
-        }
+    <Box 
+      ref={wrapperRef}
+      sx={{ 
+        width: '100%', 
+        height: isFullscreen ? '100vh' : { xs: 400, md: 600 },
+        position: 'relative',
+        bgcolor: '#1a1a1a',
+        borderRadius: isFullscreen ? 0 : 4,
+        overflow: 'hidden',
+        boxShadow: isFullscreen ? 'none' : '0 10px 30px rgba(0,0,0,0.1)'
       }}
     >
       {/* Top Toolbar */}
@@ -81,18 +99,14 @@ export default function ProjectBrochureViewer({ open, onClose, pdfUrl }: Project
         zIndex: 100, 
         p: 2, 
         display: 'flex', 
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)',
         pointerEvents: 'none' // allow clicking through where empty
       }}>
-        <Box sx={{ pointerEvents: 'auto' }}>
-           {/* Add any left side controls if needed */}
-        </Box>
-
         <Box sx={{ display: 'flex', gap: 1, pointerEvents: 'auto' }}>
-          <IconButton onClick={onClose} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
-            <X size={24} />
+          <IconButton onClick={toggleFullscreen} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+            {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
           </IconButton>
         </Box>
       </Box>
@@ -102,7 +116,7 @@ export default function ProjectBrochureViewer({ open, onClose, pdfUrl }: Project
         ref={containerRef} 
         sx={{ 
           width: '100%', 
-          height: '100vh',
+          height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -154,6 +168,6 @@ export default function ProjectBrochureViewer({ open, onClose, pdfUrl }: Project
           </Typography>
         </Box>
       )}
-    </Dialog>
+    </Box>
   );
 }
