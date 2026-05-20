@@ -110,7 +110,9 @@ export default function ProjectDetails() {
            !title.includes('project-hero') && 
            !title.includes('project hero') &&
            !title.includes('project-brochure') &&
-           !title.includes('project brochure')
+           !title.includes('project brochure') &&
+           !title.includes('project-gallery') &&
+           !title.includes('project gallery')
   })
 
   // Determine if video is native
