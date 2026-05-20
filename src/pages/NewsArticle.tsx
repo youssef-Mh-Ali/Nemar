@@ -31,7 +31,9 @@ export default function NewsArticle() {
       try {
         const res = await getNewsArticle(id)
         if (res.success && res.data) {
-          setArticle(res.data.article || res.data)
+          const data = res.data
+          const parsedArticle = data.article || (data.articles && data.articles.length > 0 ? data.articles[0] : data)
+          setArticle(parsedArticle)
         }
         
         // Fetch related posts (latest 3)
@@ -104,24 +106,26 @@ export default function NewsArticle() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: 12 }}>
       {/* Hero Section */}
-      <Box sx={{ position: 'relative', height: '60vh', overflow: 'hidden', bgcolor: 'grey.900' }}>
-        <Box
-          component="img"
-          src={article.coverImageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'}
-          alt={article.title}
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            animation: 'continuousZoom 20s infinite alternate ease-in-out',
-            '@keyframes continuousZoom': {
-              '0%': { transform: 'scale(1)' },
-              '100%': { transform: 'scale(1.1)' },
-            }
-          }}
-        />
-        {/* Gradient Overlay */}
-        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)' }} />
+      <Box sx={{ position: 'relative', height: '60vh', bgcolor: 'grey.900' }}>
+        <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+          <Box
+            component="img"
+            src={article.coverImageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'}
+            alt={article.title}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              animation: 'continuousZoom 20s infinite alternate ease-in-out',
+              '@keyframes continuousZoom': {
+                '0%': { transform: 'scale(1)' },
+                '100%': { transform: 'scale(1.1)' },
+              }
+            }}
+          />
+          {/* Gradient Overlay */}
+          <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)' }} />
+        </Box>
         
         {/* Title Box Overlay */}
         <Container maxWidth="lg" sx={{ height: '100%', position: 'relative' }}>
