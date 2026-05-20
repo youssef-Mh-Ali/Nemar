@@ -385,11 +385,10 @@ export default function HeroSection() {
         {/* Scroll Down Section */}
         <Box sx={{ position: 'absolute', bottom: { xs: 10, md: 30 }, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#102d4a' }} onClick={scrollToProjects}>
-            <Typography variant="body2" fontWeight="500" sx={{ letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <motion.span animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }} style={{ display: 'inline-block' }}>
-                &darr;
+            <Typography variant="body2" fontWeight="500" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1 }}>
+              <motion.span animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }} style={{ display: 'inline-block' }}>
+                <ChevronDown size={32} />
               </motion.span>
-              {t('home.scrollDown', 'Scroll down')}
             </Typography>
           </Box>
         </Box>
