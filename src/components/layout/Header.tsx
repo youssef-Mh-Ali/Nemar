@@ -29,6 +29,7 @@ export default function Header() {
     { path: '/about-us', label: t('common.aboutUs') },
     { path: '/achievements', label: t('common.achievements') },
     { path: '/latest-releases', label: t('common.latestReleases', 'Latest Releases') },
+    { path: '/our-news', label: t('common.ourNews') },
     { path: '/community', label: t('common.community') },
     { path: '/contact', label: t('common.support', 'Support') },
   ]

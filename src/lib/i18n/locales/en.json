@@ -8,6 +8,7 @@
     "contact": "Contact Us",
     "support": "Support",
     "latestReleases": "Latest Releases",
+    "ourNews": "Our News",
     "login": "Login",
     "logout": "Logout",
     "back": "Back",
@@ -459,6 +460,16 @@
     "callNow": "Call now",
     "copyright": "Broker Property Management. All rights reserved.",
     "whatsapp": "Chat on WhatsApp"
+  },
+  "ourNewsPage": {
+    "title": "Our News",
+    "subtitle": "Company updates, announcements, and media coverage from Faisal Bin Saedan.",
+    "placeholder": {
+      "title": "Content coming soon",
+      "description": "Our news section is being prepared. Articles, press releases, and company updates will be published here shortly.",
+      "note": "Content for this page will be provided by the FBS team."
+    },
+    "contactCta": "Contact us"
   },
   "latestReleasesPage": {
     "title": "Latest Releases",

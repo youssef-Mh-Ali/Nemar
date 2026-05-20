@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { BottomNavigation, BottomNavigationAction, Paper, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { Home, Search, Users, Building2, MoreHorizontal, Trophy, MessageSquare, Phone } from 'lucide-react'
+import { Home, Search, Users, Building2, MoreHorizontal, Trophy, MessageSquare, Phone, Newspaper } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { COMPANY_PHONE_TEL, COMPANY_WHATSAPP_URL } from '../../lib/contact'
 
@@ -29,6 +29,7 @@ export default function BottomNav() {
   ]
 
   const moreItems = [
+    { path: '/our-news', label: t('common.ourNews'), icon: Newspaper },
     { path: '/community', label: t('common.community'), icon: Building2 },
     { path: '/about-us', label: t('common.aboutUs'), icon: Users },
     { path: '/contact', label: t('common.contact'), icon: MessageSquare },

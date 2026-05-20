@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Box, Container, Typography, Button, Grid } from '@mui/material'
+import { Box, Container, Typography, Button } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import HeroSection from '../components/home/HeroSection'
@@ -8,7 +8,6 @@ import InspiringSpacesSection from '../components/home/InspiringSpacesSection'
 import StatsSection from '../components/home/StatsSection'
 import OurFieldsSection from '../components/home/OurFieldsSection'
 import AboutProjectsSection from '../components/home/AboutProjectsSection'
-import ProjectsMapSection from '../components/home/ProjectsMapSection'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import MorphicBackground from '../components/home/MorphicBackground'
 
@@ -30,7 +29,6 @@ export default function Home() {
       <StatsSection />
       <OurFieldsSection />
       <AboutProjectsSection />
-      <ProjectsMapSection />
 
       {/* CMA Section */}
       <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>
