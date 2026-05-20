@@ -224,3 +224,56 @@ export async function salesforceFetchUnits(filters: Record<string, unknown> = {}
     throw error
   }
 }
+
+/**
+ * Fetch News Articles from Salesforce via Netlify Function
+ */
+export async function salesforceFetchNewsArticles(filters: Record<string, unknown> = {}): Promise<any> {
+  console.log('[Salesforce News] Fetching news with filters:', filters)
+
+  try {
+    const params = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      params.append(key, String(value))
+    })
+
+    const query = params.toString() ? `?${params.toString()}` : ''
+    const response = await fetch(`/.netlify/functions/salesforce-news${query}`)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('[Salesforce News] ❌ FAILED:', response.status, errorData)
+      throw new Error(`Salesforce news fetch failed: ${errorData.error || response.statusText}`)
+    }
+
+    const result = await response.json()
+    return result
+  } catch (error) {
+    console.error('[Salesforce News] ❌ ERROR:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to fetch news articles' }
+  }
+}
+
+/**
+ * Fetch a specific News Article Detail from Salesforce via Netlify Function
+ */
+export async function salesforceFetchNewsArticleDetail(recordId: string): Promise<any> {
+  console.log('[Salesforce News] Fetching news article:', recordId)
+
+  try {
+    const response = await fetch(`/.netlify/functions/salesforce-news?recordId=${encodeURIComponent(recordId)}`)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('[Salesforce News] ❌ FAILED:', response.status, errorData)
+      throw new Error(`Salesforce news detail fetch failed: ${errorData.error || response.statusText}`)
+    }
+
+    const result = await response.json()
+    return result
+  } catch (error) {
+    console.error('[Salesforce News] ❌ ERROR:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to fetch news article detail' }
+  }
+}

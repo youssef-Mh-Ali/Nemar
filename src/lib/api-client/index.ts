@@ -1,5 +1,5 @@
 import { Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
-import { salesforceQuery, salesforceFetchUnits, SalesforceUnitDTO } from '../salesforce/client'
+import { salesforceQuery, salesforceFetchUnits, salesforceFetchNewsArticles, salesforceFetchNewsArticleDetail, SalesforceUnitDTO } from '../salesforce/client'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -1359,4 +1359,12 @@ export async function getOfficeMapUrl(): Promise<{ mapUrl: string | null; metaKe
     console.error('[Office Map] ❌ ERROR fetching from Salesforce:', error)
     return { mapUrl: null }
   }
+}
+
+export async function getNewsArticles(filters: Record<string, unknown> = {}) {
+  return salesforceFetchNewsArticles(filters);
+}
+
+export async function getNewsArticle(id: string) {
+  return salesforceFetchNewsArticleDetail(id);
 }

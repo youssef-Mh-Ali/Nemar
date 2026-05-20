@@ -198,3 +198,28 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+export interface NewsArticle {
+  id: string;
+  title: string;
+  slug?: string;
+  publicationDate?: string;
+  segment?: string;
+  coverImageUrl?: string;
+  excerpt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  lastModified?: string;
+  body?: string;
+}
+
+export interface NewsFilters {
+  page?: number;
+  pageSize?: number;
+  year?: string;
+  month?: string;
+  segment?: string;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}
+
+
