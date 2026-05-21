@@ -126,7 +126,7 @@ export default function SaraBot() {
                 zIndex: 10
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar src="/images/sara-avatar.png" alt="Sara" sx={{ bgcolor: 'white', width: 40, height: 40 }}>
+                  <Avatar src="/images/sara-avatar.jpg" alt="Sara" sx={{ bgcolor: 'white', width: 40, height: 40 }}>
                     <Typography color="#102d4a" fontWeight="bold">S</Typography>
                   </Avatar>
                   <Box>
@@ -169,7 +169,7 @@ export default function SaraBot() {
                     >
                       <Box sx={{ display: 'flex', gap: 1, flexDirection: isBot ? 'row' : 'row-reverse' }}>
                         {isBot && (
-                          <Avatar sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
+                          <Avatar src="/images/sara-avatar.jpg" sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
                         )}
                         <Box sx={{
                           bgcolor: isBot ? 'white' : '#102d4a',
