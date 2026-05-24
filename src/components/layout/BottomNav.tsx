@@ -29,7 +29,7 @@ export default function BottomNav() {
   ]
 
   const moreItems = [
-    { path: '/our-news', label: t('common.ourNews'), icon: Newspaper },
+    { path: '/news', label: t('common.ourNews'), icon: Newspaper },
     { path: '/community', label: t('common.community'), icon: Building2 },
     { path: '/about-us', label: t('common.aboutUs'), icon: Users },
     { path: '/contact', label: t('common.contact'), icon: MessageSquare },

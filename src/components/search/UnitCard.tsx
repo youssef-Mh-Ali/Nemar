@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { Card, CardContent, Chip, Box, Typography, Divider } from '@mui/material'
+import { Card, CardContent, Chip, Box, Typography } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { motion } from 'framer-motion'
-import { Bed, Bath, Maximize, Calendar } from 'lucide-react'
+import { Bed, Bath, Maximize } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Unit } from '../../lib/types'
 import FavoriteButton from '../ui/FavoriteButton'
@@ -24,12 +24,6 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
     }).format(price)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
-      year: 'numeric',
-      month: 'short',
-    })
-  }
 
   const statusColors: Record<Unit['status'], 'success' | 'warning' | 'error'> = {
     Available: 'success',
@@ -130,13 +124,6 @@ export default function UnitCard({ unit, index = 0 }: UnitCardProps) {
               <Maximize size={16} />
               <Typography variant="caption">{unit.area} {t('unit.areaUnit')}</Typography>
             </Box>
-          </Box>
-
-          <Divider sx={{ my: 1 }} />
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.75rem', color: 'text.secondary' }}>
-            <Calendar size={16} />
-            <Typography variant="caption">{t('unit.delivery')}: {formatDate(unit.deliveryDate)}</Typography>
           </Box>
         </CardContent>
       </Card>

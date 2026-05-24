@@ -11,7 +11,7 @@ export default function Footer() {
     { path: '/', label: t('common.home') },
     { path: '/about-us', label: t('common.aboutUs') },
     { path: '/achievements', label: t('common.achievements') },
-    { path: '/our-news', label: t('common.ourNews') },
+    { path: '/news', label: t('common.ourNews') },
     { path: '/community', label: t('common.community') },
     { path: '/contact', label: t('common.contact') },
     { path: '/search', label: t('common.search') },

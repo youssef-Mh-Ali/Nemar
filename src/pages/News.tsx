@@ -75,7 +75,7 @@ export default function News() {
     <Box sx={{ py: 12, minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
         <Typography variant="h3" component="h1" sx={{ mb: 6, fontWeight: 300, textTransform: 'uppercase', letterSpacing: 2, textAlign: isRtl ? 'right' : 'left' }}>
-          {t('news.title', 'LATEST PRESS RELEASES AND REAL ESTATE NEWS')}
+          {t('common.ourNews')}
         </Typography>
 
         {/* Filters */}

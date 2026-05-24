@@ -15,7 +15,6 @@ import ComingSoon from './pages/ComingSoon'
 import AboutUs from './pages/AboutUs'
 import Achievements from './pages/Achievements'
 import LatestReleases from './pages/LatestReleases'
-import OurNews from './pages/OurNews'
 import News from './pages/News'
 import NewsArticle from './pages/NewsArticle'
 import CollaborationComingSoon from './pages/CollaborationComingSoon'
@@ -78,6 +77,7 @@ function App() {
           <Route path="latest-releases" element={<LatestReleases />} />
           <Route path="news" element={<News />} />
           <Route path="news/:id" element={<NewsArticle />} />
+          <Route path="our-news" element={<Navigate to="/news" replace />} />
           <Route path="collaboration-coming-soon" element={<CollaborationComingSoon />} />
           <Route
             path="community"

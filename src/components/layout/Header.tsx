@@ -29,12 +29,11 @@ export default function Header() {
     { path: '/', label: t('common.home') },
     { path: '/about-us', label: t('common.aboutUs') },
     { path: '/achievements', label: t('common.achievements') },
-    { path: '/news', label: t('common.news', 'News') },
+    { path: '/news', label: t('common.ourNews') },
   ]
 
   const moreNavItems = [
     { path: '/latest-releases', label: t('common.latestReleases', 'Latest Releases') },
-    { path: '/our-news', label: t('common.ourNews') },
     { path: '/community', label: t('common.community') },
     { path: '/contact', label: t('common.support', 'Support') },
   ]

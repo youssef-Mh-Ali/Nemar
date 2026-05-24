@@ -80,6 +80,7 @@ export default function ProjectBrochureViewer({ pdfUrl }: ProjectBrochureViewerP
   return (
     <Box 
       ref={wrapperRef}
+      dir="ltr"
       sx={{ 
         width: '100%', 
         height: isFullscreen ? '100vh' : { xs: 400, md: 600 },
@@ -87,7 +88,9 @@ export default function ProjectBrochureViewer({ pdfUrl }: ProjectBrochureViewerP
         bgcolor: '#1a1a1a',
         borderRadius: isFullscreen ? 0 : 4,
         overflow: 'hidden',
-        boxShadow: isFullscreen ? 'none' : '0 10px 30px rgba(0,0,0,0.1)'
+        boxShadow: isFullscreen ? 'none' : '0 10px 30px rgba(0,0,0,0.1)',
+        direction: 'ltr',
+        unicodeBidi: 'isolate',
       }}
     >
       {/* Top Toolbar */}
@@ -113,11 +116,17 @@ export default function ProjectBrochureViewer({ pdfUrl }: ProjectBrochureViewerP
 
       {/* Viewer Container */}
       <Box 
-        ref={containerRef} 
+        ref={containerRef}
+        dir="ltr"
         sx={{ 
           width: '100%', 
           height: '100%',
           bgcolor: 'transparent', // Let wrapper's dark background show through the empty spaces around the book
+          direction: 'ltr',
+          unicodeBidi: 'isolate',
+          '& .ic-root': {
+            direction: 'ltr',
+          },
         }} 
       />
 
