@@ -509,5 +509,31 @@
     "all": "All",
     "select": "Select",
     "empty": "No news articles found."
+  },
+  "chatbot": {
+    "greeting": "Welcome to Faisal Bin Saedan! I'm Sara, your digital assistant. How can I help you today?",
+    "menu": {
+      "projects": "Explore Projects",
+      "services": "Our Services",
+      "contact": "Contact Sales / Register Interest"
+    },
+    "link": {
+      "projects": "You can explore our latest residential and commercial communities on our Projects page: /projects",
+      "services": "We offer a range of services from property management to investment solutions. Learn more on our About page: /about"
+    },
+    "askName": "Great! I'll connect you with our sales team. First, what is your full name?",
+    "askCountry": "Nice to meet you! Please enter your mobile country code (e.g. +966).",
+    "askPhone": "Thank you. What is your phone number?",
+    "askRegion": "Which region or province are you located in?",
+    "askCity": "Which city do you live in?",
+    "askCustomerType": "Are you inquiring as an individual or on behalf of a company?",
+    "customerType": {
+      "individual": "Individual (Private Customer)",
+      "company": "Company"
+    },
+    "submitting": "Thank you for the details. I am submitting your request now...",
+    "success": "Your request has been successfully received. One of our representatives will contact you shortly!",
+    "error": "I'm sorry, there was a problem submitting your request.",
+    "retry": "Try Again"
   }
 }

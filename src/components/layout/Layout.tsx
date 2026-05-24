@@ -6,6 +6,7 @@ import Footer from './Footer'
 import BottomNav from './BottomNav'
 import InstallBanner from './InstallBanner'
 import AnimatedBackground from './AnimatedBackground'
+import SaraBot from '../chatbot/SaraBot'
 
 export default function Layout() {
   const location = useLocation()
@@ -34,6 +35,7 @@ export default function Layout() {
       </Box>
       <BottomNav />
       <InstallBanner />
+      <SaraBot />
     </div>
   )
 }
