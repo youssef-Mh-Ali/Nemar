@@ -10,21 +10,25 @@ import {
   Card,
   CardContent,
   Grid,
+  Stack,
   Chip,
   Link as MuiLink,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { ArrowRight, FileText, Image as ImageIcon, ExternalLink, MapPin, Play } from 'lucide-react'
+import { ArrowRight, FileText, Image as ImageIcon, ExternalLink, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { getProject } from '../lib/api-client'
 import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
+import { isModelAttachmentTitle, isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
 import OpenStreetProjectMap from '../components/ui/OpenStreetProjectMap'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import NearbyAmenities from '../components/project/NearbyAmenities'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
 import CircularGallery from '../components/reactbits/CircularGallery'
 import ProjectGalleryViewer from '../components/project/ProjectGalleryViewer'
+import ProjectModelViewer from '../components/project/ProjectModelViewer'
+import type { ProjectModelFile } from '../lib/types'
 import InteractiveTopPlan from '../components/project/InteractiveTopPlan'
 
 type ProjectWithUi = Project & { hasAvailability?: boolean; availablePhasesCount?: number; nameEn?: string; locationEn?: string }
@@ -42,6 +46,8 @@ export default function ProjectDetails() {
   const [galleryViewerOpen, setGalleryViewerOpen] = useState(false)
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null)
   const [selectedGalleryTag, setSelectedGalleryTag] = useState<string | null>(null)
+  const [modelViewerOpen, setModelViewerOpen] = useState(false)
+  const [selectedModel, setSelectedModel] = useState<ProjectModelFile | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -113,8 +119,11 @@ export default function ProjectDetails() {
            !title.includes('project-brochure') &&
            !title.includes('project brochure') &&
            !title.includes('project-gallery') &&
-           !title.includes('project gallery')
+           !title.includes('project gallery') &&
+           !isModelAttachmentTitle(a.title)
   })
+
+  const modelFiles = project.modelFiles || []
 
   // Determine if video is native
   const isNativeVideo = project.featuredVideoUrl && 
@@ -123,11 +132,21 @@ export default function ProjectDetails() {
                          project.featuredVideoUrl.includes('salesforce-file'))
 
 
-  const handleGalleryClick = (clickedMedia: any) => {
-    setSelectedGalleryImage(clickedMedia.image);
-    setSelectedGalleryTag(clickedMedia.text);
-    setGalleryViewerOpen(true);
-  };
+  const handleGalleryClick = (clickedMedia: { image: string; text: string }) => {
+    setSelectedGalleryImage(clickedMedia.image)
+    setSelectedGalleryTag(clickedMedia.text)
+    setGalleryViewerOpen(true)
+  }
+
+  const openModelViewer = (model: ProjectModelFile) => {
+    setSelectedModel(model)
+    setModelViewerOpen(true)
+  }
+
+  const closeModelViewer = () => {
+    setModelViewerOpen(false)
+    setSelectedModel(null)
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f4f7fa', pb: 10 }}>
@@ -365,6 +384,121 @@ export default function ProjectDetails() {
 
 
 
+            {/* Unit model files (titles ending with model-1 … model-10) */}
+            {modelFiles.length > 0 && (
+              <MotionCard
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                sx={{
+                  mb: 4,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+                  border: '1px solid rgba(255,255,255,0.5)',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+                    {t('project.models', 'Unit Models')}
+                  </Typography>
+                  <Stack spacing={3}>
+                    {modelFiles.map((model) => {
+                      const modelLabel = t('project.modelLabel', {
+                        number: model.number,
+                        defaultValue: `Model ${model.number}`,
+                      })
+                      const canExpand =
+                        isModelPdfFile(model.fileExtension) || isModelImageFile(model.fileExtension)
+
+                      return (
+                        <Paper
+                          key={model.id}
+                          variant="outlined"
+                          onClick={canExpand ? () => openModelViewer(model) : undefined}
+                          sx={{
+                            borderRadius: 3,
+                            overflow: 'hidden',
+                            borderColor: 'divider',
+                            cursor: canExpand ? 'pointer' : 'default',
+                            transition: 'box-shadow 0.2s, transform 0.2s',
+                            ...(canExpand && {
+                              '&:hover': {
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                transform: 'translateY(-2px)',
+                              },
+                            }),
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              px: 2,
+                              py: 1.5,
+                              borderBottom: 1,
+                              borderColor: 'divider',
+                              bgcolor: 'grey.50',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: 1,
+                            }}
+                          >
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {modelLabel}
+                            </Typography>
+                            {canExpand && (
+                              <Typography variant="caption" color="text.secondary">
+                                {t('project.clickToEnlarge', 'Click to enlarge')}
+                              </Typography>
+                            )}
+                          </Box>
+                          {isModelPdfFile(model.fileExtension) ? (
+                            <Box
+                              sx={{
+                                height: { xs: 280, md: 360 },
+                                bgcolor: '#1a1a1a',
+                                pointerEvents: 'none',
+                              }}
+                            >
+                              <ProjectBrochureViewer pdfUrl={model.url} />
+                            </Box>
+                          ) : isModelImageFile(model.fileExtension) ? (
+                            <Box
+                              component="img"
+                              src={model.url}
+                              alt={model.title}
+                              sx={{
+                                width: '100%',
+                                display: 'block',
+                                maxHeight: 360,
+                                objectFit: 'contain',
+                                bgcolor: 'grey.100',
+                                pointerEvents: 'none',
+                              }}
+                            />
+                          ) : (
+                            <Box sx={{ p: 2 }} onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                component="a"
+                                href={model.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="outlined"
+                                startIcon={<ExternalLink size={16} />}
+                              >
+                                {t('project.openModelFile', 'Open file')}
+                              </Button>
+                            </Box>
+                          )}
+                        </Paper>
+                      )
+                    })}
+                  </Stack>
+                </CardContent>
+              </MotionCard>
+            )}
+
             {/* Brochure Section */}
             {project.brochureUrl && (
               <MotionCard
@@ -492,6 +626,21 @@ export default function ProjectDetails() {
         onClose={() => setGalleryViewerOpen(false)}
         imageUrl={selectedGalleryImage}
         tagText={selectedGalleryTag}
+      />
+
+      <ProjectModelViewer
+        isOpen={modelViewerOpen}
+        onClose={closeModelViewer}
+        url={selectedModel?.url ?? null}
+        title={
+          selectedModel
+            ? t('project.modelLabel', {
+                number: selectedModel.number,
+                defaultValue: `Model ${selectedModel.number}`,
+              })
+            : null
+        }
+        fileExtension={selectedModel?.fileExtension}
       />
     </Box>
   )

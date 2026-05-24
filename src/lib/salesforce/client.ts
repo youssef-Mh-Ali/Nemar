@@ -26,6 +26,7 @@ interface SalesforceCreateResult {
 export interface SalesforceUnitDTO {
   id: string;
   name: string;
+  model?: string;
   externalId: string;
   status: string;
   price: number;

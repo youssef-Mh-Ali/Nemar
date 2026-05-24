@@ -15,6 +15,7 @@ import { Close, Refresh as RefreshIcon } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
 import { getProjects } from '../../lib/api-client'
+import { UNIT_MODEL_OPTIONS } from '../../lib/constants/unitModels'
 import { Project } from '../../lib/types'
 
 export default function FilterDrawer() {
@@ -24,6 +25,7 @@ export default function FilterDrawer() {
 
   const [localFilters, setLocalFilters] = useState({
     projectId: filters.projectId || '',
+    model: filters.model || '',
     bedrooms: filters.bedrooms?.toString() || '',
     priceRange: '',
   })
@@ -41,6 +43,7 @@ export default function FilterDrawer() {
   useEffect(() => {
     setLocalFilters({
       projectId: filters.projectId || '',
+      model: filters.model || '',
       bedrooms: filters.bedrooms?.toString() || '',
       priceRange: '',
     })
@@ -69,6 +72,11 @@ export default function FilterDrawer() {
     ...projects.map((p) => ({ value: p.id, label: i18n.language.startsWith('ar') ? p.nameAr : p.name })),
   ]
 
+  const modelOptions = [
+    { value: '', label: t('search.options.all') },
+    ...UNIT_MODEL_OPTIONS.map((m) => ({ value: m, label: m })),
+  ]
+
   const handleApply = () => {
     const [minPrice, maxPrice] = localFilters.priceRange
       ? localFilters.priceRange.split('-').map(Number)
@@ -76,6 +84,7 @@ export default function FilterDrawer() {
 
     setFilters({
       projectId: localFilters.projectId || undefined,
+      model: localFilters.model || undefined,
       bedrooms: localFilters.bedrooms ? parseInt(localFilters.bedrooms) : undefined,
       minPrice,
       maxPrice,
@@ -87,6 +96,7 @@ export default function FilterDrawer() {
   const handleReset = () => {
     setLocalFilters({
       projectId: '',
+      model: '',
       bedrooms: '',
       priceRange: '',
     })
@@ -163,6 +173,20 @@ export default function FilterDrawer() {
           >
             {projectOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            label={t('search.model')}
+            value={localFilters.model}
+            onChange={(e) => setLocalFilters({ ...localFilters, model: e.target.value })}
+            fullWidth
+          >
+            {modelOptions.map((option) => (
+              <MenuItem key={option.value || 'all'} value={option.value}>
                 {option.label}
               </MenuItem>
             ))}

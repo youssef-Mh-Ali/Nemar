@@ -1,4 +1,10 @@
 import { Unit, Lead, Case, AuthUser, UnitFilters, ApiResponse } from '../types'
+import {
+  extractProjectModelFiles,
+  findProjectModelFile,
+  isModelAttachmentTitle,
+} from '../projectMedia'
+import type { ProjectModelFile } from '../types'
 import { salesforceQuery, salesforceFetchUnits, salesforceFetchNewsArticles, salesforceFetchNewsArticleDetail, SalesforceUnitDTO } from '../salesforce/client'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
@@ -311,7 +317,7 @@ async function getProjectsMedia(projectIds: string[]) {
       }
       
       media.gallery!.push({ url, tagEn, tagAr });
-    } else {
+    } else if (!isModelAttachmentTitle(v.Title || '')) {
       if (!media.defaultUrl) media.defaultUrl = url;
     }
   }
@@ -338,6 +344,9 @@ function pickMediaFromAttachments(attachments: Array<{ title: string; fileExtens
   for (const a of attachments) {
     if (isMedia(a.fileExtension)) {
       const title = (a.title || '').toLowerCase()
+      if (isModelAttachmentTitle(a.title)) {
+        continue
+      }
       if (title.includes('project-logo') || title.includes('project logo')) {
         if (!media.logoUrl) media.logoUrl = a.url;
       } else if (title.includes('project-hero') || title.includes('project hero')) {
@@ -599,8 +608,10 @@ export async function getProject(id: string) {
       return { success: false, error: 'Project not found in Salesforce' }
     }
 
-    const { notes, attachments } = await getProjectNotesAndAttachments(id)
-    const media = pickMediaFromAttachments(attachments)
+    const { notes, attachments: allAttachments } = await getProjectNotesAndAttachments(id)
+    const modelFiles = extractProjectModelFiles(allAttachments)
+    const attachments = allAttachments.filter((a) => !isModelAttachmentTitle(a.title))
+    const media = pickMediaFromAttachments(allAttachments)
     const availableUnitsCount = Number(p.Available_Units__c || 0)
     const mapCentroidLat = typeof p.Map_Centroid_Lat__c === 'number' ? p.Map_Centroid_Lat__c : undefined
     const mapCentroidLng = typeof p.Map_Centroid_Lng__c === 'number' ? p.Map_Centroid_Lng__c : undefined
@@ -632,6 +643,7 @@ export async function getProject(id: string) {
         topPlanUrl: media.topPlanUrl,
         brochureUrl: media.brochureUrl,
         gallery: media.gallery,
+        modelFiles,
         notes,
         attachments,
         phases: [],
@@ -843,12 +855,13 @@ export async function getFeaturedVideo() {
 }
 
 // Units
-function mapSalesforceUnit(sfUnit: SalesforceUnitDTO): Unit {
+function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): Unit {
   return {
     id: sfUnit.id,
     projectId: sfUnit.project?.id || '',
     phaseId: sfUnit.phase?.id || '',
     unitNumber: sfUnit.name,
+    model: sfUnit.model ?? sfUnit.Model__c,
     externalId: sfUnit.externalId,
     price: sfUnit.price,
     finalPrice: sfUnit.finalPrice,
@@ -930,7 +943,7 @@ export async function getUnit(id: string) {
       Has_Garden__c, Has_Land__c, Has_Roof__c, Has_Outdoor__c,
       Garden_Area__c, Land_Area__c, Roof_Area__c, Outdoor_Area__c,
       Eligible_for_Subsidies__c, Subsidies__c,
-      Unit_Image__c, X3D_Warehouse_iframe__c,
+      Unit_Image__c, X3D_Warehouse_iframe__c, Model__c,
       Project__c,
       Phase__c,
       Block__c,
@@ -964,6 +977,7 @@ export async function getUnit(id: string) {
       Subsidies__c?: number
       Unit_Image__c?: string
       X3D_Warehouse_iframe__c?: string
+      Model__c?: string
       Project__c?: string
       Phase__c?: string
       Block__c?: string
@@ -1016,6 +1030,7 @@ export async function getUnit(id: string) {
       projectId: resolvedProjectId,
       phaseId: extractSalesforceIdFromAnchor(record.Phase__c) || record.Phase__c || '',
       unitNumber: record.Name,
+      model: record.Model__c?.trim() || undefined,
       externalId: record.External_ID__c,
       price: record.Price__c || 0,
       finalPrice: record.Final_Price__c || undefined,
@@ -1103,11 +1118,23 @@ export async function getUnit(id: string) {
         .slice(0, 3)
     }
 
+    let modelFile: ProjectModelFile | null = null
+    if (resolvedProjectId && unit.model) {
+      try {
+        const { attachments: projectAttachments } = await getProjectNotesAndAttachments(resolvedProjectId)
+        const projectModelFiles = extractProjectModelFiles(projectAttachments)
+        modelFile = findProjectModelFile(projectModelFiles, unit.model)
+      } catch (e) {
+        console.warn('[Units] Optional project model file lookup failed:', e)
+      }
+    }
+
     return {
       success: true,
       data: {
         unit,
         relatedUnits,
+        modelFile,
       },
     }
   } catch (error) {

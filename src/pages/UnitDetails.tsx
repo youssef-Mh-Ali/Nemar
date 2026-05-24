@@ -23,8 +23,11 @@ import ImageCarousel from '../components/ui/ImageCarousel'
 import FavoriteButton from '../components/ui/FavoriteButton'
 import ShareButton from '../components/ui/ShareButton'
 import { getUnit } from '../lib/api-client'
+import { isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
 import { useAuthStore } from '../lib/store'
-import { Unit } from '../lib/types'
+import { Unit, ProjectModelFile } from '../lib/types'
+import ProjectModelViewer from '../components/project/ProjectModelViewer'
+import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
 
 export default function UnitDetails() {
   const { t, i18n } = useTranslation()
@@ -33,9 +36,11 @@ export default function UnitDetails() {
   const { user } = useAuthStore()
   const [unit, setUnit] = useState<Unit | null>(null)
   const [relatedUnits, setRelatedUnits] = useState<Unit[]>([])
+  const [modelFile, setModelFile] = useState<ProjectModelFile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [modelViewerOpen, setModelViewerOpen] = useState(false)
 
   useEffect(() => {
     async function loadUnit() {
@@ -46,6 +51,7 @@ export default function UnitDetails() {
         if (response.success && response.data) {
           setUnit(response.data.unit)
           setRelatedUnits(response.data.relatedUnits)
+          setModelFile(response.data.modelFile ?? null)
         }
       } catch (error) {
         console.error('Error loading unit:', error)
@@ -324,6 +330,63 @@ export default function UnitDetails() {
               </CardContent>
             </Card>
 
+            {/* Project model layout (from project files + Model__c) */}
+            {modelFile && (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight="semibold" gutterBottom sx={{ mb: 2 }}>
+                  {t('unit.modelLayout', 'Unit model layout')}
+                  {unit.model && (
+                    <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                      ({unit.model})
+                    </Typography>
+                  )}
+                </Typography>
+                <Card
+                  onClick={() => setModelViewerOpen(true)}
+                  sx={(theme) => ({
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                    backdropFilter: 'blur(16px)',
+                    border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                    transition: 'box-shadow 0.2s, transform 0.2s',
+                    '&:hover': {
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                      transform: 'translateY(-2px)',
+                    },
+                  })}
+                >
+                  {isModelPdfFile(modelFile.fileExtension) ? (
+                    <Box
+                      sx={{ height: { xs: 320, md: 420 }, bgcolor: '#1a1a1a', pointerEvents: 'none' }}
+                    >
+                      <ProjectBrochureViewer pdfUrl={modelFile.url} />
+                    </Box>
+                  ) : isModelImageFile(modelFile.fileExtension) ? (
+                    <Box
+                      component="img"
+                      src={modelFile.url}
+                      alt={modelFile.title}
+                      sx={{
+                        width: '100%',
+                        display: 'block',
+                        maxHeight: 480,
+                        objectFit: 'contain',
+                        bgcolor: 'grey.100',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  ) : (
+                    <Box sx={{ p: 3, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('project.clickToEnlarge', 'Click to enlarge')}
+                      </Typography>
+                    </Box>
+                  )}
+                </Card>
+              </Box>
+            )}
+
             {/* Description */}
             {(i18n.language === 'ar' ? unit.descriptionAr : unit.description) && (
               <Box sx={{ mb: 4 }}>
@@ -487,6 +550,22 @@ export default function UnitDetails() {
           onClose={() => setIsGalleryOpen(false)}
         />
       )}
+
+      <ProjectModelViewer
+        isOpen={modelViewerOpen}
+        onClose={() => setModelViewerOpen(false)}
+        url={modelFile?.url ?? null}
+        title={
+          modelFile
+            ? unit.model ||
+              t('project.modelLabel', {
+                number: modelFile.number,
+                defaultValue: `Model ${modelFile.number}`,
+              })
+            : null
+        }
+        fileExtension={modelFile?.fileExtension}
+      />
     </Box>
   )
 }

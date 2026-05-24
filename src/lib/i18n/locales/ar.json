@@ -179,6 +179,7 @@
     "filterResults": "تصفية النتائج",
     "reset": "إعادة تعيين",
     "project": "المشروع",
+    "model": "الموديل",
     "bedrooms": "عدد الغرف",
     "priceRange": "نطاق السعر",
     "applyFilters": "تطبيق الفلاتر",
@@ -236,6 +237,7 @@
     "areaLabel": "المساحة",
     "deliveryLabel": "التسليم",
     "description": "الوصف",
+    "modelLayout": "مخطط نموذج الوحدة",
     "openSupportCase": "فتح طلب دعم",
     "areaUnit": "م²"
   },
@@ -497,7 +499,11 @@
     "notes": "الملاحظات والمستندات",
     "noNotes": "لا توجد ملاحظات",
     "attachments": "المرفقات والصور",
-    "noAttachments": "لا توجد مرفقات"
+    "noAttachments": "لا توجد مرفقات",
+    "models": "موديلات الوحدات",
+    "modelLabel": "الموديل {{number}}",
+    "openModelFile": "فتح الملف",
+    "clickToEnlarge": "اضغط للتكبير"
   },
   "news": {
     "title": "أحدث البيانات الصحفية والأخبار العقارية",

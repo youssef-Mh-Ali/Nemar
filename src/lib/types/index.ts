@@ -24,7 +24,17 @@ export interface Project {
   notes?: ProjectNote[];
   attachments?: ProjectAttachment[];
   gallery?: Array<{ url: string; tagEn: string; tagAr: string; }>;
+  /** Content files whose title ends with model-1 … model-10 */
+  modelFiles?: ProjectModelFile[];
   phases: Phase[];
+}
+
+export interface ProjectModelFile {
+  id: string;
+  number: number;
+  title: string;
+  url: string;
+  fileExtension?: string;
 }
 
 export interface ProjectAttachment {
@@ -55,6 +65,8 @@ export interface Unit {
   projectId: string;
   phaseId: string;
   unitNumber: string;
+  /** Salesforce Model__c */
+  model?: string;
   externalId?: string;
   price: number;
   finalPrice?: number;
@@ -152,6 +164,8 @@ export interface UnitFilters {
   buildingId?: string;
   blockId?: string;
   projectName?: string;
+  /** Salesforce Model__c */
+  model?: string;
   minPrice?: number;
   maxPrice?: number;
   minBedrooms?: number;

@@ -5,6 +5,7 @@ import { Refresh } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../lib/store'
 import { getProjects } from '../../lib/api-client'
+import { UNIT_MODEL_OPTIONS } from '../../lib/constants/unitModels'
 import { Project } from '../../lib/types'
 
 export default function DesktopFilters() {
@@ -34,6 +35,11 @@ export default function DesktopFilters() {
   const projectOptions = [
     { value: '', label: t('search.options.allProjects') },
     ...projects.map((p) => ({ value: p.id, label: i18n.language.startsWith('ar') ? p.nameAr : p.name })),
+  ]
+
+  const modelOptions = [
+    { value: '', label: t('search.options.all') },
+    ...UNIT_MODEL_OPTIONS.map((m) => ({ value: m, label: m })),
   ]
 
   const hasActiveFilters = Object.entries(filters).some(
@@ -82,6 +88,26 @@ export default function DesktopFilters() {
           >
             {projectOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            label={t('search.model')}
+            value={filters.model || ''}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                model: e.target.value || undefined,
+                page: 1,
+              })
+            }
+            fullWidth
+          >
+            {modelOptions.map((option) => (
+              <MenuItem key={option.value || 'all'} value={option.value}>
                 {option.label}
               </MenuItem>
             ))}

@@ -328,6 +328,7 @@ export function searchUnits(filters: UnitFilters): Unit[] {
   return mockUnits.filter((unit) => {
     if (unit.status !== "Available") return false;
     if (filters.projectId && unit.projectId !== filters.projectId) return false;
+    if (filters.model && unit.model !== filters.model) return false;
     if (filters.phaseId && unit.phaseId !== filters.phaseId) return false;
     if (filters.minPrice && unit.price < filters.minPrice) return false;
     if (filters.maxPrice && unit.price > filters.maxPrice) return false;

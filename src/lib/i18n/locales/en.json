@@ -179,6 +179,7 @@
     "filterResults": "Filter Results",
     "reset": "Reset",
     "project": "Project",
+    "model": "Model",
     "bedrooms": "Number of Rooms",
     "priceRange": "Price Range",
     "applyFilters": "Apply Filters",
@@ -236,6 +237,7 @@
     "areaLabel": "Area",
     "deliveryLabel": "Delivery",
     "description": "Description",
+    "modelLayout": "Unit model layout",
     "openSupportCase": "Open Support Case",
     "areaUnit": "m²"
   },
@@ -493,7 +495,11 @@
     "notes": "Notes",
     "noNotes": "No notes",
     "attachments": "Attachments",
-    "noAttachments": "No attachments"
+    "noAttachments": "No attachments",
+    "models": "Unit Models",
+    "modelLabel": "Model {{number}}",
+    "openModelFile": "Open file",
+    "clickToEnlarge": "Click to enlarge"
   },
   "news": {
     "title": "Latest Press Releases and Real Estate News",
