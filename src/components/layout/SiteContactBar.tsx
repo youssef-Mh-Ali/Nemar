@@ -1,4 +1,5 @@
 import { Box, Container, IconButton, Typography } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 import { Mail, MapPin, Instagram, Linkedin, Facebook, Phone, Youtube } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -145,14 +146,36 @@ export default function SiteContactBar() {
             <Typography variant="body2">{t('home.email')}</Typography>
           </Box>
           <Box
+            component={RouterLink}
+            to="/contact#locations"
+            onClick={(e) => {
+              if (window.location.pathname === '/contact') {
+                e.preventDefault()
+                const element = document.getElementById('locations')
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  window.history.pushState(null, '', '#locations')
+                }
+              }
+            }}
             sx={{
               display: 'flex',
               alignItems: 'center',
               gap: 1.5,
               color: 'text.secondary',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                color: 'primary.main',
+                '& svg': {
+                  color: 'secondary.main',
+                  transform: 'translateY(-2px)'
+                }
+              }
             }}
           >
-            <MapPin size={20} />
+            <MapPin size={20} style={{ transition: 'all 0.2s ease' }} />
             <Typography variant="body2">{t('home.address')}</Typography>
           </Box>
 

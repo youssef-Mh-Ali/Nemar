@@ -65,14 +65,73 @@ const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
-const salesOffices = [
-  { project: 'نزل خيالا - جدة', projectEn: 'Nazal Khayala - Jeddah', url: 'https://maps.app.goo.gl/iWaAkHtoVkWqRmcn8' },
-  { project: 'ملفى الحوية', projectEn: 'Malfa Al Hawiah', url: 'https://maps.app.goo.gl/9Fv2dzxvouxztJNr5' },
-  { project: 'ملفى جدة', projectEn: 'Malfa Jeddah', url: 'https://maps.app.goo.gl/Wbh3rDku8vm2tF1r8' },
-  { project: 'ملفى تبوك هيلز', projectEn: 'Malfa Tabuk Hills', url: 'https://maps.app.goo.gl/FPhqhKgWYDAQBZnr9' },
-  { project: 'ملفى الاصالة', projectEn: 'Malfa Al Asalah', url: 'https://maps.app.goo.gl/crzBe21cvioUXecx7' },
-  { project: 'ملفى المكيمن 1', projectEn: 'Malfa Al Mukeemen 1', url: 'https://maps.app.goo.gl/wVZVVm7PxxDvxrgD8' },
-  { project: 'ملفى المكيمن 2', projectEn: 'Malfa Al Mukeemen 2', url: 'https://maps.app.goo.gl/2tBKQmzahU8ehRaa7' },
+interface OfficeLocation {
+  project: string
+  projectEn: string
+  url: string
+  coords: string
+  dirUrl: string
+  isHq?: boolean
+}
+
+const salesOffices: OfficeLocation[] = [
+  {
+    project: 'الموقع الرئيسي (الإدارة العامة)',
+    projectEn: 'Headquarters (HQ Office)',
+    url: 'https://www.google.com/maps/place/FBS/@24.767214,46.7086031,132m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3e2efd556f038b85:0x3a43523caa30801e!2sFBS!8m2!3d24.7673186!4d46.7086468!16s%2Fg%2F11ygn5c_z0!3m5!1s0x3e2efd556f038b85:0x3a43523caa30801e!8m2!3d24.7673186!4d46.7086468!16s%2Fg%2F11ygn5c_z0?hl=en-US&entry=ttu',
+    coords: '24.76734267323662,46.70865492367602',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.76734267323662,46.70865492367602',
+    isHq: true,
+  },
+  {
+    project: 'نزل خيالا - جدة',
+    projectEn: 'Nazal Khayala - Jeddah',
+    url: 'https://maps.app.goo.gl/iWaAkHtoVkWqRmcn8',
+    coords: '21.6488125,39.1125625',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.6488125,39.1125625'
+  },
+  {
+    project: 'ملفى الحوية',
+    projectEn: 'Malfa Al Hawiah',
+    url: 'https://maps.app.goo.gl/9Fv2dzxvouxztJNr5',
+    coords: '21.2790496,40.4447283',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.2790496,40.4447283'
+  },
+  {
+    project: 'ملفى جدة',
+    projectEn: 'Malfa Jeddah',
+    url: 'https://maps.app.goo.gl/Wbh3rDku8vm2tF1r8',
+    coords: '21.3508125,39.2610625',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.3508125,39.2610625'
+  },
+  {
+    project: 'ملفى تبوك هيلز',
+    projectEn: 'Malfa Tabuk Hills',
+    url: 'https://maps.app.goo.gl/FPhqhKgWYDAQBZnr9',
+    coords: '28.4606462,36.5198903',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=28.4606462,36.5198903'
+  },
+  {
+    project: 'ملفى الاصالة',
+    projectEn: 'Malfa Al Asalah',
+    url: 'https://maps.app.goo.gl/crzBe21cvioUXecx7',
+    coords: '24.4844205,46.7192966',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4844205,46.7192966'
+  },
+  {
+    project: 'ملفى المكيمن 1',
+    projectEn: 'Malfa Al Mukeemen 1',
+    url: 'https://maps.app.goo.gl/wVZVVm7PxxDvxrgD8',
+    coords: '24.4568125,39.5465625',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4568125,39.5465625'
+  },
+  {
+    project: 'ملفى المكيمن 2',
+    projectEn: 'Malfa Al Mukeemen 2',
+    url: 'https://maps.app.goo.gl/2tBKQmzahU8ehRaa7',
+    coords: '24.4662446,39.6652025',
+    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4662446,39.6652025'
+  },
 ]
 
 export default function Contact() {
@@ -81,6 +140,11 @@ export default function Contact() {
   const [mapUrl, setMapUrl] = useState<string | null>(null)
   const [mapMetaKeywords, setMapMetaKeywords] = useState<string | undefined>(undefined)
   const [isLoadingMap, setIsLoadingMap] = useState(true)
+  const [activeLocation, setActiveLocation] = useState<OfficeLocation>(salesOffices[0])
+
+  const getEmbedUrl = () => {
+    return `https://maps.google.com/maps?q=${activeLocation.coords}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+  }
 
   useEffect(() => {
     const fetchMapUrl = async () => {
@@ -96,6 +160,22 @@ export default function Contact() {
       }
     }
     fetchMapUrl()
+  }, [])
+
+  useEffect(() => {
+    const handleHashScroll = () => {
+      if (window.location.hash === '#locations') {
+        setTimeout(() => {
+          const element = document.getElementById('locations')
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 300)
+      }
+    }
+    handleHashScroll()
+    window.addEventListener('hashchange', handleHashScroll)
+    return () => window.removeEventListener('hashchange', handleHashScroll)
   }, [])
 
   return (
@@ -317,7 +397,7 @@ export default function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Box sx={{ mt: 6 }}>
+          <Box id="locations" sx={{ mt: 6 }}>
             <Grid container spacing={4}>
               {/* HQ Map Card */}
               <Grid size={{ xs: 12, md: 6 }}>
@@ -335,13 +415,20 @@ export default function Contact() {
                   })}
                 >
                   <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="h6" fontWeight="bold" color="primary.main">
-                      {isRtl ? 'الموقع الرئيسي (الإدارة العامة)' : 'Headquarters (HQ Office)'}
-                    </Typography>
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold" color="primary.main">
+                        {isRtl ? activeLocation.project : activeLocation.projectEn}
+                      </Typography>
+                      {activeLocation.isHq && (
+                        <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, display: 'block', mt: 0.5 }}>
+                          {isRtl ? 'الإدارة العامة' : 'General Administration'}
+                        </Typography>
+                      )}
+                    </Box>
                     <MapPin size={20} color="#1a365d" />
                   </Box>
                   <Box sx={{ flexGrow: 1, minHeight: 400, position: 'relative', bgcolor: 'grey.50' }}>
-                    {isLoadingMap ? (
+                    {isLoadingMap && activeLocation.isHq ? (
                       <Box
                         sx={{
                           position: 'absolute',
@@ -357,13 +444,13 @@ export default function Contact() {
                         <Box sx={{ textAlign: 'center' }}>
                           <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
                           <Typography variant="caption" color="text.secondary">
-                            {t('contact.mapPlaceholder')}
+                            {isRtl ? 'جاري التحميل...' : 'Loading...'}
                           </Typography>
                         </Box>
                       </Box>
-                    ) : mapUrl ? (
+                    ) : (
                       <iframe
-                        src={mapUrl}
+                        src={getEmbedUrl()}
                         width="100%"
                         height="100%"
                         style={{ border: 0, display: 'block', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
@@ -372,27 +459,31 @@ export default function Contact() {
                         referrerPolicy="no-referrer-when-downgrade"
                         title={mapMetaKeywords || t('contact.mapTitle')}
                       />
-                    ) : (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Box sx={{ textAlign: 'center' }}>
-                          <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
-                          <Typography variant="caption" color="text.secondary">
-                            {t('contact.mapPlaceholder')}
-                          </Typography>
-                        </Box>
-                      </Box>
                     )}
+                  </Box>
+                  <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'center', bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
+                    <Box
+                      component="a"
+                      href={activeLocation.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        textDecoration: 'none',
+                        color: 'secondary.main',
+                        fontWeight: 600,
+                        fontSize: '0.85rem',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                          opacity: 0.8
+                        }
+                      }}
+                    >
+                      <MapPin size={16} />
+                      <span>{isRtl ? 'فتح في خرائط جوجل للحصول على الاتجاهات ←' : 'Open in Google Maps for directions ←'}</span>
+                    </Box>
                   </Box>
                 </Card>
               </Grid>
@@ -414,56 +505,110 @@ export default function Contact() {
                 >
                   <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="h6" fontWeight="bold" color="primary.main">
-                      {isRtl ? 'مواقع مكاتب المبيعات للمشاريع' : 'Project Sales Offices Locations'}
+                      {isRtl ? 'مواقع فروع ومكاتب المبيعات' : 'Office & Sales Branch Locations'}
                     </Typography>
                     <MapPin size={20} className="text-secondary-main" />
                   </Box>
-                  <Box sx={{ flexGrow: 1, maxHeight: 400, overflowY: 'auto' }}>
-                    {salesOffices.map((office, idx) => (
-                      <Box
-                        key={idx}
-                        component="a"
-                        href={office.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          px: 3,
-                          py: 2.2,
-                          borderBottom: idx === salesOffices.length - 1 ? 0 : 1,
-                          borderColor: 'divider',
-                          textDecoration: 'none',
-                          color: 'text.primary',
-                          bgcolor: idx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.01)',
-                          transition: 'all 0.2s ease',
-                          '&:hover': {
-                            bgcolor: 'rgba(201, 162, 39, 0.06)',
-                            '& .project-name': { color: 'secondary.main', transform: isRtl ? 'translateX(-4px)' : 'translateX(4px)' },
-                            '& .view-loc': { transform: isRtl ? 'translateX(-2px)' : 'translateX(2px)' }
-                          }
-                        }}
-                      >
-                        <Typography className="project-name" fontWeight={600} sx={{ fontSize: '0.95rem', transition: 'all 0.2s ease-in-out' }}>
-                          {isRtl ? office.project : office.projectEn}
-                        </Typography>
-                        <Box 
-                          className="view-loc"
-                          sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 0.5, 
-                            color: 'secondary.main', 
-                            fontWeight: 600, 
-                            fontSize: '0.85rem',
-                            transition: 'all 0.2s ease-in-out',
+                  <Box sx={{ flexGrow: 1, maxHeight: 440, overflowY: 'auto' }}>
+                    {salesOffices.map((office, idx) => {
+                      const isActive = activeLocation.coords === office.coords
+                      return (
+                        <Box
+                          key={idx}
+                          onClick={() => {
+                            setActiveLocation(office)
+                            window.open(office.dirUrl, '_blank')
                           }}
+                          sx={(theme) => ({
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            px: 3,
+                            py: 2.2,
+                            borderBottom: idx === salesOffices.length - 1 ? 0 : 1,
+                            borderColor: 'divider',
+                            cursor: 'pointer',
+                            color: 'text.primary',
+                            borderRight: isRtl && isActive ? '4px solid' : 'none',
+                            borderLeft: !isRtl && isActive ? '4px solid' : 'none',
+                            borderRightColor: 'secondary.main',
+                            borderLeftColor: 'secondary.main',
+                            bgcolor: isActive
+                              ? alpha(theme.palette.secondary.main, 0.08)
+                              : idx % 2 === 0
+                              ? 'transparent'
+                              : 'rgba(0,0,0,0.01)',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              bgcolor: isActive
+                                ? alpha(theme.palette.secondary.main, 0.12)
+                                : 'rgba(201, 162, 39, 0.06)',
+                              '& .project-name': {
+                                color: 'secondary.main',
+                                transform: isRtl ? 'translateX(-4px)' : 'translateX(4px)',
+                              },
+                            },
+                          })}
                         >
-                          <span>{isRtl ? 'موقع المبيعات ←' : 'Sales Office ←'}</span>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                            <Typography
+                              className="project-name"
+                              fontWeight={isActive ? 700 : 600}
+                              sx={{
+                                fontSize: '0.95rem',
+                                color: isActive ? 'secondary.main' : 'text.primary',
+                                transition: 'all 0.2s ease-in-out',
+                              }}
+                            >
+                              {isRtl ? office.project : office.projectEn}
+                            </Typography>
+                            {office.isHq && (
+                              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                                {isRtl ? 'المقر الرئيسي للمجموعة' : 'Company Headquarters'}
+                              </Typography>
+                            )}
+                          </Box>
+                          <Box
+                            component="a"
+                            href={office.dirUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              color: isActive ? 'secondary.main' : 'text.secondary',
+                              fontWeight: 600,
+                              fontSize: '0.82rem',
+                              textDecoration: 'none',
+                              border: '1px solid',
+                              borderColor: isActive ? 'secondary.main' : 'divider',
+                              borderRadius: 1,
+                              px: 1.5,
+                              py: 0.6,
+                              bgcolor: isActive ? 'rgba(255, 255, 255, 0.8)' : 'transparent',
+                              transition: 'all 0.2s ease-in-out',
+                              '&:hover': {
+                                bgcolor: 'secondary.main',
+                                color: 'white',
+                                borderColor: 'secondary.main',
+                              },
+                            }}
+                          >
+                            <span>
+                              {office.isHq
+                                ? isRtl
+                                  ? 'الاتجاهات ←'
+                                  : 'Directions ←'
+                                : isRtl
+                                ? 'موقع المبيعات ←'
+                                : 'Sales Office ←'}
+                            </span>
+                          </Box>
                         </Box>
-                      </Box>
-                    ))}
+                      )
+                    })}
                   </Box>
                 </Card>
               </Grid>
