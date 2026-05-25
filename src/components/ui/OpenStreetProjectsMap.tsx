@@ -50,10 +50,12 @@ export default function OpenStreetProjectsMap({
   locations,
   selectedId,
   height = 520,
+  onSelectProject,
 }: {
   locations: ProjectLocation[]
   selectedId?: string
   height?: number
+  onSelectProject?: (id: string) => void
 }) {
   const bounds = useMemo<LatLngBoundsExpression | null>(() => {
     const pts = locations.map((l) => [l.lat, l.lng] as const)
@@ -87,11 +89,43 @@ export default function OpenStreetProjectsMap({
         {!selected && <FitBounds bounds={bounds} />}
         <FocusSelection selected={selected} />
         {locations.map((l) => (
-          <Marker key={l.id} position={[l.lat, l.lng]} icon={defaultMarkerIcon}>
+          <Marker 
+            key={l.id} 
+            position={[l.lat, l.lng]} 
+            icon={defaultMarkerIcon}
+            eventHandlers={{
+              click: () => {
+                if (onSelectProject) {
+                  onSelectProject(l.id)
+                }
+              }
+            }}
+          >
             <Popup>
               <div style={{ minWidth: 180 }}>
                 <div style={{ fontWeight: 700, marginBottom: 4 }}>{l.name}</div>
-                {l.subtitle ? <div style={{ opacity: 0.8, fontSize: 12 }}>{l.subtitle}</div> : null}
+                {l.subtitle ? <div style={{ opacity: 0.8, fontSize: 12, marginBottom: 8 }}>{l.subtitle}</div> : null}
+                <button
+                  style={{
+                    backgroundColor: selectedId === l.id ? '#c9a227' : '#1a365d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    width: '100%',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onClick={() => {
+                    if (onSelectProject) {
+                      onSelectProject(l.id)
+                    }
+                  }}
+                >
+                  {selectedId === l.id ? 'عرض التفاصيل / View Details' : 'تحديد وزوم / Select & Zoom'}
+                </button>
               </div>
             </Popup>
           </Marker>

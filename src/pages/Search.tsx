@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   Box,
   Container,
@@ -27,8 +27,10 @@ import { Project, Unit } from '../lib/types'
 import OpenStreetProjectsMap, { ProjectLocation } from '../components/ui/OpenStreetProjectsMap'
 
 export default function Search() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const isAr = i18n.language.startsWith('ar')
   const { filters, setFilters, setFilterDrawerOpen } = useAppStore()
   const [units, setUnits] = useState<Unit[]>([])
   const [pagination, setPagination] = useState<{ hasNextPage: boolean; hasPreviousPage: boolean } | null>(null)
@@ -100,6 +102,14 @@ export default function Search() {
       key !== 'page' &&
       key !== 'pageSize'
   ).length
+
+  const handleProjectClick = (projectId: string) => {
+    if (filters.projectId === projectId) {
+      navigate(`/project/${projectId}`)
+    } else {
+      setFilters({ ...filters, projectId, page: 1 })
+    }
+  }
 
   const projectLocations = useMemo<ProjectLocation[]>(() => {
     return (projects || [])
@@ -203,34 +213,83 @@ export default function Search() {
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {projects.map((p) => (
-                    <Card key={p.id} sx={{ cursor: 'pointer' }} onClick={() => setFilters({ ...filters, projectId: p.id, page: 1 })}>
-                      <CardContent sx={{ p: 2 }}>
-                        <Typography fontWeight={700}>{p.nameAr || p.name}</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                          {p.locationAr || p.location}
-                        </Typography>
-                        <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setFilters({ ...filters, projectId: p.id, page: 1 })
-                              setViewMode('grid')
-                            }}
-                          >
-                            {t('home.viewUnits')}
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {projects.map((p) => {
+                    const isSelected = filters.projectId === p.id
+                    return (
+                      <Card
+                        key={p.id}
+                        sx={(theme) => ({
+                          cursor: 'pointer',
+                          position: 'relative',
+                          border: '2px solid',
+                          borderColor: isSelected ? 'secondary.main' : 'transparent',
+                          bgcolor: isSelected ? alpha(theme.palette.secondary.main, 0.04) : 'background.paper',
+                          boxShadow: isSelected ? '0 8px 24px rgba(201, 162, 39, 0.12)' : '0 1px 3px rgba(0,0,0,0.05)',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: isSelected ? '0 12px 28px rgba(201, 162, 39, 0.18)' : '0 4px 12px rgba(0,0,0,0.08)',
+                          },
+                        })}
+                        onClick={() => handleProjectClick(p.id)}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <Typography fontWeight={700} color={isSelected ? 'secondary.main' : 'text.primary'}>
+                            {p.nameAr || p.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {p.locationAr || p.location}
+                          </Typography>
+                          
+                          <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setFilters({ ...filters, projectId: p.id, page: 1 })
+                                setViewMode('grid')
+                              }}
+                              sx={(theme) => ({
+                                borderColor: isSelected ? 'secondary.main' : 'divider',
+                                color: isSelected ? 'secondary.main' : 'text.primary',
+                                '&:hover': {
+                                  borderColor: 'secondary.dark',
+                                  bgcolor: alpha(theme.palette.secondary.main, 0.08),
+                                },
+                              })}
+                            >
+                              {t('home.viewUnits')}
+                            </Button>
+
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                color: isSelected ? 'secondary.main' : 'text.secondary',
+                                fontWeight: isSelected ? 600 : 400,
+                              }}
+                            >
+                              {isSelected ? (
+                                isAr ? 'انقر مجدداً لعرض التفاصيل ←' : 'Click again to view details ←'
+                              ) : (
+                                isAr ? 'تحديد وزوم' : 'Select & Zoom'
+                              )}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </Box>
               )}
             </Grid>
             <Grid size={{ xs: 12, md: 8 }}>
-              <OpenStreetProjectsMap locations={projectLocations} selectedId={filters.projectId} height={600} />
+              <OpenStreetProjectsMap 
+                locations={projectLocations} 
+                selectedId={filters.projectId} 
+                height={600} 
+                onSelectProject={handleProjectClick}
+              />
             </Grid>
           </Grid>
         ) : (
