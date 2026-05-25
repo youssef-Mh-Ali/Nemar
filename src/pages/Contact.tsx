@@ -65,8 +65,19 @@ const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
+const salesOffices = [
+  { project: 'نزل خيالا - جدة', projectEn: 'Nazal Khayala - Jeddah', url: 'https://maps.app.goo.gl/iWaAkHtoVkWqRmcn8' },
+  { project: 'ملفى الحوية', projectEn: 'Malfa Al Hawiah', url: 'https://maps.app.goo.gl/9Fv2dzxvouxztJNr5' },
+  { project: 'ملفى جدة', projectEn: 'Malfa Jeddah', url: 'https://maps.app.goo.gl/Wbh3rDku8vm2tF1r8' },
+  { project: 'ملفى تبوك هيلز', projectEn: 'Malfa Tabuk Hills', url: 'https://maps.app.goo.gl/FPhqhKgWYDAQBZnr9' },
+  { project: 'ملفى الاصالة', projectEn: 'Malfa Al Asalah', url: 'https://maps.app.goo.gl/crzBe21cvioUXecx7' },
+  { project: 'ملفى المكيمن 1', projectEn: 'Malfa Al Mukeemen 1', url: 'https://maps.app.goo.gl/wVZVVm7PxxDvxrgD8' },
+  { project: 'ملفى المكيمن 2', projectEn: 'Malfa Al Mukeemen 2', url: 'https://maps.app.goo.gl/2tBKQmzahU8ehRaa7' },
+]
+
 export default function Contact() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language.startsWith('ar')
   const [mapUrl, setMapUrl] = useState<string | null>(null)
   const [mapMetaKeywords, setMapMetaKeywords] = useState<string | undefined>(undefined)
   const [isLoadingMap, setIsLoadingMap] = useState(true)
@@ -296,70 +307,169 @@ export default function Contact() {
                   })}
                 </Box>
               </Box>
-
-              {/* Map */}
-              <Box
-                sx={{
-                  mt: 3,
-                  aspectRatio: '16/9',
-                  bgcolor: 'grey.100',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  border: 1,
-                  borderColor: 'divider',
-                  position: 'relative',
-                }}
-              >
-                {isLoadingMap ? (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Box sx={{ textAlign: 'center' }}>
-                      <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {t('contact.mapPlaceholder')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ) : mapUrl ? (
-                  <iframe
-                    src={mapUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={mapMetaKeywords || t('contact.mapTitle')}
-                  />
-                ) : (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Box sx={{ textAlign: 'center' }}>
-                      <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {t('contact.mapPlaceholder')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-              </Box>
             </motion.div>
           </Grid>
         </Grid>
+
+        {/* HQ Map & Sales Offices Locations Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Box sx={{ mt: 6 }}>
+            <Grid container spacing={4}>
+              {/* HQ Map Card */}
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card
+                  sx={(theme) => ({
+                    backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                    backdropFilter: 'blur(16px)',
+                    border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 3,
+                    overflow: 'hidden',
+                  })}
+                >
+                  <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" fontWeight="bold" color="primary.main">
+                      {isRtl ? 'الموقع الرئيسي (الإدارة العامة)' : 'Headquarters (HQ Office)'}
+                    </Typography>
+                    <MapPin size={20} color="#1a365d" />
+                  </Box>
+                  <Box sx={{ flexGrow: 1, minHeight: 400, position: 'relative', bgcolor: 'grey.50' }}>
+                    {isLoadingMap ? (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Box sx={{ textAlign: 'center' }}>
+                          <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {t('contact.mapPlaceholder')}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ) : mapUrl ? (
+                      <iframe
+                        src={mapUrl}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0, display: 'block', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={mapMetaKeywords || t('contact.mapTitle')}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Box sx={{ textAlign: 'center' }}>
+                          <MapPin size={32} color="#718096" style={{ margin: '0 auto 8px', display: 'block' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {t('contact.mapPlaceholder')}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                </Card>
+              </Grid>
+
+              {/* Sales Offices Location Card */}
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card
+                  sx={(theme) => ({
+                    backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                    backdropFilter: 'blur(16px)',
+                    border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                    height: '100%',
+                    borderRadius: 3,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                  })}
+                >
+                  <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" fontWeight="bold" color="primary.main">
+                      {isRtl ? 'مواقع مكاتب المبيعات للمشاريع' : 'Project Sales Offices Locations'}
+                    </Typography>
+                    <MapPin size={20} className="text-secondary-main" />
+                  </Box>
+                  <Box sx={{ flexGrow: 1, maxHeight: 400, overflowY: 'auto' }}>
+                    {salesOffices.map((office, idx) => (
+                      <Box
+                        key={idx}
+                        component="a"
+                        href={office.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          px: 3,
+                          py: 2.2,
+                          borderBottom: idx === salesOffices.length - 1 ? 0 : 1,
+                          borderColor: 'divider',
+                          textDecoration: 'none',
+                          color: 'text.primary',
+                          bgcolor: idx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.01)',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            bgcolor: 'rgba(201, 162, 39, 0.06)',
+                            '& .project-name': { color: 'secondary.main', transform: isRtl ? 'translateX(-4px)' : 'translateX(4px)' },
+                            '& .view-loc': { transform: isRtl ? 'translateX(-2px)' : 'translateX(2px)' }
+                          }
+                        }}
+                      >
+                        <Typography className="project-name" fontWeight={600} sx={{ fontSize: '0.95rem', transition: 'all 0.2s ease-in-out' }}>
+                          {isRtl ? office.project : office.projectEn}
+                        </Typography>
+                        <Box 
+                          className="view-loc"
+                          sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 0.5, 
+                            color: 'secondary.main', 
+                            fontWeight: 600, 
+                            fontSize: '0.85rem',
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
+                          <span>{isRtl ? 'موقع المبيعات ←' : 'Sales Office ←'}</span>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        </motion.div>
       </Container>
     </Box>
   )
