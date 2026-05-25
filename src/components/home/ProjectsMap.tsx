@@ -54,7 +54,7 @@ function createMapPinIcon(fill: string) {
   })
 }
 
-const availablePinIcon = createMapPinIcon('#1d4ed8') // Premium vibrant blue
+const availablePinIcon = createMapPinIcon('#223559') // Brand navy blue
 const highlightedPinIcon = createMapPinIcon('#c9a227') // Premium gold active highlight
 const soldOutPinIcon = createMapPinIcon('#6b7280')
 
