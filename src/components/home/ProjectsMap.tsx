@@ -125,15 +125,35 @@ function MapController({
   selectedRegion,
   projects,
   resetTrigger,
+  highlightedProjectId,
 }: {
   selectedRegion: string | null
   projects: ProjectWithAvailability[]
   resetTrigger: number
+  highlightedProjectId?: string | null
 }) {
   const map = useMap()
 
   useEffect(() => {
     if (!projects.length) return
+
+    // If there is a highlighted project, fly to it with slow zoom!
+    if (highlightedProjectId) {
+      const hp = projects.find((p) => p.id === highlightedProjectId)
+      if (hp) {
+        const lat = typeof hp.renderLat === 'number' ? hp.renderLat : hp.mapCentroidLat
+        const lng = typeof hp.renderLng === 'number' ? hp.renderLng : hp.mapCentroidLng
+        if (typeof lat === 'number' && typeof lng === 'number') {
+          // Slow animation zoom speed (duration: 3.0 seconds, zoom level: 13)
+          map.flyTo([lat, lng], 13, {
+            duration: 3.0,
+            easeLinearity: 0.25,
+            noMoveStart: true,
+          })
+          return
+        }
+      }
+    }
 
     const targetProjects = selectedRegion
       ? projects.filter((p) => p.provinceRegion?.toLowerCase() === selectedRegion.toLowerCase())
@@ -165,7 +185,7 @@ function MapController({
     } else if (!selectedRegion) {
       map.flyTo([24.7136, 46.6753], 6, { duration: 1.2 })
     }
-  }, [selectedRegion, projects, resetTrigger, map])
+  }, [selectedRegion, projects, resetTrigger, map, highlightedProjectId])
 
   return null
 }
@@ -191,9 +211,11 @@ function MapResizeInvalidate() {
 
 type ProjectsMapProps = {
   sx?: SxProps<Theme>
+  highlightedProjectId?: string | null
+  onProjectSelect?: (id: string | null) => void
 }
 
-export default function ProjectsMap({ sx }: ProjectsMapProps) {
+export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect }: ProjectsMapProps) {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
   const [projects, setProjects] = useState<ProjectWithAvailability[]>([])
@@ -370,6 +392,7 @@ export default function ProjectsMap({ sx }: ProjectsMapProps) {
           selectedRegion={selectedRegion}
           projects={projectMarkers}
           resetTrigger={resetTrigger}
+          highlightedProjectId={highlightedProjectId}
         />
 
         {allPolygons.map((item, idx) =>
@@ -401,7 +424,13 @@ export default function ProjectsMap({ sx }: ProjectsMapProps) {
               position={[project.renderLat, project.renderLng]}
               icon={getProjectPinIcon(project)}
               eventHandlers={{
-                click: () => navigate(`/project/${project.id}`),
+                click: () => {
+                  if (highlightedProjectId === project.id) {
+                    navigate(`/project/${project.id}`)
+                  } else {
+                    onProjectSelect?.(project.id)
+                  }
+                },
               }}
             >
               <Tooltip direction="top" offset={[0, -36]} opacity={0.95}>
