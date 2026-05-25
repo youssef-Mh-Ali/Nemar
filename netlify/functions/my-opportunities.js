@@ -101,8 +101,8 @@ async function sfQuery(instanceUrl, accessToken, soql) {
 function mapUnitRecord(r) {
   return {
     id: r.Id,
-    projectId: '',
-    phaseId: '',
+    projectId: r.Project__c || '',
+    phaseId: r.Phase__c || '',
     unitNumber: r.Name,
     externalId: r.External_ID__c,
     price: Number(r.Price__c || 0),
@@ -133,8 +133,9 @@ function mapUnitRecord(r) {
     paymentProgress: undefined,
     paymentStatus: undefined,
     // optional labels if present (when unit comes from Opportunity.Unit__r)
-    projectName: undefined,
-    projectNameAr: undefined,
+    projectName: r.Project__r?.Name ?? undefined,
+    projectNameAr: r.Project__r?.Name ?? undefined,
+    projectHeroImage: r.Project__r?.Hero_Image_URL__c ?? undefined,
     phaseName: undefined,
     phaseNameAr: undefined,
     buildingName: undefined,
@@ -204,6 +205,9 @@ export const handler = async (event) => {
       'Unit__r.Eligible_for_Subsidies__c',
       'Unit__r.Subsidies__c',
       'Unit__r.Unit_Image__c',
+      'Unit__r.Project__c',
+      'Unit__r.Project__r.Name',
+      'Unit__r.Project__r.Hero_Image_URL__c',
     ].join(', ')
 
     // 1) Get opportunities related to contact (via OpportunityContactRole)

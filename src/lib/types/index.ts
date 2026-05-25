@@ -92,6 +92,7 @@ export interface Unit {
   deliveryDate?: string;
   images: string[];
   unitImage?: string;
+  projectHeroImage?: string;
   floorPlan?: string;
   sketchupEmbedUrl?: string;
   amenities?: string[];

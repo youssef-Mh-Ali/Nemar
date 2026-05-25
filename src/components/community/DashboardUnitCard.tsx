@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Box, Typography, LinearProgress, Paper, Chip } from '@mui/material'
 import { Bed, Move, Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +13,16 @@ interface DashboardUnitCardProps {
 export default function DashboardUnitCard({ unit }: DashboardUnitCardProps) {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language === 'ar'
+
+  // Dynamic image source with fallback handlers
+  const [imageSrc, setImageSrc] = useState(
+    unit.unitImage || (unit.images && unit.images[0]) || unit.projectHeroImage || '/placeholder-unit.jpg'
+  )
+
+  // Keep state in sync if unit prop updates
+  useEffect(() => {
+    setImageSrc(unit.unitImage || (unit.images && unit.images[0]) || unit.projectHeroImage || '/placeholder-unit.jpg')
+  }, [unit])
   
   // Mock data if not present (for demo purposes as seen in screenshots)
   const progress = unit.paymentProgress || (unit.status === 'Sold' || unit.status === 'Contracted' ? 100 : 60)
@@ -40,8 +51,15 @@ export default function DashboardUnitCard({ unit }: DashboardUnitCardProps) {
       <Box sx={{ position: 'relative', height: 200, overflow: 'hidden' }}>
         <Box
           component="img"
-          src={unit.unitImage || (unit.images && unit.images[0]) || '/placeholder-unit.jpg'}
+          src={imageSrc}
           alt={unit.unitNumber}
+          onError={() => {
+            if (imageSrc !== unit.projectHeroImage && unit.projectHeroImage) {
+              setImageSrc(unit.projectHeroImage)
+            } else if (imageSrc !== '/placeholder-unit.jpg') {
+              setImageSrc('/placeholder-unit.jpg')
+            }
+          }}
           sx={{
             width: '100%',
             height: '100%',
