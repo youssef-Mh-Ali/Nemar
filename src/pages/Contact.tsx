@@ -517,7 +517,6 @@ export default function Contact() {
                           key={idx}
                           onClick={() => {
                             setActiveLocation(office)
-                            window.open(office.dirUrl, '_blank')
                           }}
                           sx={(theme) => ({
                             display: 'flex',
@@ -597,13 +596,7 @@ export default function Contact() {
                             }}
                           >
                             <span>
-                              {office.isHq
-                                ? isRtl
-                                  ? 'الاتجاهات ←'
-                                  : 'Directions ←'
-                                : isRtl
-                                ? 'موقع المبيعات ←'
-                                : 'Sales Office ←'}
+                              {isRtl ? 'الاتجاهات ←' : 'Directions ←'}
                             </span>
                           </Box>
                         </Box>
