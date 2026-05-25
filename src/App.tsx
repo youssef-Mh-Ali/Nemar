@@ -49,10 +49,13 @@ function App() {
         if (res.success && res.data) {
           setAuth(res.data, null)
         } else {
-          clearAuth()
+          // Keep the cached auth session from localStorage intact!
+          // This keeps the user logged in until they explicitly click log out, even on flaky networks or offline states.
+          console.log('[Auth] Keep using cached session from localStorage.')
         }
       } catch {
-        if (mounted) clearAuth()
+        // Keep the cached session on network errors
+        console.log('[Auth] Network error, maintaining cached session.')
       } finally {
         if (mounted) setLoading(false)
       }
@@ -61,7 +64,7 @@ function App() {
     return () => {
       mounted = false
     }
-  }, [setAuth, clearAuth, setLoading])
+  }, [setAuth, setLoading])
 
   return (
     <MaintenanceGate>
