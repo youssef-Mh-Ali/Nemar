@@ -520,13 +520,42 @@
   "chatbot": {
     "greeting": "Welcome to Faisal Bin Saedan! I'm Sara, your digital assistant. How can I help you today?",
     "menu": {
-      "projects": "Explore Projects",
+      "projects": "Explore Projects & Units",
       "services": "Our Services",
-      "contact": "Contact Sales / Register Interest"
+      "contact": "Contact Sales / Register Interest",
+      "findUnit": "🔍 Find the Perfect Unit",
+      "browseAll": "📂 Browse All Projects"
     },
     "link": {
       "projects": "You can explore our latest residential and commercial communities on our Projects page: /projects",
-      "services": "We offer a range of services from property management to investment solutions. Learn more on our About page: /about"
+      "services": "We offer a range of services from property management to investment solutions. Learn more on our About page: /about-us"
+    },
+    "findUnitIntro": "I can help you find available units based on your preferences. Let's start! What is your preferred location?",
+    "location": {
+      "riyadh": "Riyadh",
+      "kaec": "KAEC",
+      "any": "Any Location"
+    },
+    "askBudget": "What is your budget range?",
+    "budget": {
+      "under_1_5m": "Under 1.5M SAR",
+      "between_1_5m_3m": "1.5M - 3M SAR",
+      "above_3m": "Above 3M SAR",
+      "any": "Any Budget"
+    },
+    "askBedrooms": "How many bedrooms do you need?",
+    "bedrooms": {
+      "two": "2 Bedrooms",
+      "three": "3 Bedrooms",
+      "four_plus": "4+ Bedrooms",
+      "any": "Any Number"
+    },
+    "proposalsFound": "Great news! I found these matching available units for you:",
+    "noProposalsFound": "I couldn't find available units matching those exact preferences, but here are some of our premium active listings you might like:",
+    "unitCard": {
+      "viewDetails": "View Details",
+      "interested": "I'm Interested",
+      "area": "Area"
     },
     "askName": "Great! I'll connect you with our sales team. First, what is your full name?",
     "askCountry": "Nice to meet you! Please enter your mobile country code (e.g. +966).",

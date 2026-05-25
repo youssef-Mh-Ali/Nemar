@@ -11,7 +11,7 @@ exports.handler = async (event) => {
 
     try {
         const body = JSON.parse(event.body);
-        const { name, country, phone, region, city, customerType } = body;
+        const { name, country, phone, region, city, customerType, selectedUnit } = body;
 
         // Basic validation
         if (!name || !country || !phone || !region || !city || !customerType) {
@@ -53,6 +53,7 @@ exports.handler = async (event) => {
             Lead_City__c: city,
             LeadSource: 'Website Bot',
             Private_Customer__c: customerType === 'Company' ? false : true,
+            Description: selectedUnit ? `Interested in unit: ${selectedUnit}` : undefined
         };
 
         const sfApiUrl = `${instance_url}/services/data/v58.0/sobjects/Lead`;

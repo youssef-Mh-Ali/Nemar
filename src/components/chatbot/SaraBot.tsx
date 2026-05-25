@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { 
   Box, 
   IconButton, 
@@ -14,10 +15,11 @@ import {
   Slide,
   Fade
 } from '@mui/material'
-import { MessageCircle, X, Send } from 'lucide-react'
+import { MessageCircle, X, Send, Bed, Bath, Maximize } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useChatStore } from '../../lib/chatbot/store'
+import CurrencyIcon from '../ui/CurrencyIcon'
 
 export default function SaraBot() {
   const { t, i18n } = useTranslation()
@@ -30,7 +32,8 @@ export default function SaraBot() {
     options, 
     handleOptionSelect, 
     handleTextInput,
-    resetChat
+    resetChat,
+    selectUnitForInquiry
   } = useChatStore()
   
   const [inputText, setInputText] = useState('')
@@ -70,8 +73,8 @@ export default function SaraBot() {
       {/* Floating Action Button */}
       <Box sx={{
         position: 'fixed',
-        bottom: 30,
-        [isRtl ? 'left' : 'right']: 30,
+        bottom: { xs: 80, md: 30 },
+        [isRtl ? 'left' : 'right']: { xs: 20, sm: 30 },
         zIndex: 9999
       }}>
         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -99,10 +102,10 @@ export default function SaraBot() {
               elevation={24}
               sx={{
                 position: 'fixed',
-                bottom: 100,
-                [isRtl ? 'left' : 'right']: 30,
-                width: { xs: 'calc(100vw - 60px)', sm: 380 },
-                height: { xs: 'calc(100vh - 140px)', sm: 600 },
+                bottom: { xs: 150, md: 100 },
+                [isRtl ? 'left' : 'right']: { xs: 20, sm: 30 },
+                width: { xs: 'calc(100vw - 40px)', sm: 380 },
+                height: { xs: 'calc(100vh - 190px)', sm: 600 },
                 maxHeight: 700,
                 zIndex: 9998,
                 display: 'flex',
@@ -157,38 +160,198 @@ export default function SaraBot() {
                 {messages.map((msg, index) => {
                   const isBot = msg.type === 'bot'
                   return (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{
-                        alignSelf: isBot ? (isRtl ? 'flex-end' : 'flex-start') : (isRtl ? 'flex-start' : 'flex-end'),
-                        maxWidth: '85%'
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', gap: 1, flexDirection: isBot ? 'row' : 'row-reverse' }}>
-                        {isBot && (
-                          <Avatar src="/images/sara-avatar.jpg" sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
-                        )}
-                        <Box sx={{
-                          bgcolor: isBot ? 'white' : '#102d4a',
-                          color: isBot ? '#1e293b' : 'white',
-                          p: 1.5,
-                          px: 2,
-                          borderRadius: 3,
-                          borderTopLeftRadius: isBot && !isRtl ? 4 : 24,
-                          borderTopRightRadius: isBot && isRtl ? 4 : 24,
-                          borderBottomRightRadius: !isBot && !isRtl ? 4 : 24,
-                          borderBottomLeftRadius: !isBot && isRtl ? 4 : 24,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                          typography: 'body2',
-                          lineHeight: 1.6,
-                        }}>
-                          {msg.textKey ? t(msg.textKey) : msg.text}
+                    <Box key={msg.id} sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: '100%' }}>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{
+                          alignSelf: isBot ? (isRtl ? 'flex-end' : 'flex-start') : (isRtl ? 'flex-start' : 'flex-end'),
+                          maxWidth: '85%'
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', gap: 1, flexDirection: isBot ? 'row' : 'row-reverse' }}>
+                          {isBot && (
+                            <Avatar src="/images/sara-avatar.jpg" sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
+                          )}
+                          <Box sx={{
+                            bgcolor: isBot ? 'white' : '#102d4a',
+                            color: isBot ? '#1e293b' : 'white',
+                            p: 1.5,
+                            px: 2,
+                            borderRadius: 3,
+                            borderTopLeftRadius: isBot && !isRtl ? 4 : 24,
+                            borderTopRightRadius: isBot && isRtl ? 4 : 24,
+                            borderBottomRightRadius: !isBot && !isRtl ? 4 : 24,
+                            borderBottomLeftRadius: !isBot && isRtl ? 4 : 24,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                            typography: 'body2',
+                            lineHeight: 1.6,
+                          }}>
+                            {msg.textKey ? t(msg.textKey) : msg.text}
+                          </Box>
                         </Box>
-                      </Box>
-                    </motion.div>
+                      </motion.div>
+
+                      {msg.proposalUnits && msg.proposalUnits.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: 0.15 }}
+                          style={{
+                            width: '100%',
+                            alignSelf: 'stretch'
+                          }}
+                        >
+                          <Box sx={{
+                            display: 'flex',
+                            gap: 1.5,
+                            overflowX: 'auto',
+                            py: 1,
+                            px: 0.5,
+                            scrollSnapType: 'x mandatory',
+                            '&::-webkit-scrollbar': {
+                              height: '6px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: '#cbd5e1',
+                              borderRadius: '3px',
+                            }
+                          }}>
+                            {msg.proposalUnits.map((unit: any) => {
+                              const formattedPrice = new Intl.NumberFormat(isRtl ? 'ar-SA' : 'en-US', {
+                                style: 'decimal',
+                                maximumFractionDigits: 0,
+                              }).format(unit.price)
+
+                              return (
+                                <Paper
+                                  key={unit.id}
+                                  elevation={2}
+                                  sx={{
+                                    minWidth: 230,
+                                    maxWidth: 230,
+                                    borderRadius: 3,
+                                    overflow: 'hidden',
+                                    border: '1px solid #e2e8f0',
+                                    bgcolor: 'white',
+                                    scrollSnapAlign: 'start',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                    '&:hover': {
+                                      transform: 'translateY(-2px)',
+                                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    }
+                                  }}
+                                >
+                                  {/* Thumbnail */}
+                                  <Box sx={{ position: 'relative', height: 110 }}>
+                                    <img
+                                      src={unit.images?.[0] || '/placeholder.jpg'}
+                                      alt={unit.unitNumber}
+                                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                    <Box sx={{
+                                      position: 'absolute',
+                                      bottom: 8,
+                                      [isRtl ? 'right' : 'left']: 8,
+                                      bgcolor: 'rgba(16, 45, 74, 0.85)',
+                                      color: 'white',
+                                      px: 1,
+                                      py: 0.25,
+                                      borderRadius: 1,
+                                      fontSize: '0.7rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      {unit.unitNumber}
+                                    </Box>
+                                  </Box>
+
+                                  {/* Details */}
+                                  <Box sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <Typography variant="subtitle2" fontWeight="bold" noWrap color="#1e293b" sx={{ fontSize: '0.85rem' }}>
+                                      {isRtl ? unit.projectNameAr || unit.projectName : unit.projectName}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: '0.7rem' }}>
+                                      {isRtl ? unit.phaseNameAr || unit.phaseName : unit.phaseName}
+                                    </Typography>
+
+                                    {/* Price & Currency */}
+                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', mt: 0.5, gap: 0.25 }}>
+                                      <Typography variant="body2" fontWeight="bold" color="#102d4a" sx={{ fontSize: '0.9rem' }}>
+                                        {formattedPrice}
+                                      </Typography>
+                                      <CurrencyIcon theme="light" style={{ height: '1.15em' }} />
+                                    </Box>
+
+                                    {/* Specifications */}
+                                    <Box sx={{ display: 'flex', gap: 1.5, mt: 1, color: '#64748b' }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                                        <Bed size={13} />
+                                        <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>{unit.bedrooms}</Typography>
+                                      </Box>
+                                      {unit.bathrooms && (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                                          <Bath size={13} />
+                                          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>{unit.bathrooms}</Typography>
+                                        </Box>
+                                      )}
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                                        <Maximize size={13} />
+                                        <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
+                                          {unit.area} {t('unit.areaUnit')}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+
+                                    {/* Buttons */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 1.5 }}>
+                                      <Button
+                                        component={Link}
+                                        to={`/unit/${unit.id}`}
+                                        target="_blank"
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{
+                                          textTransform: 'none',
+                                          fontSize: '0.7rem',
+                                          py: 0.5,
+                                          borderRadius: 1.5,
+                                          color: '#102d4a',
+                                          borderColor: '#102d4a',
+                                          fontWeight: 'bold',
+                                          '&:hover': { bgcolor: '#f1f5f9', borderColor: '#102d4a' }
+                                        }}
+                                      >
+                                        {t('chatbot.unitCard.viewDetails')}
+                                      </Button>
+                                      <Button
+                                        variant="contained"
+                                        size="small"
+                                        onClick={() => selectUnitForInquiry(unit)}
+                                        sx={{
+                                          textTransform: 'none',
+                                          fontSize: '0.7rem',
+                                          py: 0.5,
+                                          borderRadius: 1.5,
+                                          bgcolor: '#102d4a',
+                                          color: 'white',
+                                          fontWeight: 'bold',
+                                          '&:hover': { bgcolor: '#1e4670' }
+                                        }}
+                                      >
+                                        {t('chatbot.unitCard.interested')}
+                                      </Button>
+                                    </Box>
+                                  </Box>
+                                </Paper>
+                              )
+                            })}
+                          </Box>
+                        </motion.div>
+                      )}
+                    </Box>
                   )
                 })}
                 <div ref={messagesEndRef} />
