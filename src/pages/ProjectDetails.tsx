@@ -30,6 +30,7 @@ import ProjectGalleryViewer from '../components/project/ProjectGalleryViewer'
 import ProjectModelViewer from '../components/project/ProjectModelViewer'
 import type { ProjectModelFile } from '../lib/types'
 import InteractiveTopPlan from '../components/project/InteractiveTopPlan'
+import FinanceCalculatorModal, { SakaniMathIcon } from '../components/ui/FinanceCalculatorModal'
 
 type ProjectWithUi = Project & { hasAvailability?: boolean; availablePhasesCount?: number; nameEn?: string; locationEn?: string }
 
@@ -43,6 +44,7 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<ProjectWithUi | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
   const [galleryViewerOpen, setGalleryViewerOpen] = useState(false)
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null)
   const [selectedGalleryTag, setSelectedGalleryTag] = useState<string | null>(null)
@@ -269,24 +271,55 @@ export default function ProjectDetails() {
               </Box>
             </Box>
 
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => setIsRegisterModalOpen(true)}
-              sx={{
-                py: 2,
-                px: 5,
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: 8,
-                bgcolor: 'white',
-                color: 'primary.main',
-                '&:hover': { bgcolor: 'grey.100' },
-                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-              }}
-            >
-              {t('home.registerInterest')}
-            </Button>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 2, width: { xs: '100%', sm: 'auto' } }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => setIsRegisterModalOpen(true)}
+                sx={{
+                  py: 2,
+                  px: 5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: 8,
+                  bgcolor: 'white',
+                  color: 'primary.main',
+                  '&:hover': { bgcolor: 'grey.100' },
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                  width: { xs: '100%', sm: 'auto' },
+                }}
+              >
+                {t('home.registerInterest')}
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={() => setIsCalculatorOpen(true)}
+                startIcon={<SakaniMathIcon color="white" />}
+                sx={{
+                  py: 2,
+                  px: 4,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: 8,
+                  borderColor: 'rgba(255, 255, 255, 0.6)',
+                  color: 'white',
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.18)',
+                    borderColor: 'white',
+                  },
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                  width: { xs: '100%', sm: 'auto' },
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
+              </Button>
+            </Stack>
           </MotionBox>
         </Container>
       </Box>
@@ -618,6 +651,13 @@ export default function ProjectDetails() {
         projectName={title}
         fallbackProvinceRegion={project.provinceRegion}
         fallbackCity={project.city}
+      />
+
+      <FinanceCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+        propertyPrice={800000}
+        onBookClick={() => setIsRegisterModalOpen(true)}
       />
 
 

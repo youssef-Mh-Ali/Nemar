@@ -30,6 +30,7 @@ import ProjectModelViewer from '../components/project/ProjectModelViewer'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
 import SubsidyBadges from '../components/units/SubsidyBadges'
 import CurrencyIcon from '../components/ui/CurrencyIcon'
+import FinanceCalculatorModal, { SakaniMathIcon } from '../components/ui/FinanceCalculatorModal'
 
 export default function UnitDetails() {
   const { t, i18n } = useTranslation()
@@ -41,6 +42,7 @@ export default function UnitDetails() {
   const [modelFile, setModelFile] = useState<ProjectModelFile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [modelViewerOpen, setModelViewerOpen] = useState(false)
 
@@ -510,10 +512,41 @@ export default function UnitDetails() {
                   py: 1.5,
                   fontSize: '1.1rem',
                   fontWeight: 'semibold',
+                  bgcolor: 'primary.main',
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  }
                 }}
               >
                 {unit.status === 'Sold' ? t('unit.sold') : t('unit.registerInterest')}
               </Button>
+
+              <Button
+                variant="outlined"
+                size="large"
+                fullWidth
+                onClick={() => setIsCalculatorOpen(true)}
+                startIcon={<SakaniMathIcon color="#1a365d" />}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'semibold',
+                  borderColor: 'rgba(0,0,0,0.12)',
+                  color: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1.5,
+                  '&:hover': {
+                    bgcolor: 'grey.50',
+                    borderColor: 'primary.main',
+                  }
+                }}
+              >
+                {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
+              </Button>
+
               {user && (
                 <Button component={Link} to="/community" variant="outlined" size="large" fullWidth>
                   {t('unit.openSupportCase')}
@@ -550,6 +583,13 @@ export default function UnitDetails() {
         projectName={unit.projectNameAr || unit.projectName}
         fallbackProvinceRegion={unit.projectProvinceRegion}
         fallbackCity={unit.projectCity}
+      />
+
+      <FinanceCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+        propertyPrice={unit.price}
+        onBookClick={() => setIsRegisterModalOpen(true)}
       />
 
       {/* Image Gallery */}

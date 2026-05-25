@@ -226,6 +226,7 @@ export default function AboutProjectsSection() {
                 sx={{ width: '100%', height: '100%' }}
                 highlightedProjectId={highlightedProjectId}
                 onProjectSelect={(id) => setHighlightedProjectId(id)}
+                projects={gridProjects}
               />
             </Box>
           </Grid>

@@ -54,10 +54,12 @@ function createMapPinIcon(fill: string) {
   })
 }
 
-const availablePinIcon = createMapPinIcon('#e65100')
+const availablePinIcon = createMapPinIcon('#1d4ed8') // Premium vibrant blue
+const highlightedPinIcon = createMapPinIcon('#c9a227') // Premium gold active highlight
 const soldOutPinIcon = createMapPinIcon('#6b7280')
 
-function getProjectPinIcon(project: ProjectWithAvailability) {
+function getProjectPinIcon(project: ProjectWithAvailability, isHighlighted: boolean) {
+  if (isHighlighted) return highlightedPinIcon
   const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
   return isSoldOut ? soldOutPinIcon : availablePinIcon
 }
@@ -109,16 +111,41 @@ const icons = {
 }
 
 const POIs: Array<{ id: string; lat: number; lng: number; nameAr: string; nameEn: string; type: POIType }> = [
+  // Riyadh
   { id: 'ruh-airport', lat: 24.9576, lng: 46.6988, nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport', type: 'airport' },
+  { id: 'ruh-hospital-1', lat: 24.8425, lng: 46.7215, nameAr: 'مستشفى الدكتور سليمان الحبيب (النرجس)', nameEn: 'Dr. Sulaiman Al Habib Hospital (Al Narjis)', type: 'hospital' },
+  { id: 'ruh-hospital-2', lat: 24.6725, lng: 46.6783, nameAr: 'مستشفى الملك فيصل التخصصي', nameEn: 'King Faisal Specialist Hospital', type: 'hospital' },
+  { id: 'ruh-uni-1', lat: 24.8468, lng: 46.7245, nameAr: 'جامعة الأميرة نورة بنت عبدالرحمن', nameEn: 'Princess Nourah University', type: 'university' },
+  { id: 'ruh-uni-2', lat: 24.7170, lng: 46.6231, nameAr: 'جامعة الملك سعود', nameEn: 'King Saud University', type: 'university' },
+  { id: 'ruh-school-1', lat: 24.7891, lng: 46.6612, nameAr: 'مدارس المملكة', nameEn: 'Kingdom Schools', type: 'school' },
+  { id: 'ruh-school-2', lat: 24.8116, lng: 46.5168, nameAr: 'مدارس مسك', nameEn: 'Misk Schools', type: 'school' },
+
+  // Jeddah
   { id: 'jed-airport', lat: 21.6702, lng: 39.1565, nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport', type: 'airport' },
-  { id: 'dmm-airport', lat: 26.4712, lng: 49.7979, nameAr: 'مطار الملك فهد الدولي', nameEn: 'King Fahd International Airport', type: 'airport' },
-  { id: 'ruh-hospital-1', lat: 24.6725, lng: 46.6783, nameAr: 'مستشفى الملك فيصل التخصصي (الرياض)', nameEn: 'King Faisal Specialist Hospital (Riyadh)', type: 'hospital' },
-  { id: 'jed-hospital-1', lat: 21.5642, lng: 39.1670, nameAr: 'مستشفى الملك فيصل التخصصي (جدة)', nameEn: 'King Faisal Specialist Hospital (Jeddah)', type: 'hospital' },
-  { id: 'ruh-uni-1', lat: 24.7170, lng: 46.6231, nameAr: 'جامعة الملك سعود', nameEn: 'King Saud University', type: 'university' },
-  { id: 'jed-uni-1', lat: 21.4925, lng: 39.2458, nameAr: 'جامعة الملك عبدالعزيز', nameEn: 'King Abdulaziz University', type: 'university' },
-  { id: 'dmm-uni-1', lat: 26.3073, lng: 50.1479, nameAr: 'جامعة الملك فهد للبترول والمعادن', nameEn: 'KFUPM', type: 'university' },
-  { id: 'ruh-school-1', lat: 24.8116, lng: 46.5168, nameAr: 'مدارس مسك', nameEn: 'Misk Schools', type: 'school' },
-  { id: 'jed-school-1', lat: 21.5034, lng: 39.2003, nameAr: 'مدارس دار الفكر', nameEn: 'Dar Al Fikr Schools', type: 'school' },
+  { id: 'jed-hospital-1', lat: 21.7825, lng: 39.1350, nameAr: 'مجمع الملك عبدالله الطبي (شمال جدة)', nameEn: 'King Abdullah Medical Complex', type: 'hospital' },
+  { id: 'jed-hospital-2', lat: 21.5642, lng: 39.1670, nameAr: 'مستشفى الملك فيصل التخصصي', nameEn: 'King Faisal Specialist Hospital', type: 'hospital' },
+  { id: 'jed-uni-1', lat: 21.8480, lng: 39.2310, nameAr: 'جامعة جدة', nameEn: 'University of Jeddah', type: 'university' },
+  { id: 'jed-uni-2', lat: 21.4925, lng: 39.2458, nameAr: 'جامعة الملك عبدالعزيز', nameEn: 'King Abdulaziz University', type: 'university' },
+  { id: 'jed-school-1', lat: 21.7580, lng: 39.1520, nameAr: 'مدارس دار الفكر (الحمدانية)', nameEn: 'Dar Al Fikr Schools', type: 'school' },
+
+  // Madinah
+  { id: 'med-airport', lat: 24.5534, lng: 39.7051, nameAr: 'مطار الأمير محمد بن عبدالعزيز الدولي', nameEn: 'Prince Mohammad bin Abdulaziz Airport', type: 'airport' },
+  { id: 'med-hospital-1', lat: 24.4925, lng: 39.5788, nameAr: 'مستشفى الملك فهد بالمدينة المنورة', nameEn: 'King Fahad Hospital', type: 'hospital' },
+  { id: 'med-uni-1', lat: 24.4835, lng: 39.5390, nameAr: 'جامعة طيبة', nameEn: 'Taibah University', type: 'university' },
+  { id: 'med-uni-2', lat: 24.4815, lng: 39.5630, nameAr: 'الجامعة الإسلامية بالمدينة المنورة', nameEn: 'Islamic University of Madinah', type: 'university' },
+  { id: 'med-school-1', lat: 24.4755, lng: 39.6105, nameAr: 'مدارس العقيق الأهلية', nameEn: 'Al Aqeeq Private Schools', type: 'school' },
+
+  // Taif / Makkah
+  { id: 'tif-airport', lat: 21.4822, lng: 40.5447, nameAr: 'مطار الطائف الدولي', nameEn: 'Taif International Airport', type: 'airport' },
+  { id: 'tif-uni-1', lat: 21.4294, lng: 40.4855, nameAr: 'جامعة الطائف (الحوية)', nameEn: 'Taif University', type: 'university' },
+  { id: 'tif-hospital-1', lat: 21.2825, lng: 40.4215, nameAr: 'مستشفى الملك عبدالعزيز التخصصي', nameEn: 'King Abdulaziz Specialist Hospital', type: 'hospital' },
+  { id: 'tif-school-1', lat: 21.3650, lng: 40.4610, nameAr: 'مدارس الصفوة الأهلية', nameEn: 'Al-Safwah Private Schools', type: 'school' },
+
+  // Tabuk
+  { id: 'tbk-airport', lat: 28.3654, lng: 36.6189, nameAr: 'مطار الأمير سلطان بن عبدالعزيز الدولي', nameEn: 'Prince Sultan bin Abdulaziz Airport', type: 'airport' },
+  { id: 'tbk-hospital-1', lat: 28.3755, lng: 36.5210, nameAr: 'مستشفى الملك فهد التخصصي بتبوك', nameEn: 'King Fahad Specialist Hospital', type: 'hospital' },
+  { id: 'tbk-uni-1', lat: 28.3980, lng: 36.4850, nameAr: 'جامعة تبوك', nameEn: 'University of Tabuk', type: 'university' },
+  { id: 'tbk-school-1', lat: 28.3880, lng: 36.5820, nameAr: 'مدارس تبوك العالمية', nameEn: 'Tabuk International School', type: 'school' },
 ]
 
 function MapController({
@@ -190,7 +217,6 @@ function MapController({
   return null
 }
 
-/** Leaflet needs invalidateSize when the map mounts inside a flex/grid layout. */
 function MapResizeInvalidate() {
   const map = useMap()
 
@@ -209,20 +235,40 @@ function MapResizeInvalidate() {
   return null
 }
 
+function ZoomTracker({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
+  const map = useMap()
+  useEffect(() => {
+    const handleZoom = () => {
+      onZoomChange(map.getZoom())
+    }
+    map.on('zoomend', handleZoom)
+    // Run once initially
+    onZoomChange(map.getZoom())
+    return () => {
+      map.off('zoomend', handleZoom)
+    }
+  }, [map, onZoomChange])
+
+  return null
+}
+
 type ProjectsMapProps = {
   sx?: SxProps<Theme>
   highlightedProjectId?: string | null
   onProjectSelect?: (id: string | null) => void
+  projects?: ProjectWithAvailability[]
 }
 
-export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect }: ProjectsMapProps) {
+export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect, projects: passedProjects }: ProjectsMapProps) {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
-  const [projects, setProjects] = useState<ProjectWithAvailability[]>([])
+  const [fetchedProjects, setFetchedProjects] = useState<ProjectWithAvailability[]>([])
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [resetTrigger, setResetTrigger] = useState(0)
+  const [currentZoom, setCurrentZoom] = useState(6)
 
   useEffect(() => {
+    if (passedProjects) return
     async function loadProjects() {
       try {
         const res = await getProjects()
@@ -246,15 +292,16 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
             const r = (p.provinceRegion || '').toLowerCase()
             return saudiProvinces.some((prov) => r.includes(prov))
           })
-          setProjects(saudiProjects)
+          setFetchedProjects(saudiProjects)
         }
       } catch (err) {
         console.error('Error loading projects map data:', err)
       }
     }
     loadProjects()
-  }, [])
+  }, [passedProjects])
 
+  const projects = passedProjects || fetchedProjects
   const isRtl = i18n.language === 'ar'
 
   const regions = useMemo(() => {
@@ -338,24 +385,25 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
   }
 
   const allPolygons = useMemo(() => {
-    const list: { rings: LatLngExpression[][]; isSelected: boolean }[] = []
+    const list: { id: string; rings: LatLngExpression[][]; isSelected: boolean; isHighlighted: boolean }[] = []
     projects.forEach((p) => {
       const isSelected = selectedRegion
         ? p.provinceRegion?.toLowerCase() === selectedRegion.toLowerCase()
         : true
+      const isHighlighted = p.id === highlightedProjectId
 
       if (isPolygon(p.mapGeometryJson)) {
         const rings = p.mapGeometryJson.coordinates.map(ringToLatLngs)
-        list.push({ rings, isSelected })
+        list.push({ id: p.id, rings, isSelected, isHighlighted })
       } else if (isMultiPolygon(p.mapGeometryJson)) {
         p.mapGeometryJson.coordinates.forEach((poly) => {
           const rings = poly.map(ringToLatLngs)
-          list.push({ rings, isSelected })
+          list.push({ id: p.id, rings, isSelected, isHighlighted })
         })
       }
     })
     return list
-  }, [projects, selectedRegion])
+  }, [projects, selectedRegion, highlightedProjectId])
 
   const displayedProjects = useMemo(() => {
     if (!selectedRegion) return projectMarkers
@@ -383,11 +431,12 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
         scrollWheelZoom
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; Google Maps'
+          url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
         />
 
         <MapResizeInvalidate />
+        <ZoomTracker onZoomChange={setCurrentZoom} />
         <MapController
           selectedRegion={selectedRegion}
           projects={projectMarkers}
@@ -401,17 +450,18 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
               key={`${idx}-${rIdx}`}
               positions={ring}
               pathOptions={{
-                color: '#e91e63',
-                weight: item.isSelected ? 2.5 : 1.5,
-                dashArray: '5, 5',
-                fillColor: '#1b5e20',
-                fillOpacity: item.isSelected ? 0.35 : 0.15,
+                color: item.isHighlighted ? '#c9a227' : '#e91e63',
+                weight: item.isHighlighted ? 4.0 : (item.isSelected ? 2.5 : 1.5),
+                dashArray: item.isHighlighted ? '0' : '5, 5',
+                fillColor: item.isHighlighted ? '#c9a227' : '#1b5e20',
+                fillOpacity: item.isHighlighted ? 0.5 : (item.isSelected ? 0.35 : 0.15),
               }}
             />
           ))
         )}
 
         {displayedProjects.map((project) => {
+          const isHighlighted = highlightedProjectId === project.id
           const isSoldOut = !project.hasAvailability && (project.availablePhasesCount ?? 0) === 0
           const projectName = isRtl ? project.nameAr : project.name
           const statusLabel = isSoldOut
@@ -422,7 +472,7 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
             <Marker
               key={project.id}
               position={[project.renderLat, project.renderLng]}
-              icon={getProjectPinIcon(project)}
+              icon={getProjectPinIcon(project, isHighlighted)}
               eventHandlers={{
                 click: () => {
                   if (highlightedProjectId === project.id) {
@@ -442,7 +492,7 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect 
           )
         })}
 
-        {(!selectedRegion || selectedRegion === '') && POIs.map((poi) => (
+        {currentZoom >= 10 && POIs.map((poi) => (
           <Marker
             key={poi.id}
             position={[poi.lat, poi.lng]}
