@@ -2,6 +2,7 @@ import { Box, Typography, LinearProgress, Paper, Chip } from '@mui/material'
 import { Bed, Move, Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Unit } from '../../lib/types'
+import SubsidyBadges from '../units/SubsidyBadges'
 
 interface DashboardUnitCardProps {
   unit: Unit
@@ -46,13 +47,16 @@ export default function DashboardUnitCard({ unit }: DashboardUnitCardProps) {
             objectFit: 'cover',
           }}
         />
+        <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
+          <SubsidyBadges eligible={unit.eligibleForSubsidies} size="large" />
+        </Box>
         <Chip
           label={t(`unit.${unit.status.toLowerCase()}`)}
           size="small"
           sx={{
             position: 'absolute',
             top: 12,
-            [isRtl ? 'right' : 'left']: 12,
+            right: 12,
             bgcolor: '#c9a227',
             color: 'white',
             fontWeight: 'bold',

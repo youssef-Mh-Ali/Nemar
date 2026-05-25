@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Card, CardContent, Typography, TextField, MenuItem, Button, Stack, Box } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  Stack,
+  Box,
+  FormControlLabel,
+  Checkbox,
+} from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { Refresh } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
@@ -43,7 +54,8 @@ export default function DesktopFilters() {
   ]
 
   const hasActiveFilters = Object.entries(filters).some(
-    ([key, value]) => value !== undefined && key !== 'page' && key !== 'pageSize'
+    ([key, value]) =>
+      value !== undefined && value !== false && key !== 'page' && key !== 'pageSize'
   )
 
   return (
@@ -132,6 +144,22 @@ export default function DesktopFilters() {
               </MenuItem>
             ))}
           </TextField>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.eligibleForSubsidies === true}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    eligibleForSubsidies: e.target.checked ? true : undefined,
+                    page: 1,
+                  })
+                }
+              />
+            }
+            label={t('search.eligibleForSubsidies')}
+          />
         </Stack>
       </CardContent>
     </Card>

@@ -182,6 +182,7 @@
     "model": "Model",
     "bedrooms": "Number of Rooms",
     "priceRange": "Price Range",
+    "eligibleForSubsidies": "Eligible for subsidies (Sakani / Ministry of Defense)",
     "applyFilters": "Apply Filters",
     "previous": "Previous",
     "next": "Next",

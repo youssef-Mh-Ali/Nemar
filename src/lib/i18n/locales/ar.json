@@ -182,6 +182,7 @@
     "model": "الموديل",
     "bedrooms": "عدد الغرف",
     "priceRange": "نطاق السعر",
+    "eligibleForSubsidies": "مؤهل للدعم (سكني / وزارة الدفاع)",
     "applyFilters": "تطبيق الفلاتر",
     "previous": "السابق",
     "next": "التالي",

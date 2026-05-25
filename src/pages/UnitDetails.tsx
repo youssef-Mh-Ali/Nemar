@@ -28,6 +28,7 @@ import { useAuthStore } from '../lib/store'
 import { Unit, ProjectModelFile } from '../lib/types'
 import ProjectModelViewer from '../components/project/ProjectModelViewer'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
+import SubsidyBadges from '../components/units/SubsidyBadges'
 
 export default function UnitDetails() {
   const { t, i18n } = useTranslation()
@@ -202,13 +203,16 @@ export default function UnitDetails() {
             sx={{
               position: 'absolute',
               top: { xs: 16, md: 20 },
-              left: { xs: 16, md: 20 },
+              right: { xs: 16, md: 20 },
               zIndex: 4,
               fontWeight: 600,
               fontSize: { xs: '0.75rem', md: '0.875rem' },
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
             }}
           />
+          <Box sx={{ position: 'absolute', top: { xs: 16, md: 20 }, left: { xs: 16, md: 20 }, zIndex: 4 }}>
+            <SubsidyBadges eligible={unit.eligibleForSubsidies} size="large" />
+          </Box>
         </Box>
 
         {/* Content */}

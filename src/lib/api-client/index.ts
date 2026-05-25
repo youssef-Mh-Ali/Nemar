@@ -855,6 +855,15 @@ export async function getFeaturedVideo() {
 }
 
 // Units
+function parseEligibleForSubsidies(value: unknown): boolean {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'string') {
+    const v = value.toLowerCase().trim()
+    return v === 'yes' || v === 'true' || v === 'eligible' || v === '1'
+  }
+  return !!value
+}
+
 function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): Unit {
   return {
     id: sfUnit.id,
@@ -882,7 +891,7 @@ function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): U
     landArea: sfUnit.landArea,
     roofArea: sfUnit.roofArea,
     outdoorArea: sfUnit.outdoorArea,
-    eligibleForSubsidies: sfUnit.eligibleForSubsidies,
+    eligibleForSubsidies: parseEligibleForSubsidies(sfUnit.eligibleForSubsidies),
     subsidies: sfUnit.subsidies,
     images: sfUnit.images,
     unitImage: sfUnit.unitImage,

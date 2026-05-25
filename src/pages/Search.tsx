@@ -94,7 +94,11 @@ export default function Search() {
   }, [viewMode])
 
   const activeFiltersCount = Object.entries(filters).filter(
-    ([key, value]) => value !== undefined && key !== 'page' && key !== 'pageSize'
+    ([key, value]) =>
+      value !== undefined &&
+      value !== false &&
+      key !== 'page' &&
+      key !== 'pageSize'
   ).length
 
   const projectLocations = useMemo<ProjectLocation[]>(() => {
@@ -266,7 +270,7 @@ export default function Search() {
                   <Grid container spacing={2}>
                     {units.map((unit, index) => (
                       <Grid size={{ xs: 12, sm: 6, lg: viewMode === 'grid' ? 4 : 12 }} key={unit.id}>
-                        <UnitCard unit={unit} index={index} />
+                        <UnitCard unit={unit} index={index} variant={viewMode === 'list' ? 'list' : 'grid'} />
                       </Grid>
                     ))}
                   </Grid>
