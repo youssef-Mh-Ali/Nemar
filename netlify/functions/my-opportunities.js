@@ -172,20 +172,25 @@ export const handler = async (event) => {
 
     const { accessToken, instanceUrl } = await getSalesforceAccessToken()
 
-    const oppSelect = [
+    // 1) Get AccountId related to Contact
+    const contactSoql = `SELECT Id, AccountId FROM Contact WHERE Id = '${contactId}' LIMIT 1`
+    const contactRes = await sfQuery(instanceUrl, accessToken, contactSoql)
+    const accountId = pickId((contactRes.records || [])[0]?.AccountId)
+    if (!accountId) {
+      console.log('[my-opportunities] No AccountId found for contact, returning empty units.')
+      return json(200, { success: true, data: [] })
+    }
+
+    // 2) Query Contract__c records connected to this person account (AccountId) via Account__c lookup
+    const contractFields = [
       'Id',
       'Name',
-      'StageName',
-      'CloseDate',
-      'Amount',
+      'Project__c',
+      'Project__r.Name',
+      'Project__r.Hero_Image_URL__c',
       'Unit__c',
-      // Unit fields (pulled through relationship)
       'Unit__r.Id',
       'Unit__r.Name',
-      'Unit__r.External_ID__c',
-      'Unit__r.Status__c',
-      'Unit__r.Price__c',
-      'Unit__r.Final_Price__c',
       'Unit__r.Number_of_Bedrooms__c',
       'Unit__r.Number_of_Bathrooms__c',
       'Unit__r.Total_Area__c',
@@ -194,120 +199,76 @@ export const handler = async (event) => {
       'Unit__r.Finishing__c',
       'Unit__r.Usage_Type__c',
       'Unit__r.View__c',
-      'Unit__r.Has_Garden__c',
-      'Unit__r.Has_Land__c',
-      'Unit__r.Has_Roof__c',
-      'Unit__r.Has_Outdoor__c',
-      'Unit__r.Garden_Area__c',
-      'Unit__r.Land_Area__c',
-      'Unit__r.Roof_Area__c',
-      'Unit__r.Outdoor_Area__c',
-      'Unit__r.Eligible_for_Subsidies__c',
-      'Unit__r.Subsidies__c',
       'Unit__r.Unit_Image__c',
-      'Unit__r.Project__c',
-      'Unit__r.Project__r.Name',
-      'Unit__r.Project__r.Hero_Image_URL__c',
+      'Unit_Price__c',
+      'Unit_Final_Price__c',
+      'Unit_Usage_Type__c',
+      'Unit_Cumulative_Progress_Percentage__c',
+      'Building__c',
+      'Block__c',
+      'Phase__c',
+      'Payment_Method__c',
     ].join(', ')
 
-    // 1) Get opportunities related to contact (via OpportunityContactRole)
-    const ocrSoql = `SELECT OpportunityId, Opportunity.Name, Opportunity.StageName, Opportunity.CloseDate, Opportunity.Amount
-      FROM OpportunityContactRole
-      WHERE ContactId = '${contactId}'
-      ORDER BY Opportunity.CloseDate DESC
+    const contractSoql = `SELECT ${contractFields}
+      FROM Contract__c
+      WHERE Account__c = '${accountId}'
+      ORDER BY CreatedDate DESC
       LIMIT 50`
 
-    const ocr = await sfQuery(instanceUrl, accessToken, ocrSoql)
-    const ocrRecords = ocr.records || []
+    console.log('[my-opportunities] Fetching units via Contract__c query...')
+    const contractRes = await sfQuery(instanceUrl, accessToken, contractSoql)
+    const contracts = contractRes.records || []
+    console.log(`[my-opportunities] Found ${contracts.length} contracts for account ${accountId}`)
 
-    const oppById = new Map()
-    for (const r of ocrRecords) {
-      const oppId = pickId(r.OpportunityId)
-      if (!oppId || oppById.has(oppId)) continue
-      const opp = r.Opportunity || {}
-      oppById.set(oppId, {
-        id: oppId,
-        name: opp.Name || '',
-        stageName: opp.StageName || '',
-        closeDate: opp.CloseDate || null,
-        amount: opp.Amount ?? null,
-        units: [],
-      })
-    }
-
-    // If we got opp ids from OCR, hydrate them with Unit__r in one query.
-    if (oppById.size > 0) {
-      const ids = Array.from(oppById.keys()).map((id) => `'${id}'`).join(',')
-      const hydrateSoql = `SELECT ${oppSelect} FROM Opportunity WHERE Id IN (${ids})`
-      const hydrateRes = await sfQuery(instanceUrl, accessToken, hydrateSoql)
-      for (const o of hydrateRes.records || []) {
-        const oppId = pickId(o.Id)
-        const opp = oppById.get(oppId)
-        if (!opp) continue
-        const unit = unitFromOpportunity(o)
-        if (unit) opp.units.push(unit)
+    // 3) Map Contract__c to standard Opportunity/Unit structures expected by the frontend
+    const mappedOpportunities = contracts.map((c) => {
+      const u = c.Unit__r || {}
+      
+      const mappedUnit = {
+        id: u.Id || c.Unit__c || c.Id,
+        projectId: c.Project__c || '',
+        phaseId: '',
+        unitNumber: u.Name || c.Unit__c || 'N/A',
+        externalId: c.Name,
+        price: Number(c.Unit_Price__c || u.Price__c || 0),
+        finalPrice: c.Unit_Final_Price__c ? Number(c.Unit_Final_Price__c) : (u.Final_Price__c ?? undefined),
+        status: 'Contracted', // active purchase
+        bedrooms: Number(u.Number_of_Bedrooms__c || 0),
+        bathrooms: u.Number_of_Bathrooms__c ?? undefined,
+        area: Number(u.Total_Area__c || 0),
+        bua: u.BUA__c ?? undefined,
+        floor: u.Floor__c ?? undefined,
+        finishing: u.Finishing__c ?? undefined,
+        usageType: c.Unit_Usage_Type__c || u.Usage_Type__c ?? undefined,
+        view: u.View__c ?? undefined,
+        eligibleForSubsidies: !!u.Eligible_for_Subsidies__c,
+        subsidies: u.Subsidies__c ?? undefined,
+        deliveryDate: undefined,
+        images: u.Unit_Image__c ? [u.Unit_Image__c] : [],
+        unitImage: u.Unit_Image__c ?? undefined,
+        projectHeroImage: c.Project__r?.Hero_Image_URL__c ?? undefined,
+        paymentProgress: Number(c.Unit_Cumulative_Progress_Percentage__c || 0), // maps actual cumulative progress!
+        paymentStatus: c.Payment_Method__c ?? undefined,
+        projectName: c.Project__r?.Name ?? undefined,
+        projectNameAr: c.Project__r?.Name ?? undefined,
+        phaseName: c.Phase__c ?? undefined,
+        phaseNameAr: c.Phase__c ?? undefined,
+        buildingName: c.Building__c ?? undefined,
+        blockName: c.Block__c ?? undefined,
       }
-    }
 
-    // Fallback if no OpportunityContactRole exists: query opportunities by contact's AccountId
-    if (oppById.size === 0) {
-      const contactSoql = `SELECT Id, AccountId FROM Contact WHERE Id = '${contactId}' LIMIT 1`
-      const contactRes = await sfQuery(instanceUrl, accessToken, contactSoql)
-      const accountId = pickId((contactRes.records || [])[0]?.AccountId)
-      if (accountId) {
-        const oppSoql = `SELECT ${oppSelect}
-          FROM Opportunity
-          WHERE AccountId = '${accountId}'
-          ORDER BY CloseDate DESC
-          LIMIT 50`
-        const oppRes = await sfQuery(instanceUrl, accessToken, oppSoql)
-        for (const o of oppRes.records || []) {
-          const oppId = pickId(o.Id)
-          if (!oppId || oppById.has(oppId)) continue
-          oppById.set(oppId, {
-            id: oppId,
-            name: o.Name || '',
-            stageName: o.StageName || '',
-            closeDate: o.CloseDate || null,
-            amount: o.Amount ?? null,
-            units: (() => {
-              const u = unitFromOpportunity(o)
-              return u ? [u] : []
-            })(),
-          })
-        }
+      return {
+        id: c.Id,
+        name: c.Project__r?.Name || 'Unit Contract',
+        stageName: `${c.Name}`, // contract number (as displayed in screenshot)
+        closeDate: null,
+        amount: Number(c.Unit_Final_Price__c || c.Unit_Price__c || 0),
+        units: [mappedUnit],
       }
-    }
+    })
 
-    // Fallback #2: query opportunities by Opportunity.ContactId (when enabled in org)
-    if (oppById.size === 0) {
-      const oppSoql = `SELECT ${oppSelect}
-        FROM Opportunity
-        WHERE ContactId = '${contactId}'
-        ORDER BY CloseDate DESC
-        LIMIT 50`
-      const oppRes = await sfQuery(instanceUrl, accessToken, oppSoql)
-      for (const o of oppRes.records || []) {
-        const oppId = pickId(o.Id)
-        if (!oppId || oppById.has(oppId)) continue
-        oppById.set(oppId, {
-          id: oppId,
-          name: o.Name || '',
-          stageName: o.StageName || '',
-          closeDate: o.CloseDate || null,
-          amount: o.Amount ?? null,
-          units: (() => {
-            const u = unitFromOpportunity(o)
-            return u ? [u] : []
-          })(),
-        })
-      }
-    }
-
-    const oppIds = Array.from(oppById.keys())
-    if (oppIds.length === 0) return json(200, { success: true, data: [] })
-
-    return json(200, { success: true, data: Array.from(oppById.values()) })
+    return json(200, { success: true, data: mappedOpportunities })
   } catch (error) {
     console.error('[my-opportunities] error:', error)
     return json(500, { success: false, error: 'Internal server error' })
