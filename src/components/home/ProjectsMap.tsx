@@ -568,7 +568,7 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
                 key={regionName}
                 onClick={() => setSelectedRegion(regionName)}
                 sx={{
-                  color: isSelected ? '#e65100' : '#fff',
+                  color: isSelected ? '#223559' : '#fff',
                   fontWeight: isSelected ? 700 : 500,
                   fontSize: '0.75rem',
                   textTransform: 'none',
@@ -576,7 +576,7 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
                   py: 0.75,
                   borderRadius: 1.5,
                   transition: 'all 0.2s',
-                  borderBottom: isSelected ? '2px solid #e65100' : '2px solid transparent',
+                  borderBottom: isSelected ? '2px solid #223559' : '2px solid transparent',
                   '&:hover': {
                     bgcolor: 'rgba(255,255,255,0.1)',
                   },
