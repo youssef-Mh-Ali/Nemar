@@ -8,6 +8,7 @@ import { Unit } from '../../lib/types'
 import FavoriteButton from '../ui/FavoriteButton'
 import LazyImage from '../ui/LazyImage'
 import SubsidyBadges from '../units/SubsidyBadges'
+import CurrencyIcon from '../ui/CurrencyIcon'
 
 interface UnitCardProps {
   unit: Unit
@@ -21,8 +22,7 @@ export default function UnitCard({ unit, index = 0, variant = 'grid' }: UnitCard
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
-      style: 'currency',
-      currency: 'SAR',
+      style: 'decimal',
       maximumFractionDigits: 0,
     }).format(price)
   }
@@ -99,8 +99,9 @@ export default function UnitCard({ unit, index = 0, variant = 'grid' }: UnitCard
         py: isList ? { xs: 2, sm: 2.5 } : undefined,
       }}
     >
-      <Typography variant="h6" fontWeight="bold" color="primary.main" gutterBottom>
+      <Typography variant="h6" fontWeight="bold" color="primary.main" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
         {formatPrice(unit.price)}
+        <CurrencyIcon theme="light" className="mx-1" />
       </Typography>
 
       <Typography

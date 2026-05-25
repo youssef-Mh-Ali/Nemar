@@ -29,6 +29,7 @@ import { Unit, ProjectModelFile } from '../lib/types'
 import ProjectModelViewer from '../components/project/ProjectModelViewer'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
 import SubsidyBadges from '../components/units/SubsidyBadges'
+import CurrencyIcon from '../components/ui/CurrencyIcon'
 
 export default function UnitDetails() {
   const { t, i18n } = useTranslation()
@@ -64,11 +65,16 @@ export default function UnitDetails() {
   }, [id])
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
-      style: 'currency',
-      currency: 'SAR',
+    const formatted = new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
+      style: 'decimal',
       maximumFractionDigits: 0,
     }).format(price)
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {formatted}
+        <CurrencyIcon theme="light" className="mx-2" />
+      </Box>
+    )
   }
 
 
