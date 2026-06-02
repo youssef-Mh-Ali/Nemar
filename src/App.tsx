@@ -70,6 +70,9 @@ function App() {
         }
       } catch (err) {
         console.error('[Feature Switches] Failed to load feature switches', err);
+        if (mounted) {
+          setFeatures({}, []); // Ensure app loads even if feature switches fail
+        }
       } finally {
         if (mounted) setLoading(false)
       }
