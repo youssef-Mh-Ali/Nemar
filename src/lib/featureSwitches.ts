@@ -5,8 +5,8 @@ function isFresh(timestamp: number) {
   return Number.isFinite(timestamp) && Date.now() - timestamp < FEATURE_SWITCH_TTL_MS;
 }
 
-async function fetchFeatureSwitches(orgOrigin: string) {
-  const url = `${orgOrigin.replace(/\/$/, "")}/services/apexrest/WebsiteFeatureSwitch/v1`;
+async function fetchFeatureSwitches() {
+  const url = `/.netlify/functions/website-feature-switch`;
   const response = await fetch(url, { method: "GET", headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`Feature switch API failed: ${response.status}`);
   const payload = await response.json();
@@ -14,7 +14,7 @@ async function fetchFeatureSwitches(orgOrigin: string) {
   return payload;
 }
 
-export async function getFeatureSwitchesOnLoad(orgOrigin: string) {
+export async function getFeatureSwitchesOnLoad() {
   try {
     const cachedRaw = localStorage.getItem(FEATURE_SWITCH_CACHE_KEY);
     if (cachedRaw) {
@@ -24,7 +24,7 @@ export async function getFeatureSwitchesOnLoad(orgOrigin: string) {
       }
     }
 
-    const payload = await fetchFeatureSwitches(orgOrigin);
+    const payload = await fetchFeatureSwitches();
     localStorage.setItem(
       FEATURE_SWITCH_CACHE_KEY,
       JSON.stringify({ fetchedAt: Date.now(), payload })

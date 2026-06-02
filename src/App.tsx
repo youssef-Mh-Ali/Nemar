@@ -62,8 +62,7 @@ function App() {
       }
 
       try {
-        const orgOrigin = import.meta.env.VITE_API_URL || import.meta.env.VITE_SALESFORCE_API_URL || window.location.origin;
-        const featureRes = await getFeatureSwitchesOnLoad(orgOrigin);
+        const featureRes = await getFeatureSwitchesOnLoad();
         if (!mounted) return;
         if (featureRes?.payload?.data?.values) {
           setFeatures(featureRes.payload.data.values, featureRes.payload.data.fields || []);
