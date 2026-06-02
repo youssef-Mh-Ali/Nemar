@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore, useAppStore } from './lib/store'
+import { useFeatureSwitchStore } from './lib/store/feature-switch-store'
 import { getCurrentUser } from './lib/api-client'
+import { getFeatureSwitchesOnLoad } from './lib/featureSwitches'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import Search from './pages/Search'
@@ -38,6 +40,7 @@ function MaintenanceGate({ children }: { children: React.ReactNode }) {
 
 function App() {
   const { setAuth, clearAuth, setLoading } = useAuthStore()
+  const { setFeatures, getFeature, isReady } = useFeatureSwitchStore()
 
   useEffect(() => {
     let mounted = true
@@ -56,6 +59,17 @@ function App() {
       } catch {
         // Keep the cached session on network errors
         console.log('[Auth] Network error, maintaining cached session.')
+      }
+
+      try {
+        const orgOrigin = import.meta.env.VITE_API_URL || import.meta.env.VITE_SALESFORCE_API_URL || window.location.origin;
+        const featureRes = await getFeatureSwitchesOnLoad(orgOrigin);
+        if (!mounted) return;
+        if (featureRes?.payload?.data?.values) {
+          setFeatures(featureRes.payload.data.values, featureRes.payload.data.fields || []);
+        }
+      } catch (err) {
+        console.error('[Feature Switches] Failed to load feature switches', err);
       } finally {
         if (mounted) setLoading(false)
       }
@@ -66,30 +80,40 @@ function App() {
     }
   }, [setAuth, setLoading])
 
+  if (!isReady) {
+    return null; // Or a loading spinner
+  }
+
   return (
     <MaintenanceGate>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
+          {getFeature('Show_Home_Page__c', true) && <Route index element={<Home />} />}
           <Route path="search" element={<Search />} />
           <Route path="project/:id" element={<ProjectDetails />} />
           <Route path="unit/:id" element={<UnitDetails />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="about-us" element={<AboutUs />} />
-          <Route path="achievements" element={<Achievements />} />
-          <Route path="latest-releases" element={<LatestReleases />} />
-          <Route path="news" element={<News />} />
-          <Route path="news/:id" element={<NewsArticle />} />
-          <Route path="our-news" element={<Navigate to="/news" replace />} />
+          {getFeature('Show_Support_Page__c', true) && <Route path="contact" element={<Contact />} />}
+          {getFeature('Show_About_Us_Page__c', true) && <Route path="about-us" element={<AboutUs />} />}
+          {getFeature('Show_Our_Achievements_Page__c', true) && <Route path="achievements" element={<Achievements />} />}
+          {getFeature('Show_Latest_Releases_Page__c', true) && <Route path="latest-releases" element={<LatestReleases />} />}
+          {getFeature('Show_Our_News_Page__c', true) && (
+            <>
+              <Route path="news" element={<News />} />
+              <Route path="news/:id" element={<NewsArticle />} />
+              <Route path="our-news" element={<Navigate to="/news" replace />} />
+            </>
+          )}
           <Route path="collaboration-coming-soon" element={<CollaborationComingSoon />} />
-          <Route
-            path="community"
-            element={
-              <ProtectedRoute>
-                <Community />
-              </ProtectedRoute>
-            }
-          />
+          {getFeature('Show_My_Community_Page__c', true) && (
+            <Route
+              path="community"
+              element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              }
+            />
+          )}
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/offline" element={<Offline />} />
