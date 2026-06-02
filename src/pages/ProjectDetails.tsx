@@ -21,6 +21,7 @@ import { motion } from 'framer-motion'
 import { getProject } from '../lib/api-client'
 import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
 import { isModelAttachmentTitle, isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
+import { useFeatureSwitchStore } from '../lib/store'
 import OpenStreetProjectMap from '../components/ui/OpenStreetProjectMap'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import NearbyAmenities from '../components/project/NearbyAmenities'
@@ -41,6 +42,7 @@ export default function ProjectDetails() {
   const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { getFeature } = useFeatureSwitchStore()
   const [project, setProject] = useState<ProjectWithUi | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
@@ -291,34 +293,36 @@ export default function ProjectDetails() {
               >
                 {t('home.registerInterest')}
               </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => setIsCalculatorOpen(true)}
-                startIcon={<SakaniMathIcon color="white" />}
-                sx={{
-                  py: 2,
-                  px: 4,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  borderRadius: 8,
-                  borderColor: 'rgba(255, 255, 255, 0.6)',
-                  color: 'white',
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.18)',
-                    borderColor: 'white',
-                  },
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                  width: { xs: '100%', sm: 'auto' },
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 1,
-                }}
-              >
-                {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
-              </Button>
+              {getFeature('Enable_Funding_Calculator__c', true) && (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() => setIsCalculatorOpen(true)}
+                  startIcon={<SakaniMathIcon color="white" />}
+                  sx={{
+                    py: 2,
+                    px: 4,
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    borderRadius: 8,
+                    borderColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'white',
+                    bgcolor: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(8px)',
+                    '&:hover': {
+                      bgcolor: 'rgba(255, 255, 255, 0.18)',
+                      borderColor: 'white',
+                    },
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                    width: { xs: '100%', sm: 'auto' },
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
+                  {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
+                </Button>
+              )}
             </Stack>
           </MotionBox>
         </Container>

@@ -24,7 +24,7 @@ import FavoriteButton from '../components/ui/FavoriteButton'
 import ShareButton from '../components/ui/ShareButton'
 import { getUnit } from '../lib/api-client'
 import { isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
-import { useAuthStore } from '../lib/store'
+import { useAuthStore, useFeatureSwitchStore } from '../lib/store'
 import { Unit, ProjectModelFile } from '../lib/types'
 import ProjectModelViewer from '../components/project/ProjectModelViewer'
 import ProjectBrochureViewer from '../components/project/ProjectBrochureViewer'
@@ -37,6 +37,7 @@ export default function UnitDetails() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
+  const { getFeature } = useFeatureSwitchStore()
   const [unit, setUnit] = useState<Unit | null>(null)
   const [relatedUnits, setRelatedUnits] = useState<Unit[]>([])
   const [modelFile, setModelFile] = useState<ProjectModelFile | null>(null)
@@ -522,30 +523,32 @@ export default function UnitDetails() {
                 {unit.status === 'Sold' ? t('unit.sold') : t('unit.registerInterest')}
               </Button>
 
-              <Button
-                variant="outlined"
-                size="large"
-                fullWidth
-                onClick={() => setIsCalculatorOpen(true)}
-                startIcon={<SakaniMathIcon color="#1a365d" />}
-                sx={{
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 'semibold',
-                  borderColor: 'rgba(0,0,0,0.12)',
-                  color: 'primary.main',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 1.5,
-                  '&:hover': {
-                    bgcolor: 'grey.50',
-                    borderColor: 'primary.main',
-                  }
-                }}
-              >
-                {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
-              </Button>
+              {getFeature('Enable_Funding_Calculator__c', true) && (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  onClick={() => setIsCalculatorOpen(true)}
+                  startIcon={<SakaniMathIcon color="#1a365d" />}
+                  sx={{
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    fontWeight: 'semibold',
+                    borderColor: 'rgba(0,0,0,0.12)',
+                    color: 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1.5,
+                    '&:hover': {
+                      bgcolor: 'grey.50',
+                      borderColor: 'primary.main',
+                    }
+                  }}
+                >
+                  {i18n.language === 'ar' ? 'حاسبة التمويل العقاري' : 'Mortgage Calculator'}
+                </Button>
+              )}
 
               {user && (
                 <Button component={Link} to="/community" variant="outlined" size="large" fullWidth>
