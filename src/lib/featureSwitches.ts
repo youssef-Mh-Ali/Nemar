@@ -1,4 +1,4 @@
-export const FEATURE_SWITCH_CACHE_KEY = "website-feature-switch-v1";
+export const FEATURE_SWITCH_CACHE_KEY = "website-feature-switch-v2";
 export const FEATURE_SWITCH_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 function isFresh(timestamp: number) {

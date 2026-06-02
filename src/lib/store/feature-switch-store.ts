@@ -12,11 +12,17 @@ export const useFeatureSwitchStore = create<FeatureSwitchState>((set, get) => ({
   values: {},
   fields: [],
   isReady: false,
-  setFeatures: (values, fields = []) => set({ values, fields, isReady: true }),
+  setFeatures: (values, fields = []) => {
+    const lowerValues = Object.fromEntries(
+      Object.entries(values).map(([k, v]) => [k.toLowerCase(), v])
+    );
+    set({ values: lowerValues, fields, isReady: true });
+  },
   getFeature: (apiName, defaultValue = false) => {
     const state = get();
-    if (apiName in state.values) {
-      return state.values[apiName];
+    const key = apiName.toLowerCase();
+    if (key in state.values) {
+      return state.values[key];
     }
     return defaultValue;
   },
