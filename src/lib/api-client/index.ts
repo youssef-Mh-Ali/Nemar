@@ -182,6 +182,71 @@ function extractSalesforceIdFromAnchor(value?: string): string {
   return m?.[1] || ''
 }
 
+function salesforceFileProxyUrl(versionId: string): string {
+  return `/.netlify/functions/salesforce-file?versionId=${encodeURIComponent(versionId)}`
+}
+
+function isRasterImageExtension(ext?: string): boolean {
+  const e = (ext || '').toLowerCase()
+  return e === 'png' || e === 'jpg' || e === 'jpeg' || e === 'webp' || e === 'gif'
+}
+
+async function getPrimaryUnitImagesFromFiles(
+  unitIds: string[]
+): Promise<Map<string, { unitImage: string; images: string[] }>> {
+  const result = new Map<string, { unitImage: string; images: string[] }>()
+  const ids = unitIds.filter(Boolean)
+  if (ids.length === 0) return result
+
+  const idsSoql = ids.map((id) => `'${id.replace(/'/g, "\\'")}'`).join(',')
+  const linksQuery = `SELECT ContentDocumentId, LinkedEntityId
+                      FROM ContentDocumentLink
+                      WHERE LinkedEntityId IN (${idsSoql})`
+  const linksResult = await salesforceQuery<SalesforceContentDocumentLinkRecord>(linksQuery)
+  const links = linksResult.records || []
+  const contentDocumentIds = Array.from(new Set(links.map((l) => l.ContentDocumentId).filter(Boolean)))
+  if (contentDocumentIds.length === 0) return result
+
+  const docIdsSoql = contentDocumentIds.map((id) => `'${id}'`).join(',')
+  const versionsQuery = `SELECT Id, Title, FileExtension, ContentDocumentId, CreatedDate
+                         FROM ContentVersion
+                         WHERE IsLatest = true
+                         AND ContentDocumentId IN (${docIdsSoql})
+                         ORDER BY CreatedDate DESC`
+  const versionsResult = await salesforceQuery<SalesforceContentVersionRecord>(versionsQuery)
+  const versions = versionsResult.records || []
+
+  const docToUnit = new Map<string, string>()
+  for (const link of links) {
+    docToUnit.set(link.ContentDocumentId, link.LinkedEntityId)
+  }
+
+  const preferred = new Map<string, { unitImage: string; images: string[] }>()
+  const fallback = new Map<string, { unitImage: string; images: string[] }>()
+
+  for (const v of versions) {
+    if (!isRasterImageExtension(v.FileExtension)) continue
+    const unitId = docToUnit.get(v.ContentDocumentId)
+    if (!unitId) continue
+    const title = (v.Title || '').toLowerCase()
+    const isUnitPreview = title.startsWith('unit-preview-') || title.startsWith('home-')
+    const url = salesforceFileProxyUrl(v.Id)
+    const entry = { unitImage: url, images: [url] }
+    if (isUnitPreview) {
+      if (!preferred.has(unitId)) preferred.set(unitId, entry)
+    } else if (!fallback.has(unitId)) {
+      fallback.set(unitId, entry)
+    }
+  }
+
+  for (const unitId of new Set(docToUnit.values())) {
+    const pick = preferred.get(unitId) || fallback.get(unitId)
+    if (pick) result.set(unitId, pick)
+  }
+
+  return result
+}
+
 async function getProjectNotesAndAttachments(projectId: string) {
   // Files & enhanced notes are both exposed via ContentDocumentLink/ContentVersion.
   const linksQuery = `SELECT ContentDocumentId
@@ -320,6 +385,27 @@ async function getProjectsMedia(projectIds: string[]) {
     } else if (!isModelAttachmentTitle(v.Title || '')) {
       if (!media.defaultUrl) media.defaultUrl = url;
     }
+  }
+
+  const imageVersionsByProject = new Map<string, SalesforceContentVersionRecord[]>()
+  for (const link of links) {
+    const v = versionByDocId.get(link.ContentDocumentId)
+    if (!v || !isRasterImageExtension(v.FileExtension)) continue
+    const projectId = link.LinkedEntityId
+    if (!imageVersionsByProject.has(projectId)) {
+      imageVersionsByProject.set(projectId, [])
+    }
+    imageVersionsByProject.get(projectId)!.push(v)
+  }
+  for (const [projectId, vers] of imageVersionsByProject) {
+    const media = mediaByProjectId.get(projectId) || { gallery: [] }
+    if (media.heroUrl) {
+      if (!mediaByProjectId.has(projectId)) mediaByProjectId.set(projectId, media)
+      continue
+    }
+    vers.sort((a, b) => (b.CreatedDate || '').localeCompare(a.CreatedDate || ''))
+    media.heroUrl = salesforceFileProxyUrl(vers[0].Id)
+    mediaByProjectId.set(projectId, media)
   }
 
   return mediaByProjectId
@@ -864,7 +950,26 @@ function parseEligibleForSubsidies(value: unknown): boolean {
   return !!value
 }
 
+function unitImagesFromSalesforceDto(sfUnit: SalesforceUnitDTO): { images: string[]; unitImage?: string } {
+  if (sfUnit.contentVersionId) {
+    const url = salesforceFileProxyUrl(sfUnit.contentVersionId)
+    return { images: [url], unitImage: url }
+  }
+  if (sfUnit.unitImage?.includes('salesforce-file?versionId=')) {
+    const images = sfUnit.images?.length ? sfUnit.images : [sfUnit.unitImage]
+    return { images, unitImage: sfUnit.unitImage }
+  }
+  if (sfUnit.images?.length) {
+    return { images: sfUnit.images, unitImage: sfUnit.unitImage || sfUnit.images[0] }
+  }
+  if (sfUnit.unitImage) {
+    return { images: [sfUnit.unitImage], unitImage: sfUnit.unitImage }
+  }
+  return { images: [] }
+}
+
 function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): Unit {
+  const fileImages = unitImagesFromSalesforceDto(sfUnit)
   return {
     id: sfUnit.id,
     projectId: sfUnit.project?.id || '',
@@ -893,8 +998,8 @@ function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): U
     outdoorArea: sfUnit.outdoorArea,
     eligibleForSubsidies: parseEligibleForSubsidies(sfUnit.eligibleForSubsidies),
     subsidies: sfUnit.subsidies,
-    images: sfUnit.images,
-    unitImage: sfUnit.unitImage,
+    images: fileImages.images,
+    unitImage: fileImages.unitImage,
     projectName: sfUnit.project?.name,
     phaseName: sfUnit.phase?.name,
     buildingName: sfUnit.building?.name,
@@ -940,64 +1045,124 @@ export async function searchUnits(filters?: UnitFilters) {
   }
 }
 
-export async function getUnit(id: string) {
-  console.log('[Units] Fetching unit details from Salesforce:', id)
-
-  try {
-    // Fetch unit by Id using SOQL via salesforce-query Netlify function
-    const soql = `SELECT Id, Name,
+const UNIT_DETAIL_CORE_FIELDS = `Id, Name,
       External_ID__c, Status__c, Price__c, Final_Price__c,
       Number_of_Bedrooms__c, Number_of_Bathrooms__c, Total_Area__c, BUA__c, Floor__c,
       Finishing__c, Usage_Type__c, View__c,
       Has_Garden__c, Has_Land__c, Has_Roof__c, Has_Outdoor__c,
       Garden_Area__c, Land_Area__c, Roof_Area__c, Outdoor_Area__c,
       Eligible_for_Subsidies__c, Subsidies__c,
-      Unit_Image__c, X3D_Warehouse_iframe__c, Model__c,
-      Project__c,
-      Phase__c,
-      Block__c,
-      Building__c
-      FROM Unit__c WHERE Id = '${id}' LIMIT 1`
+      Unit_Image__c, X3D_Warehouse_iframe__c,
+      Project__c, Phase__c, Block__c, Building__c`
 
-    type SalesforceUnitRecord = {
-      Id: string
-      Name: string
-      External_ID__c?: string
-      Status__c?: string
-      Price__c?: number
-      Final_Price__c?: number
-      Number_of_Bedrooms__c?: number
-      Number_of_Bathrooms__c?: number
-      Total_Area__c?: number
-      BUA__c?: number
-      Floor__c?: number
-      Finishing__c?: string
-      Usage_Type__c?: string
-      View__c?: string
-      Has_Garden__c?: boolean
-      Has_Land__c?: boolean
-      Has_Roof__c?: boolean
-      Has_Outdoor__c?: boolean
-      Garden_Area__c?: number
-      Land_Area__c?: number
-      Roof_Area__c?: number
-      Outdoor_Area__c?: number
-      Eligible_for_Subsidies__c?: string
-      Subsidies__c?: number
-      Unit_Image__c?: string
-      X3D_Warehouse_iframe__c?: string
-      Model__c?: string
-      Project__c?: string
-      Phase__c?: string
-      Block__c?: string
-      Building__c?: string
+function buildUnitDetailSoql(id: string, includeModel: boolean, includeProjectViaBuilding: boolean): string {
+  const fields = [UNIT_DETAIL_CORE_FIELDS]
+  if (includeModel) {
+    fields.push('Model__c')
+  }
+  if (includeProjectViaBuilding) {
+    fields.push('Building__r.Block__r.Phase__r.Project__c')
+  }
+  return `SELECT ${fields.join(', ')} FROM Unit__c WHERE Id = '${id}' LIMIT 1`
+}
+
+function isRetriableUnitDetailQueryError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error)
+  return (
+    /Model__c/i.test(msg) ||
+    /INVALID_FIELD/i.test(msg) ||
+    /no such column/i.test(msg) ||
+    /did not understand relationship/i.test(msg)
+  )
+}
+
+async function queryUnitDetailRecord(id: string) {
+  type SalesforceUnitRecord = {
+    Id: string
+    Name: string
+    External_ID__c?: string
+    Status__c?: string
+    Price__c?: number
+    Final_Price__c?: number
+    Number_of_Bedrooms__c?: number
+    Number_of_Bathrooms__c?: number
+    Total_Area__c?: number
+    BUA__c?: number
+    Floor__c?: number
+    Finishing__c?: string
+    Usage_Type__c?: string
+    View__c?: string
+    Has_Garden__c?: boolean
+    Has_Land__c?: boolean
+    Has_Roof__c?: boolean
+    Has_Outdoor__c?: boolean
+    Garden_Area__c?: number
+    Land_Area__c?: number
+    Roof_Area__c?: number
+    Outdoor_Area__c?: number
+    Eligible_for_Subsidies__c?: string
+    Subsidies__c?: number
+    Unit_Image__c?: string
+    X3D_Warehouse_iframe__c?: string
+    Model__c?: string
+    Project__c?: string
+    Phase__c?: string
+    Block__c?: string
+    Building__c?: string
+    Building__r?: {
+      Block__r?: {
+        Phase__r?: {
+          Project__c?: string
+        }
+      }
     }
+  }
 
-    const result = await salesforceQuery<SalesforceUnitRecord>(soql)
-    const record = result.records?.[0]
+  const attempts: Array<{ includeModel: boolean; includeProjectViaBuilding: boolean }> = [
+    { includeModel: false, includeProjectViaBuilding: true },
+    { includeModel: false, includeProjectViaBuilding: false },
+    { includeModel: true, includeProjectViaBuilding: false },
+  ]
+
+  let lastError: unknown
+  for (const attempt of attempts) {
+    try {
+      const soql = buildUnitDetailSoql(
+        id,
+        attempt.includeModel,
+        attempt.includeProjectViaBuilding
+      )
+      const result = await salesforceQuery<SalesforceUnitRecord>(soql)
+      if (result.records?.[0]) {
+        return result.records[0]
+      }
+    } catch (error) {
+      lastError = error
+      if (!isRetriableUnitDetailQueryError(error)) {
+        throw error
+      }
+      console.warn('[Units] Unit detail SOQL failed, trying simpler query:', error)
+    }
+  }
+
+  if (lastError) {
+    throw lastError
+  }
+  return undefined
+}
+
+export async function getUnit(id: string) {
+  console.log('[Units] Fetching unit details from Salesforce:', id)
+
+  try {
+    const record = await queryUnitDetailRecord(id)
     if (!record) return { success: false, error: 'Unit not found' }
 
-    const resolvedProjectId = extractSalesforceIdFromAnchor(record.Project__c) || record.Project__c || ''
+    const resolvedProjectId =
+      extractSalesforceIdFromAnchor(record.Project__c) ||
+      record.Project__c ||
+      record.Building__r?.Block__r?.Phase__r?.Project__c ||
+      ''
 
     /** Load project labels separately — avoids fragile Unit SOQL relationship subqueries */
     let projectNameFromSf: string | undefined
@@ -1034,6 +1199,9 @@ export async function getUnit(id: string) {
       (record.Eligible_for_Subsidies__c || '').toLowerCase() === 'true' ||
       (record.Eligible_for_Subsidies__c || '').toLowerCase() === 'eligible'
 
+    const unitFileImages = await getPrimaryUnitImagesFromFiles([id])
+    const primaryFileImage = unitFileImages.get(id)
+
     const unit: Unit = {
       id: record.Id,
       projectId: resolvedProjectId,
@@ -1063,8 +1231,8 @@ export async function getUnit(id: string) {
       eligibleForSubsidies: eligible,
       subsidies: record.Subsidies__c ? String(record.Subsidies__c) : undefined,
       deliveryDate: undefined,
-      images: record.Unit_Image__c ? [record.Unit_Image__c] : [],
-      unitImage: record.Unit_Image__c || undefined,
+      images: primaryFileImage?.images ?? [],
+      unitImage: primaryFileImage?.unitImage,
       floorPlan: undefined,
       sketchupEmbedUrl: embedSrc || undefined,
       amenities: undefined,
@@ -1105,25 +1273,31 @@ export async function getUnit(id: string) {
         Floor__c?: number
       }>(relatedSoql)
 
+      const relatedIds = (relatedResult.records || []).map((r) => r.Id)
+      const relatedFileImages = await getPrimaryUnitImagesFromFiles(relatedIds)
+
       relatedUnits = (relatedResult.records || [])
-        .map((r) => ({
-          id: r.Id,
-          projectId: unit.projectId,
-          phaseId: '',
-          unitNumber: r.Name,
-          externalId: undefined,
-          price: r.Price__c || 0,
-          finalPrice: r.Final_Price__c || undefined,
-          status: (r.Status__c as Unit['status']) || 'Available',
-          bedrooms: r.Number_of_Bedrooms__c || 0,
-          bathrooms: r.Number_of_Bathrooms__c || undefined,
-          area: r.Total_Area__c || 0,
-          bua: r.BUA__c || undefined,
-          floor: r.Floor__c || undefined,
-          images: r.Unit_Image__c ? [r.Unit_Image__c] : [],
-          unitImage: r.Unit_Image__c || undefined,
-          notes: undefined,
-        }))
+        .map((r) => {
+          const fileImg = relatedFileImages.get(r.Id)
+          return {
+            id: r.Id,
+            projectId: unit.projectId,
+            phaseId: '',
+            unitNumber: r.Name,
+            externalId: undefined,
+            price: r.Price__c || 0,
+            finalPrice: r.Final_Price__c || undefined,
+            status: (r.Status__c as Unit['status']) || 'Available',
+            bedrooms: r.Number_of_Bedrooms__c || 0,
+            bathrooms: r.Number_of_Bathrooms__c || undefined,
+            area: r.Total_Area__c || 0,
+            bua: r.BUA__c || undefined,
+            floor: r.Floor__c || undefined,
+            images: fileImg?.images ?? [],
+            unitImage: fileImg?.unitImage,
+            notes: undefined,
+          }
+        })
         .slice(0, 3)
     }
 

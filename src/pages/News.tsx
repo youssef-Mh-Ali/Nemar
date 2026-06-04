@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getNewsArticles } from '../lib/api-client'
 import { NewsArticle } from '../lib/types'
+import { PLACEHOLDER_NEWS_IMAGE } from '../lib/placeholderImages'
 
 const formatDate = (date: Date, isRtl: boolean) => {
   return new Intl.DateTimeFormat(isRtl ? 'ar-SA' : 'en-US', {
@@ -158,7 +159,7 @@ export default function News() {
                     <Box sx={{ overflow: 'hidden', height: { xs: 200, md: 300 }, mb: 2 }}>
                       <Box
                         component="img"
-                        src={article.coverImageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'}
+                        src={article.coverImageUrl || PLACEHOLDER_NEWS_IMAGE}
                         alt={article.title}
                         sx={{
                           width: '100%',

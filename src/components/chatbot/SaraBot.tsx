@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useChatStore } from '../../lib/chatbot/store'
 import CurrencyIcon from '../ui/CurrencyIcon'
+import { PLACEHOLDER_UNIT_IMAGE } from '../../lib/placeholderImages'
 
 export default function SaraBot() {
   const { t, i18n } = useTranslation()
@@ -248,7 +249,7 @@ export default function SaraBot() {
                                   {/* Thumbnail */}
                                   <Box sx={{ position: 'relative', height: 110 }}>
                                     <img
-                                      src={unit.images?.[0] || '/placeholder.jpg'}
+                                      src={unit.images?.[0] || PLACEHOLDER_UNIT_IMAGE}
                                       alt={unit.unitNumber}
                                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />

@@ -19,6 +19,7 @@ import { ArrowRight, FileText, Image as ImageIcon, ExternalLink, MapPin } from '
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { getProject } from '../lib/api-client'
+import { PLACEHOLDER_PROJECT_IMAGE } from '../lib/placeholderImages'
 import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
 import { isModelAttachmentTitle, isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
 import { useFeatureSwitchStore } from '../lib/store'
@@ -183,7 +184,7 @@ export default function ProjectDetails() {
       <Box sx={{ position: 'relative', height: { xs: '60vh', md: '75vh' }, minHeight: 400, overflow: 'hidden' }}>
         <Box 
           component="img" 
-          src={project.coverImageUrl || '/placeholder.jpg'} 
+          src={project.coverImageUrl || PLACEHOLDER_PROJECT_IMAGE} 
           alt={title}
           sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

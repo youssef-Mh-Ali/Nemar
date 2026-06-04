@@ -9,6 +9,7 @@ import FavoriteButton from '../ui/FavoriteButton'
 import LazyImage from '../ui/LazyImage'
 import SubsidyBadges from '../units/SubsidyBadges'
 import CurrencyIcon from '../ui/CurrencyIcon'
+import { PLACEHOLDER_UNIT_IMAGE } from '../../lib/placeholderImages'
 
 interface UnitCardProps {
   unit: Unit
@@ -50,7 +51,7 @@ export default function UnitCard({ unit, index = 0, variant = 'grid' }: UnitCard
       }}
     >
       <LazyImage
-        src={unit?.images?.[0] || '/placeholder.jpg'}
+        src={unit?.images?.[0] || PLACEHOLDER_UNIT_IMAGE}
         alt={`Unit ${unit.unitNumber}`}
         objectFit="cover"
         sx={{

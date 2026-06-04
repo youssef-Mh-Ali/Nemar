@@ -32,8 +32,9 @@ export interface SalesforceUnitDTO {
   price: number;
   finalPrice: number;
   currencyCode: string;
-  unitImage: string;
-  images: string[];
+  unitImage?: string;
+  contentVersionId?: string;
+  images?: string[];
   notes: unknown[];
   numberOfBedrooms: number;
   numberOfBathrooms: number;
@@ -106,9 +107,16 @@ export async function salesforceQuery<T>(soql: string): Promise<{ records: T[] }
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' })) as {
+        error?: string
+        details?: string
+      }
       console.error('[Salesforce Query] ❌ FAILED:', response.status, errorData)
-      throw new Error(`Salesforce query failed: ${errorData.error || response.statusText}`)
+      const detailText =
+        typeof errorData.details === 'string' ? errorData.details : ''
+      throw new Error(
+        `Salesforce query failed: ${errorData.error || response.statusText}${detailText ? ` — ${detailText}` : ''}`
+      )
     }
 
     const result: SalesforceQueryResult<T> = await response.json()
