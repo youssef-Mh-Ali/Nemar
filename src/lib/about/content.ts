@@ -10,41 +10,39 @@ export type BoardMember = {
   image: string
 }
 
-const placeholderAvatar = '/placeholder.jpg'
-
 export const boardMembers: BoardMember[] = [
   {
-    nameAr: 'أحمد السالم',
-    nameEn: 'Ahmed Al Salem',
+    nameAr: 'مينا ميشيل',
+    nameEn: 'Mina Michel',
     titleAr: 'الرئيس التنفيذي',
     titleEn: 'Chief Executive Officer',
     descriptionAr:
-      'رائد أعمال ومستثمر عقاري يتمتع بخبرة تزيد عن 20 عاماً في تطوير وإدارة المشاريع العقارية السكنية والتجارية.',
+      'مؤسس ورئيس تنفيذي بخبرة واسعة في قيادة التحول الرقمي وتطوير حلول تقنية مبتكرة لقطاع العقارات.',
     descriptionEn:
-      'An entrepreneur and real estate investor with over 20 years of experience in developing and managing residential and commercial real estate projects.',
-    image: '/images/board/ceo.jpg',
+      'Founder and CEO with extensive experience in leading digital transformation and developing innovative technology solutions for the real estate sector.',
+    image: '/images/board/Mina_Michel_Founder_of_Cloudastick_Systems.png',
   },
   {
-    nameAr: 'سارة العتيبي',
-    nameEn: 'Sara Al Otaibi',
-    titleAr: 'مديرة التطوير العقاري',
-    titleEn: 'Director of Real Estate Development',
+    nameAr: 'جون شدودي',
+    nameEn: 'John Shedoudy',
+    titleAr: 'مستشار Salesforce',
+    titleEn: 'Salesforce Consultant',
     descriptionAr:
-      'خبيرة في التخطيط الحضري وتطوير المجتمعات السكنية المتكاملة، قادت العديد من المشاريع الكبرى.',
+      'خبير في استشارات Salesforce مع خبرة عميقة في تصميم وتنفيذ الحلول العقارية على منصة Salesforce.',
     descriptionEn:
-      'An expert in urban planning and integrated community development who has led numerous large-scale projects.',
-    image: '/images/board/director.jpg',
+      'Salesforce consultant with deep expertise in designing and implementing real estate solutions on the Salesforce platform.',
+    image: '/images/board/John_Shedoudy_Salesforce_Consultant.png',
   },
   {
-    nameAr: 'محمد القحطاني',
-    nameEn: 'Mohammed Al Qahtani',
-    titleAr: 'مدير العمليات',
-    titleEn: 'Operations Manager',
+    nameAr: 'شادي توماس',
+    nameEn: 'Shady Thomas',
+    titleAr: 'مستشار Salesforce',
+    titleEn: 'Salesforce Consultant',
     descriptionAr:
-      'يمتلك خبرة واسعة في إدارة العمليات وتحقيق الكفاءة التشغيلية في قطاع التطوير العقاري.',
+      'مستشار Salesforce محترف يمتلك خبرة في تحسين العمليات التجارية وتطوير حلول تقنية متكاملة.',
     descriptionEn:
-      'Brings extensive experience in operations management and driving operational efficiency in the real estate development sector.',
-    image: '/images/board/operations.jpg',
+      'Professional Salesforce consultant with expertise in optimizing business processes and developing integrated technical solutions.',
+    image: '/images/board/Shady_Thomas_Salesforce_Consultant.png',
   },
 ]
 

@@ -273,15 +273,7 @@ export default function AboutUs() {
     }
   }, [language])
 
-  // Map elements into a precise Tree Structure mirroring the iOS UI/UX reference
-  const chairman = useMemo(() => members.find((m) => m.image.includes('tariq')) || members[2] || members[0], [members])
-  const ceo = useMemo(() => members.find((m) => m.image.includes('faisal')) || members[0], [members])
-  const osama = useMemo(() => members.find((m) => m.image.includes('osama')) || members[1] || members[0], [members])
-  const topRowMembers = useMemo(() => [chairman, ceo, osama], [chairman, ceo, osama])
-
-  const child1 = useMemo(() => members.find((m) => m.image.includes('alrashidi')) || members[3] || members[0], [members])
-  const child2 = useMemo(() => members.find((m) => m.image.includes('alfuraidi')) || members[4] || members[0], [members])
-  const bottomRowMembers = useMemo(() => [child1, child2], [child1, child2])
+  // Board members directly from content
 
   // Fallbacks ensuring absolute visual readiness
   const defaultVisionEn =
@@ -369,171 +361,16 @@ export default function AboutUs() {
           />
         </Box>
 
-        {/* TREE STRUCTURE IMPLEMENTATION */}
+        {/* Board Members Grid */}
         <Box sx={{ position: 'relative', mb: 8 }}>
-          {/* Top Row: Chairman, CEO, Osama */}
-          <Grid container spacing={3}>
-            {topRowMembers.map((member, index) => (
-              <Grid key={member.name + index} size={{ xs: 12, md: 4 }}>
+          <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+            {members.map((member, index) => (
+              <Grid key={member.name + index} size={{ xs: 12, sm: 6, md: 4 }}>
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  style={{ height: '100%' }}
-                >
-                  <MemberCard member={member} onClick={() => setSelectedMember(member)} />
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Desktop Tree Connector Lines */}
-          <Box
-            sx={{
-              display: { xs: 'none', md: 'block' },
-              position: 'relative',
-              height: 60,
-              width: '100%',
-              mt: 4, // Add breathing room from the cards above
-            }}
-          >
-            {/* Stem downwards from center card (CEO) */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                width: '2px',
-                height: '30px',
-                bgcolor: 'secondary.main',
-                transform: 'translateX(-50%)',
-                opacity: 0.5,
-              }}
-            />
-            {/* Central Node dot */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '25px',
-                left: '50%',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                border: '2px solid',
-                borderColor: 'secondary.main',
-                bgcolor: 'background.paper',
-                transform: 'translateX(-50%)',
-                zIndex: 2,
-                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
-              }}
-            />
-            {/* Horizontal expansion crossbar connecting the two child centers */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '29px',
-                left: '33.33%',
-                right: '33.33%',
-                height: '2px',
-                bgcolor: 'secondary.main',
-                opacity: 0.5,
-              }}
-            />
-            {/* Left Node dot */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '25px',
-                left: '33.33%',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                border: '2px solid',
-                borderColor: 'secondary.main',
-                bgcolor: 'background.paper',
-                transform: 'translateX(-50%)',
-                zIndex: 2,
-                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
-              }}
-            />
-            {/* Left drop line to Child 1 */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '29px',
-                left: '33.33%',
-                width: '2px',
-                height: '31px',
-                bgcolor: 'secondary.main',
-                transform: 'translateX(-50%)',
-                opacity: 0.5,
-              }}
-            />
-            {/* Right Node dot */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '25px',
-                left: '66.67%',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                border: '2px solid',
-                borderColor: 'secondary.main',
-                bgcolor: 'background.paper',
-                transform: 'translateX(-50%)',
-                zIndex: 2,
-                boxShadow: '0 0 8px rgba(201, 162, 39, 0.4)',
-              }}
-            />
-            {/* Right drop line to Child 2 */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '29px',
-                left: '66.67%',
-                width: '2px',
-                height: '31px',
-                bgcolor: 'secondary.main',
-                transform: 'translateX(-50%)',
-                opacity: 0.5,
-              }}
-            />
-          </Box>
-
-          {/* Mobile Connector */}
-          <Box
-            sx={{
-              display: { xs: 'flex', md: 'none' },
-              flexDirection: 'column',
-              alignItems: 'center',
-              my: 2,
-            }}
-          >
-            <Box sx={{ width: 2, height: 20, bgcolor: 'secondary.main', opacity: 0.5 }} />
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                border: '2px solid',
-                borderColor: 'secondary.main',
-                bgcolor: 'background.paper',
-              }}
-            />
-            <Box sx={{ width: 2, height: 20, bgcolor: 'secondary.main', opacity: 0.5 }} />
-          </Box>
-
-          {/* Bottom Row: Centered Child 1 and Child 2 */}
-          <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
-            {bottomRowMembers.map((member, index) => (
-              <Grid key={member.name + index} size={{ xs: 12, md: 4 }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
                   style={{ height: '100%' }}
                 >
                   <MemberCard member={member} onClick={() => setSelectedMember(member)} />
