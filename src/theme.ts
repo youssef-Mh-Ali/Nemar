@@ -1,6 +1,5 @@
 import { createTheme } from '@mui/material/styles';
 
-// Faisal Bin Saedan Brand Colors
 export const theme = createTheme({
   direction: 'rtl',
   palette: {

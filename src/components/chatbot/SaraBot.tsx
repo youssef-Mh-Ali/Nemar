@@ -13,7 +13,7 @@ import {
   FormControl, 
   InputLabel,
   Slide,
-  Fade
+  Fade,
 } from '@mui/material'
 import { MessageCircle, X, Send, Bed, Bath, Maximize } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useChatStore } from '../../lib/chatbot/store'
 import CurrencyIcon from '../ui/CurrencyIcon'
 import { PLACEHOLDER_UNIT_IMAGE } from '../../lib/placeholderImages'
+import { DEMO_CONFIG } from '../../lib/demo-config'
 
 export default function SaraBot() {
   const { t, i18n } = useTranslation()
@@ -189,7 +190,7 @@ export default function SaraBot() {
                             typography: 'body2',
                             lineHeight: 1.6,
                           }}>
-                            {msg.textKey ? t(msg.textKey) : msg.text}
+                            {msg.textKey ? t(msg.textKey, { companyName: isRtl ? DEMO_CONFIG.brand.nameAr : DEMO_CONFIG.brand.nameEn }) : msg.text}
                           </Box>
                         </Box>
                       </motion.div>

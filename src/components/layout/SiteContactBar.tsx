@@ -2,6 +2,7 @@ import { Box, Container, IconButton, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
 import { Mail, MapPin, Instagram, Linkedin, Facebook, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { DEMO_CONFIG } from '../../lib/demo-config'
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg
@@ -91,7 +92,7 @@ export default function SiteContactBar() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
           <Box
             component="a"
-            href="tel:+966920024010"
+            href={DEMO_CONFIG.contact.phoneTel}
             sx={{
               display: 'flex',
               alignItems: 'center',

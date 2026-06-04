@@ -6,6 +6,7 @@ import {
 } from '../projectMedia'
 import type { ProjectModelFile } from '../types'
 import { salesforceQuery, salesforceFetchUnits, salesforceFetchNewsArticles, salesforceFetchNewsArticleDetail, SalesforceUnitDTO } from '../salesforce/client'
+import { DEMO_CONFIG } from '../demo-config'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
@@ -473,7 +474,7 @@ function pickMediaFromAttachments(attachments: Array<{ title: string; fileExtens
 
 // Projects
 export async function getProjects() {
-  const CACHE_KEY = 'binsaedan_projects_cache'
+  const CACHE_KEY = `${DEMO_CONFIG.cacheKeyPrefix}_projects_cache`
   const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
   // Check cache
@@ -600,7 +601,7 @@ function parseSalesforceAggregateCount(record: Record<string, unknown> | undefin
 }
 
 export async function getHomePageStats() {
-  const CACHE_KEY = 'binsaedan_home_stats_cache_v2'
+  const CACHE_KEY = `${DEMO_CONFIG.cacheKeyPrefix}_home_stats_cache_v2`
   const CACHE_TTL = 5 * 60 * 1000
 
   try {

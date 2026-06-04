@@ -2,6 +2,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { Box, Container, Link, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import BrandLogo from './BrandLogo'
+import { DEMO_CONFIG } from '../../lib/demo-config'
 
 export default function Footer() {
   const { t } = useTranslation()
@@ -75,7 +76,7 @@ export default function Footer() {
             component="p"
             sx={{ mb: 0.5 }}
           >
-            {t('footer.copyright', { year })}
+            {t('footer.copyright', { year, companyName: DEMO_CONFIG.brand.nameAr })}
           </Typography>
           <Typography
             variant="caption"

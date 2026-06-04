@@ -23,6 +23,7 @@ import CaseList from '../components/community/CaseList'
 import { useAuthStore } from '../lib/store'
 import { getMyOpportunities, getCases, type MyOpportunity } from '../lib/api-client'
 import { Unit, Case } from '../lib/types'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
 export default function Community() {
   const { t, i18n } = useTranslation()
@@ -128,7 +129,7 @@ export default function Community() {
                 {user.firstName} {user.lastName}
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', mt: 1 }}>
-                {t('community.welcomeMessage')}
+                {t('community.welcomeMessage', { companyName: DEMO_CONFIG.brand.nameAr })}
               </Typography>
             </Box>
           </motion.div>

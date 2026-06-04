@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { Phone, Mail, MapPin, Clock, Instagram, Linkedin } from 'lucide-react'
 import { getOfficeMapUrl } from '../lib/api-client'
 import LeadInterestForm from '../components/home/LeadInterestForm'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
 // Custom X (Twitter) icon component
 const XIcon = ({ size = 20 }: { size?: number }) => (
@@ -65,74 +66,7 @@ const SnapchatIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
-interface OfficeLocation {
-  project: string
-  projectEn: string
-  url: string
-  coords: string
-  dirUrl: string
-  isHq?: boolean
-}
-
-const salesOffices: OfficeLocation[] = [
-  {
-    project: 'الموقع الرئيسي (الإدارة العامة)',
-    projectEn: 'Headquarters (HQ Office)',
-    url: 'https://www.google.com/maps/place/FBS/@24.767214,46.7086031,132m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3e2efd556f038b85:0x3a43523caa30801e!2sFBS!8m2!3d24.7673186!4d46.7086468!16s%2Fg%2F11ygn5c_z0!3m5!1s0x3e2efd556f038b85:0x3a43523caa30801e!8m2!3d24.7673186!4d46.7086468!16s%2Fg%2F11ygn5c_z0?hl=en-US&entry=ttu',
-    coords: '24.76734267323662,46.70865492367602',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.76734267323662,46.70865492367602',
-    isHq: true,
-  },
-  {
-    project: 'نزل خيالا - جدة',
-    projectEn: 'Nazal Khayala - Jeddah',
-    url: 'https://maps.app.goo.gl/iWaAkHtoVkWqRmcn8',
-    coords: '21.6488125,39.1125625',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.6488125,39.1125625'
-  },
-  {
-    project: 'ملفى الحوية',
-    projectEn: 'Malfa Al Hawiah',
-    url: 'https://maps.app.goo.gl/9Fv2dzxvouxztJNr5',
-    coords: '21.2790496,40.4447283',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.2790496,40.4447283'
-  },
-  {
-    project: 'ملفى جدة',
-    projectEn: 'Malfa Jeddah',
-    url: 'https://maps.app.goo.gl/Wbh3rDku8vm2tF1r8',
-    coords: '21.3508125,39.2610625',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=21.3508125,39.2610625'
-  },
-  {
-    project: 'ملفى تبوك هيلز',
-    projectEn: 'Malfa Tabuk Hills',
-    url: 'https://maps.app.goo.gl/FPhqhKgWYDAQBZnr9',
-    coords: '28.4606462,36.5198903',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=28.4606462,36.5198903'
-  },
-  {
-    project: 'ملفى الاصالة',
-    projectEn: 'Malfa Al Asalah',
-    url: 'https://maps.app.goo.gl/crzBe21cvioUXecx7',
-    coords: '24.4844205,46.7192966',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4844205,46.7192966'
-  },
-  {
-    project: 'ملفى المكيمن 1',
-    projectEn: 'Malfa Al Mukeemen 1',
-    url: 'https://maps.app.goo.gl/wVZVVm7PxxDvxrgD8',
-    coords: '24.4568125,39.5465625',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4568125,39.5465625'
-  },
-  {
-    project: 'ملفى المكيمن 2',
-    projectEn: 'Malfa Al Mukeemen 2',
-    url: 'https://maps.app.goo.gl/2tBKQmzahU8ehRaa7',
-    coords: '24.4662446,39.6652025',
-    dirUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4662446,39.6652025'
-  },
-]
+const salesOffices = DEMO_CONFIG.offices
 
 export default function Contact() {
   const { t, i18n } = useTranslation()
@@ -240,14 +174,14 @@ export default function Contact() {
                     {
                       icon: Phone,
                       label: t('contact.phoneLabel'),
-                      value: '920024010',
-                      href: 'tel:+966920024010',
+                      value: DEMO_CONFIG.contact.phoneDisplay,
+                      href: DEMO_CONFIG.contact.phoneTel,
                     },
                     {
                       icon: Mail,
                       label: t('contact.emailLabel'),
-                      value: 'customer.care@faisal-binsaedan.com / info@faisal-binsaedan.com',
-                      href: 'mailto:customer.care@faisal-binsaedan.com',
+                      value: `${DEMO_CONFIG.contact.email} / ${DEMO_CONFIG.contact.supportEmail}`,
+                      href: `mailto:${DEMO_CONFIG.contact.email}`,
                     },
                     {
                       icon: MapPin,
@@ -324,37 +258,37 @@ export default function Contact() {
                   {[
                     {
                       icon: Instagram,
-                      href: 'https://www.instagram.com/faisalsaedanco',
+                      href: DEMO_CONFIG.social.instagram,
                       label: t('share.instagram'),
                       color: '#E4405F'
                     },
                     {
                       icon: XIcon,
-                      href: 'https://x.com/faisalsaedanco',
+                      href: DEMO_CONFIG.social.twitter,
                       label: t('share.twitter'),
                       color: '#000000'
                     },
                     {
                       icon: Linkedin,
-                      href: 'https://www.linkedin.com/company/faisal-binsaedan',
+                      href: DEMO_CONFIG.social.linkedin,
                       label: t('share.linkedin'),
                       color: '#0077B5'
                     },
                     {
                       icon: WhatsAppIcon,
-                      href: 'https://wa.me/966920024010',
+                      href: DEMO_CONFIG.contact.whatsappUrl,
                       label: t('share.whatsapp'),
                       color: '#25D366'
                     },
                     {
                       icon: SnapchatIcon,
-                      href: 'https://www.snapchat.com/@binsaedanco',
+                      href: DEMO_CONFIG.social.snapchat,
                       label: t('share.snapchat'),
                       color: '#FFFC00'
                     },
                     {
                       icon: TikTokIcon,
-                      href: 'https://www.tiktok.com/@faisalbinsaedan.c',
+                      href: DEMO_CONFIG.social.tiktok,
                       label: t('share.tiktok'),
                       color: '#000000'
                     },

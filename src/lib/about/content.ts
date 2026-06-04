@@ -1,8 +1,4 @@
-import faisalImg from '../../Board members photos/Faisal Bin Saedan.png'
-import osamaImg from '../../Board members photos/Ussama Al-dawlty.png'
-import tariqImg from '../../Board members photos/Tariq Bin Saedan.png'
-import abdulazizRashidiImg from '../../Board members photos/Abd El Aziz Al Rashidy.png'
-import abdulazizSalehImg from '../../Board members photos/Abd-el Aziz Saleh.png'
+import { DEMO_CONFIG } from '../demo-config'
 
 export type BoardMember = {
   nameAr: string
@@ -14,61 +10,41 @@ export type BoardMember = {
   image: string
 }
 
+const placeholderAvatar = '/placeholder.jpg'
+
 export const boardMembers: BoardMember[] = [
   {
-    nameAr: 'فيصل عبدالله بن سعيدان',
-    nameEn: 'Faisal Abdullah Bin Saedan',
-    titleAr: 'الرئيس التنفيذي للمجموعة - نائب رئيس مجلس الإدارة',
-    titleEn: 'Group CEO - Vice Chairman',
+    nameAr: 'أحمد السالم',
+    nameEn: 'Ahmed Al Salem',
+    titleAr: 'الرئيس التنفيذي',
+    titleEn: 'Chief Executive Officer',
     descriptionAr:
-      'رئيس تنفيذي ومؤسس لشركات عقارية واستثمارية، يتمتع بخبرة واسعة في الإدارة والتطوير العقاري، وشغل مناصب قيادية في عدة جهات وشارك في مجالس إدارات وصناديق استثمارية.',
+      'رائد أعمال ومستثمر عقاري يتمتع بخبرة تزيد عن 20 عاماً في تطوير وإدارة المشاريع العقارية السكنية والتجارية.',
     descriptionEn:
-      'Executive leader and founder of real estate and investment companies with broad experience in management and real estate development, and a track record of leadership roles across boards and investment funds.',
-    image: faisalImg,
+      'An entrepreneur and real estate investor with over 20 years of experience in developing and managing residential and commercial real estate projects.',
+    image: '/images/board/ceo.jpg',
   },
   {
-    nameAr: 'أسامة يوسف الدولتلي',
-    nameEn: 'Osama Yousif Al-Dawtali',
-    titleAr: 'رئيس لجنة الاستثمار - الرئيس التنفيذي للتطوير',
-    titleEn: 'Chairman, Investment Committee - Chief Development Officer',
+    nameAr: 'سارة العتيبي',
+    nameEn: 'Sara Al Otaibi',
+    titleAr: 'مديرة التطوير العقاري',
+    titleEn: 'Director of Real Estate Development',
     descriptionAr:
-      'يمتلك خبرة واسعة في التطوير العقاري وإدارة المشاريع، وقاد مشاريع استراتيجية كبرى أسهمت في تعزيز محفظة الشركة بخبرة تنفيذية تتجاوز 25 عاماً.',
+      'خبيرة في التخطيط الحضري وتطوير المجتمعات السكنية المتكاملة، قادت العديد من المشاريع الكبرى.',
     descriptionEn:
-      'Seasoned leader in real estate development and project management who has led major strategic initiatives that strengthened the company portfolio, backed by over 25 years of execution experience.',
-    image: osamaImg,
+      'An expert in urban planning and integrated community development who has led numerous large-scale projects.',
+    image: '/images/board/director.jpg',
   },
   {
-    nameAr: 'طارق بن سعيدان',
-    nameEn: 'Tariq Bin Saedan',
-    titleAr: 'رئيس مجلس الإدارة',
-    titleEn: 'Chairman of the Board',
+    nameAr: 'محمد القحطاني',
+    nameEn: 'Mohammed Al Qahtani',
+    titleAr: 'مدير العمليات',
+    titleEn: 'Operations Manager',
     descriptionAr:
-      'يتمتع بخبرة تتجاوز 25 عاماً في إدارة الاستثمارات العقارية وتطوير الأعمال، ويتميز برؤية استراتيجية شاملة وقدرة عالية على تحويل الفرص الاستثمارية إلى مشاريع ذات قيمة مضافة.',
+      'يمتلك خبرة واسعة في إدارة العمليات وتحقيق الكفاءة التشغيلية في قطاع التطوير العقاري.',
     descriptionEn:
-      'Brings 25+ years in real estate investment management and business development, with a strategic outlook and strong capability to transform opportunities into high-value projects.',
-    image: tariqImg,
-  },
-  {
-    nameAr: 'عبدالعزيز عوجان الرشيدي',
-    nameEn: 'Abdulaziz Awjan Al-Rashidi',
-    titleAr: 'عضو مجلس الإدارة',
-    titleEn: 'Board Member',
-    descriptionAr:
-      'يمتلك خبرة تتجاوز 25 عاماً في قيادة الاستراتيجيات المالية والاستثمارية، وقاد عمليات تمويل لمشاريع كبيرة وأسهم في تعزيز كفاءة رأس المال وتحقيق نمو مستدام للمجموعة.',
-    descriptionEn:
-      'Board member with more than 25 years in financial and investment strategy leadership, driving large-scale project financing and capital-efficiency initiatives for sustainable growth.',
-    image: abdulazizRashidiImg,
-  },
-  {
-    nameAr: 'عبدالعزيز الفريدي',
-    nameEn: 'Abdulaziz Al-Furaidi',
-    titleAr: 'عضو مجلس الإدارة',
-    titleEn: 'Board Member',
-    descriptionAr:
-      'قيادي تنفيذي بخبرة تتجاوز 21 عاماً في إدارة المشاريع الكبرى والعمليات الاستراتيجية، مع قدرة متميزة على بناء فرق عالية الأداء وتحويل التحديات إلى فرص نمو.',
-    descriptionEn:
-      'Executive leader with 21+ years in mega projects and strategic operations, known for building high-performance teams and turning complex challenges into growth opportunities.',
-    image: abdulazizSalehImg,
+      'Brings extensive experience in operations management and driving operational efficiency in the real estate development sector.',
+    image: '/images/board/operations.jpg',
   },
 ]
 
@@ -80,6 +56,7 @@ export type LocalizedBoardMember = {
 }
 
 export function getBoardMembers(language: string): LocalizedBoardMember[] {
+  if (!DEMO_CONFIG.features.showBoardMembers) return []
   const isEnglish = language.startsWith('en')
   return boardMembers.map((member) => ({
     name: isEnglish ? member.nameEn : member.nameAr,

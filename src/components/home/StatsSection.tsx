@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getHomePageStats } from '../../lib/api-client'
+import { DEMO_CONFIG } from '../../lib/demo-config'
 
 function Counter({ value, suffix = '', duration = 2 }: { value: number; suffix?: string; duration?: number }) {
   const { i18n } = useTranslation()
@@ -155,10 +156,7 @@ export default function StatsSection() {
                   maxWidth: '400px',
                 }}
               >
-                {t(
-                  'home.statsDesc',
-                  'At Faisal Bin Saedan, we strive to implement modern architectural styles and inspiring innovations with a strong foundation.'
-                )}
+                {t('home.statsDesc', { companyName: DEMO_CONFIG.brand.nameEn })}
               </Typography>
             </motion.div>
           </Grid>

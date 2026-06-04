@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { UnitFilters } from "../types";
+import { DEMO_CONFIG } from "../demo-config";
 
 interface AppState {
   // PWA Install
@@ -30,7 +31,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const MAINTENANCE_PASSWORD = "binsaedan2025";
+const MAINTENANCE_PASSWORD = DEMO_CONFIG.maintenancePassword;
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -64,7 +65,7 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: "binsaedan-app-storage",
+      name: `${DEMO_CONFIG.localStoragePrefix}-app-storage`,
       partialize: (state) => ({ 
         isMaintenanceAuthorized: state.isMaintenanceAuthorized,
         showInstallBanner: state.showInstallBanner 

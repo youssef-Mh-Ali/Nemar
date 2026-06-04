@@ -7,7 +7,8 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { getBoardMembers, loadMissionVisionMarkdown } from '../lib/about/content'
-import FBSVolumesBackground from '../components/about/FBSVolumesBackground'
+import VolumesBackground from '../components/about/VolumesBackground'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
 
 type MarkdownBlock =
@@ -303,7 +304,7 @@ export default function AboutUs() {
 
   return (
     <Box sx={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <FBSVolumesBackground />
+      <VolumesBackground />
       <Box sx={{ position: 'relative', zIndex: 1 }}>
         <Box
           sx={(theme) => ({

@@ -85,7 +85,7 @@ export async function getNearbyAmenities(lat: number, lng: number): Promise<Near
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'BinSaedan-PWA/1.0 (contact@faisalbinsaedan.com)',
+        'User-Agent': 'CloudEstate-PWA/1.0 (info@cloudestate.com)',
       },
       body: 'data=' + encodeURIComponent(query),
     });

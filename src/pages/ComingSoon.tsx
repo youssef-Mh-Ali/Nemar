@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Lock, Eye, EyeOff, ArrowRight, Construction } from 'lucide-react'
 import { useAppStore } from '../lib/store/app-store'
 import AnimatedBackground from '../components/layout/AnimatedBackground'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
 export default function ComingSoon() {
   const [password, setPassword] = useState('')
@@ -70,8 +71,8 @@ export default function ComingSoon() {
             }}
           >
             <motion.img
-              src="/BinSaedanLogo-White.png"
-              alt="Bin Saedan"
+              src={DEMO_CONFIG.brand.logo.white}
+              alt={DEMO_CONFIG.brand.nameEn}
               style={{ height: '90px', marginBottom: '32px' }}
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
@@ -253,7 +254,7 @@ export default function ComingSoon() {
             }}
           >
             <Typography variant="caption" sx={{ fontSize: '0.8rem' }}>
-              Under Development by Bin Saedan Team
+              Under Development by {DEMO_CONFIG.brand.nameEn} Team
             </Typography>
             <Construction size={16} opacity={0.7} />
           </Box>

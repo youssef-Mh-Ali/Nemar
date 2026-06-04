@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { AuthUser } from "../types";
+import { DEMO_CONFIG } from "../demo-config";
 
 interface AuthState {
   user: AuthUser | null;
@@ -22,7 +23,7 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading) => set({ isLoading: loading }),
     }),
     {
-      name: "binsaedan-auth",
+      name: `${DEMO_CONFIG.localStoragePrefix}-auth`,
       partialize: (state) => ({ user: state.user, token: state.token }),
     }
   )

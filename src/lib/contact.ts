@@ -1,4 +1,5 @@
-/** Shared company contact links (matches Contact page). */
-export const COMPANY_PHONE_DISPLAY = '920024010'
-export const COMPANY_PHONE_TEL = 'tel:+966920024010'
-export const COMPANY_WHATSAPP_URL = 'https://wa.me/966920024010'
+import { DEMO_CONFIG } from './demo-config'
+
+export const COMPANY_PHONE_DISPLAY = DEMO_CONFIG.contact.phoneDisplay
+export const COMPANY_PHONE_TEL = DEMO_CONFIG.contact.phoneTel
+export const COMPANY_WHATSAPP_URL = DEMO_CONFIG.contact.whatsappUrl

@@ -10,6 +10,7 @@ import OurFieldsSection from '../components/home/OurFieldsSection'
 import AboutProjectsSection from '../components/home/AboutProjectsSection'
 import RegisterInterestModal from '../components/home/RegisterInterestModal'
 import MorphicBackground from '../components/home/MorphicBackground'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
 export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
@@ -31,6 +32,7 @@ export default function Home() {
       <AboutProjectsSection />
 
       {/* CMA Section */}
+      {DEMO_CONFIG.features.showCmaSection && (
       <Box sx={{ py: 6, px: { xs: 2, md: 3 }, bgcolor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(20px)', textAlign: 'center' }}>
         <Container maxWidth="xl">
           <motion.div
@@ -80,6 +82,7 @@ export default function Home() {
           </motion.div>
         </Container>
       </Box>
+      )}
 
       {/* CTA Section */}
       <Box sx={(theme) => ({ py: 8, px: { xs: 2, md: 3 }, bgcolor: theme.palette.primary.main, color: 'white' })}>

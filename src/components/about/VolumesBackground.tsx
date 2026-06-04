@@ -85,7 +85,7 @@ const GlassCube = ({ size, x, y, delay = 0, duration = 20, color = 'rgba(255, 25
   )
 }
 
-export default function FBSVolumesBackground() {
+export default function VolumesBackground() {
   const { scrollY } = useScroll()
   const scrollSpring = useSpring(scrollY, { stiffness: 50, damping: 20, restDelta: 0.001 })
   const [isClicked, setIsClicked] = useState(false)

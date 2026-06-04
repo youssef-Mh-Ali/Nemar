@@ -1,8 +1,9 @@
 import { Box } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-/** Public asset: vertical FBS + Arabic wordmark (use PNG with alpha for transparent background) */
-export const BRAND_LOGO_SRC = '/FBS_Logo_Vertical_AR.png'
+import { DEMO_CONFIG } from '../../lib/demo-config'
+
+export const BRAND_LOGO_SRC = DEMO_CONFIG.brand.logo.vertical
 
 type BrandLogoVariant = 'header' | 'footer' | 'login'
 
@@ -23,7 +24,7 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
     <Box
       component="img"
       src={BRAND_LOGO_SRC}
-      alt={t('home.title')}
+      alt={t('home.title', { companyName: DEMO_CONFIG.brand.nameAr })}
       sx={{
         height,
         width: 'auto',

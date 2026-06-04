@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { DEMO_CONFIG } from '../../lib/demo-config'
 
 const SAKANI_LOGO = '/SakaniLogo.jpg'
 const MOD_LOGO = '/Saudi_Ministry_of_Defense_Logo.svg.png'
@@ -18,7 +19,7 @@ const SIZE_STYLES = {
 export default function SubsidyBadges({ eligible, size = 'small' }: SubsidyBadgesProps) {
   const { t } = useTranslation()
 
-  if (!eligible) return null
+  if (!eligible || !DEMO_CONFIG.features.showSubsidyBadges) return null
 
   const { height, padding, sakaniMax, modMax } = SIZE_STYLES[size]
 

@@ -13,7 +13,7 @@ const FIELDS = [
   },
   {
     id: 'commercial',
-    image: 'https://faisal-binsaedan.com/wp-content/uploads/2024/07/manar-1.webp',
+    image: '/media/projects/riyadh-grove.jpg',
     titleKey: 'home.fields.commercial.title',
     descKey: 'home.fields.commercial.description',
     link: '/search?view=projects',

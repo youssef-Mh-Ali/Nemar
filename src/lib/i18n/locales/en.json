@@ -28,7 +28,7 @@
   },
   "footer": {
     "nav": "Footer navigation",
-    "copyright": "© {{year}} Faisal Bin Saedan. All rights reserved.",
+    "copyright": "© {{year}} {{companyName}}. All rights reserved.",
     "developedBy": "Developed with love by"
   },
   "siteContactBar": {
@@ -50,7 +50,7 @@
     "snapshot": {
       "kicker": "Company Snapshot",
       "title": "A legacy of development, built for today",
-      "subtitle": "A modern extension of the Bin Saedan family legacy since 1934—focused on high-quality residential and commercial destinations, investment solutions, and long-term property care across Saudi Arabia.",
+      "subtitle": "A modern extension of the {{companyName}} family legacy since 1934—focused on high-quality residential and commercial destinations, investment solutions, and long-term property care across Saudi Arabia.",
       "cards": {
         "residential": {
           "title": "Residential Communities",
@@ -103,7 +103,7 @@
     "animatedPanelBody": "Our strategy combines design quality, investment discipline, and sustainable urban value."
   },
   "home": {
-    "title": "Faisal Bin Saedan",
+    "title": "{{companyName}}",
     "subtitle": "Explore our distinguished collection of residential projects in the best locations in the Kingdom",
     "heroTitle": "Shaping the Future",
     "heroSubtitle": "of Real Estate",
@@ -125,20 +125,20 @@
     "registerInterest": "Register Your Interest",
     "viewAllUnits": "View All Units",
     "phone": "920024010",
-    "email": "customer.care@faisal-binsaedan.com / info@faisal-binsaedan.com",
+    "email": "info@cloudestate.com / support@cloudestate.com",
     "address": "Riyadh, Kingdom of Saudi Arabia",
     "phasesAvailable": "{{count}} units available",
     "soldOut": "Sold Out",
     "phases": "phases",
     "viewUnits": "View Units",
-    "cmaDescription": "Faisal bin Saedan Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests.",
+    "cmaDescription": "CloudEstate Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests.",
     "cmaCollaborationTeaser": "Additional collaboration initiatives with the Saudi Capital Market Authority are coming soon.",
     "cmaCollaborationCta": "View details",
     "watchOnInstagram": "Watch video on Instagram",
     "inspiringSpacesTitle": "Inspiring Spaces, Building Futures",
     "inspiringSpacesDesc": "Through structure, discipline, and strategic foresight, we transform potential into enduring, measurable value, supporting national progress and sustainable growth.",
     "statsTitle": "Strong foundation and advanced innovations",
-    "statsDesc": "At Faisal Bin Saedan, we strive to implement modern architectural styles and inspiring innovations with a strong foundation.",
+    "statsDesc": "At {{companyName}}, we strive to implement modern architectural styles and inspiring innovations with a strong foundation.",
     "stats": {
       "housing": "Housing units",
       "units": "Units",
@@ -341,7 +341,7 @@
   },
   "community": {
     "welcome": "Welcome",
-    "welcomeMessage": "Welcome to Faisal Bin Saedan Community",
+    "welcomeMessage": "Welcome to {{companyName}} Community",
     "myUnits": "My Units",
     "myCases": "My Cases",
     "noUnits": "No Units",
@@ -434,7 +434,7 @@
   },
   "installBanner": {
     "title": "Better experience with the app",
-    "description": "Install Faisal Bin Saedan app for quick access",
+    "description": "Install {{companyName}} app for quick access",
     "install": "Install"
   },
   "brokerLanding": {
@@ -467,7 +467,7 @@
   },
   "ourNewsPage": {
     "title": "Our News",
-    "subtitle": "Company updates, announcements, and media coverage from Faisal Bin Saedan.",
+    "subtitle": "Company updates, announcements, and media coverage from {{companyName}}.",
     "placeholder": {
       "title": "Content coming soon",
       "description": "Our news section is being prepared. Articles, press releases, and company updates will be published here shortly.",
@@ -518,7 +518,7 @@
     "empty": "No news articles found."
   },
   "chatbot": {
-    "greeting": "Welcome to Faisal Bin Saedan! I'm Sara, your digital assistant. How can I help you today?",
+    "greeting": "Welcome to {{companyName}}! I'm Sara, your digital assistant. How can I help you today?",
     "menu": {
       "projects": "Explore Projects & Units",
       "services": "Our Services",
