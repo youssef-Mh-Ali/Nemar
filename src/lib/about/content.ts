@@ -34,6 +34,17 @@ export const boardMembers: BoardMember[] = [
     image: '/images/board/John_Shedoudy_Salesforce_Consultant.png',
   },
   {
+    nameAr: 'لؤي علاء الدين',
+    nameEn: 'Luay Aladin',
+    titleAr: 'مستشار Salesforce',
+    titleEn: 'Salesforce Consultant',
+    descriptionAr:
+      'مستشار Salesforce محترف ذو خبرة في تحسين العمليات التجارية وتنفيذ حلول تقنية متكاملة.',
+    descriptionEn:
+      'Professional Salesforce consultant with expertise in optimizing business processes and implementing integrated technical solutions.',
+    image: '/images/board/Luay_Aladin_Salesforce_Consultant.png',
+  },
+  {
     nameAr: 'شادي توماس',
     nameEn: 'Shady Thomas',
     titleAr: 'مستشار Salesforce',
@@ -43,6 +54,16 @@ export const boardMembers: BoardMember[] = [
     descriptionEn:
       'Professional Salesforce consultant with expertise in optimizing business processes and developing integrated technical solutions.',
     image: '/images/board/Shady_Thomas_Salesforce_Consultant.png',
+  },
+  {
+    nameAr: 'أشرف رزق',
+    nameEn: 'Ashraf Rezk',
+    titleAr: 'رئيس قسم التقنية',
+    titleEn: 'Head of Technology',
+    descriptionAr: 'قائد تقني بخبرة في تطوير الحلول البرمجية وإدارة فرق الهندسة لبناء منصات عقارية مبتكرة.',
+    descriptionEn:
+      'Technology leader with experience in software development and managing engineering teams to build innovative real estate platforms.',
+    image: '/images/board/Ashraf_Rezk_Head_of_Tech.png',
   },
 ]
 
