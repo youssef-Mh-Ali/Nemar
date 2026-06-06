@@ -7,6 +7,8 @@
  */
 
 const SF_API_VERSION = 'v66.0';
+/** Classic Netlify responses are limited; large PDFs may need a streaming v2 function later. */
+const MAX_PROXY_BYTES = 5.5 * 1024 * 1024;
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') {
@@ -97,7 +99,24 @@ exports.handler = async (event) => {
       };
     }
 
+    const contentLength = Number(sfResponse.headers.get('content-length') || 0);
+    if (contentLength > MAX_PROXY_BYTES) {
+      return {
+        statusCode: 413,
+        body: JSON.stringify({
+          error: 'File too large for proxy',
+          hint: 'Use a smaller asset or serve large PDFs via a dedicated download path',
+        }),
+      };
+    }
+
     const buffer = Buffer.from(await sfResponse.arrayBuffer());
+    if (buffer.length > MAX_PROXY_BYTES) {
+      return {
+        statusCode: 413,
+        body: JSON.stringify({ error: 'File too large for proxy' }),
+      };
+    }
     const contentType =
       sfResponse.headers.get('content-type') || 'application/octet-stream';
 

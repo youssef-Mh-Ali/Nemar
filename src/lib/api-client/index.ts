@@ -969,6 +969,12 @@ function unitImagesFromSalesforceDto(sfUnit: SalesforceUnitDTO): { images: strin
   return { images: [] }
 }
 
+function isHttpImageUrl(url?: string): boolean {
+  if (!url?.trim()) return false
+  const u = url.trim().toLowerCase()
+  return u.startsWith('http://') || u.startsWith('https://') || u.startsWith('/')
+}
+
 function mapSalesforceUnit(sfUnit: SalesforceUnitDTO & { Model__c?: string }): Unit {
   const fileImages = unitImagesFromSalesforceDto(sfUnit)
   return {
@@ -1232,8 +1238,12 @@ export async function getUnit(id: string) {
       eligibleForSubsidies: eligible,
       subsidies: record.Subsidies__c ? String(record.Subsidies__c) : undefined,
       deliveryDate: undefined,
-      images: primaryFileImage?.images ?? [],
-      unitImage: primaryFileImage?.unitImage,
+      images:
+        primaryFileImage?.images ??
+        (isHttpImageUrl(record.Unit_Image__c) ? [record.Unit_Image__c!] : []),
+      unitImage:
+        primaryFileImage?.unitImage ??
+        (isHttpImageUrl(record.Unit_Image__c) ? record.Unit_Image__c : undefined),
       floorPlan: undefined,
       sketchupEmbedUrl: embedSrc || undefined,
       amenities: undefined,

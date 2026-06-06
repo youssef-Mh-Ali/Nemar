@@ -341,7 +341,7 @@ export default function HeroSection() {
                 >
                   <VideoCover aspectRatio={1} mediaType="video">
                     <video
-                      src="/herosectionfallback.mp4"
+                      src="/my-hero-video.mp4"
                       autoPlay
                       muted
                       playsInline

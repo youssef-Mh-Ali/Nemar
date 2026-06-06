@@ -16,7 +16,13 @@ import {
 } from '@mui/material'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import SARBlack from '../../SAR/SAR_Black.png'
+
+// ─── Currency icon ────────────────────────────────────────────────────────────
+const CurrencyIcon = ({ size = '1em' }: { size?: string | number }) => (
+  <span style={{ display: 'inline-block', verticalAlign: 'middle', fontSize: size, fontWeight: 600, flexShrink: 0 }}>
+    EGP
+  </span>
+)
 
 // ─── Exported icon used by other pages ────────────────────────────────────────
 export const SakaniMathIcon = ({ color = 'currentColor', size = 24 }: { color?: string; size?: number }) => (
@@ -27,15 +33,6 @@ export const SakaniMathIcon = ({ color = 'currentColor', size = 24 }: { color?: 
     <line x1="9" y1="7" x2="9" y2="11" />
     <line x1="13" y1="15" x2="17" y2="15" />
   </svg>
-)
-
-// ─── SAR brand icon ───────────────────────────────────────────────────────────
-const SarIcon = ({ size = '1em' }: { size?: string | number }) => (
-  <img
-    src={SARBlack}
-    alt="SAR"
-    style={{ display: 'inline-block', verticalAlign: 'middle', height: size, width: 'auto', flexShrink: 0 }}
-  />
 )
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -289,7 +286,7 @@ export default function FinanceCalculatorModal({
   const sarAdornment = {
     [sarAdornmentKey]: (
       <Box sx={{ display: 'flex', alignItems: 'center', px: 0.25 }}>
-        <SarIcon size="1em" />
+        <CurrencyIcon size="1em" />
       </Box>
     ),
   }
@@ -604,7 +601,7 @@ export default function FinanceCalculatorModal({
                     direction: 'ltr', // keep number LTR
                   }}
                 >
-                  <SarIcon size="1.5rem" />
+                  <CurrencyIcon size="1.5rem" />
                   <Typography variant="h4" fontWeight="900" color="text.primary" sx={{ lineHeight: 1 }}>
                     {results.monthlyInstallment}
                   </Typography>
@@ -653,7 +650,7 @@ export default function FinanceCalculatorModal({
                 {/* Total financing */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <SarIcon size="0.85em" />
+                    <CurrencyIcon size="0.85em" />
                     <Typography variant="body2" fontWeight="700">
                       {results.totalFinancing}
                     </Typography>
@@ -668,7 +665,7 @@ export default function FinanceCalculatorModal({
                 {/* Total interest */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <SarIcon size="0.85em" />
+                    <CurrencyIcon size="0.85em" />
                     <Typography variant="body2" fontWeight="700">
                       {results.totalInterest}
                     </Typography>
@@ -713,7 +710,7 @@ export default function FinanceCalculatorModal({
                       ? new Intl.NumberFormat(isRtl ? 'ar-SA' : 'en-US').format(parseFloat(monthlyIncome))
                       : '0'
                   }
-                  icon={<SarIcon size="0.85em" />}
+                  icon={<CurrencyIcon size="0.85em" />}
                 />
                 <DetailRow
                   label={L.bankObligationsLabel}
@@ -722,7 +719,7 @@ export default function FinanceCalculatorModal({
                       ? new Intl.NumberFormat(isRtl ? 'ar-SA' : 'en-US').format(parseFloat(obligations))
                       : '0'
                   }
-                  icon={<SarIcon size="0.85em" />}
+                  icon={<CurrencyIcon size="0.85em" />}
                 />
                 <DetailRow label={L.interestRateLabel} value={`%${interestRate}`} />
                 <DetailRow label={L.downPaymentPctLabel} value={`%${downPayment}`} />
@@ -734,7 +731,7 @@ export default function FinanceCalculatorModal({
                   <DetailRow
                     label={L.subsidyLabel}
                     value={`- ${results.subsidyAmount}`}
-                    icon={<SarIcon size="0.85em" />}
+                    icon={<CurrencyIcon size="0.85em" />}
                   />
                 )}
               </Stack>

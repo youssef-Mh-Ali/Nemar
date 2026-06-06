@@ -15,10 +15,10 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
 
   const height =
     variant === 'header'
-      ? { xs: 44, sm: 52 }
+      ? { xs: 79, sm: 94 }
       : variant === 'footer'
-        ? { xs: 40, sm: 48 }
-        : { xs: 64, sm: 72 }
+        ? { xs: 72, sm: 86 }
+        : { xs: 115, sm: 130 }
 
   const img = (
     <Box
@@ -30,6 +30,7 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
         width: 'auto',
         display: 'block',
         mx: variant === 'login' ? 'auto' : undefined,
+        px: variant === 'header' ? { xs: 2, sm: 4 } : undefined,
       }}
     />
   )

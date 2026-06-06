@@ -41,7 +41,7 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
 )
 
 export default function SiteContactBar() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const socialLinks = [
     {
@@ -104,12 +104,12 @@ export default function SiteContactBar() {
           >
             <Phone size={20} />
             <Typography variant="body2" dir="ltr">
-              {t('home.phone')}
+              {t('home.phone', { phone: DEMO_CONFIG.contact.phoneDisplay })}
             </Typography>
           </Box>
           <Box
             component="a"
-            href={`mailto:${t('home.email')}`}
+            href={`mailto:${DEMO_CONFIG.contact.email}`}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -120,7 +120,7 @@ export default function SiteContactBar() {
             }}
           >
             <Mail size={20} />
-            <Typography variant="body2">{t('home.email')}</Typography>
+            <Typography variant="body2">{t('home.email', { email: DEMO_CONFIG.contact.emailDisplay })}</Typography>
           </Box>
           <Box
             component={RouterLink}
@@ -153,7 +153,7 @@ export default function SiteContactBar() {
             }}
           >
             <MapPin size={20} style={{ transition: 'all 0.2s ease' }} />
-            <Typography variant="body2">{t('home.address')}</Typography>
+            <Typography variant="body2">{t('home.address', { address: i18n.language.startsWith('ar') ? DEMO_CONFIG.location.addressAr : DEMO_CONFIG.location.addressEn })}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
