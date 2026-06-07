@@ -1,4 +1,3 @@
-import { Link as RouterLink } from 'react-router-dom'
 import { Box, Container, Link, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import BrandLogo from './BrandLogo'
@@ -7,16 +6,6 @@ import { DEMO_CONFIG } from '../../lib/demo-config'
 export default function Footer() {
   const { t } = useTranslation()
   const year = new Date().getFullYear()
-
-  const links = [
-    { path: '/', label: t('common.home') },
-    { path: '/about-us', label: t('common.aboutUs') },
-    { path: '/achievements', label: t('common.achievements') },
-    { path: '/news', label: t('common.ourNews') },
-    { path: '/community', label: t('common.community') },
-    { path: '/contact', label: t('common.contact') },
-    { path: '/search', label: t('common.search') },
-  ]
 
   return (
     <Box
@@ -39,34 +28,7 @@ export default function Footer() {
             gap: 2,
           }}
         >
-          <RouterLink to="/" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
-            <BrandLogo variant="footer" />
-          </RouterLink>
-
-          <Box
-            component="nav"
-            aria-label={t('footer.nav')}
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: { xs: 1.5, sm: 2 },
-              justifyContent: 'center',
-            }}
-          >
-            {links.map((item) => (
-              <Link
-                key={item.path}
-                component={RouterLink}
-                to={item.path}
-                underline="hover"
-                color="text.secondary"
-                variant="body2"
-                sx={{ fontWeight: 500 }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </Box>
+          <BrandLogo variant="footer" />
         </Box>
 
         <Box sx={{ textAlign: 'center', mt: 2.5 }}>

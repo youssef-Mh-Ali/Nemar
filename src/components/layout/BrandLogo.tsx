@@ -15,7 +15,7 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
 
   const height =
     variant === 'header'
-      ? { xs: 79, sm: 94 }
+      ? { xs: 100, sm: 120 }
       : variant === 'footer'
         ? { xs: 72, sm: 86 }
         : { xs: 115, sm: 130 }
@@ -30,7 +30,6 @@ export default function BrandLogo({ variant }: BrandLogoProps) {
         width: 'auto',
         display: 'block',
         mx: variant === 'login' ? 'auto' : undefined,
-        px: variant === 'header' ? { xs: 2, sm: 4 } : undefined,
       }}
     />
   )

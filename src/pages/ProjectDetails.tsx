@@ -18,9 +18,10 @@ import { alpha } from '@mui/material/styles'
 import { ArrowRight, FileText, Image as ImageIcon, ExternalLink, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { getProject } from '../lib/api-client'
+import { getProject, searchUnits } from '../lib/api-client'
 import { PLACEHOLDER_PROJECT_IMAGE } from '../lib/placeholderImages'
-import type { Project, ProjectAttachment, ProjectNote } from '../lib/types'
+import type { Project, ProjectAttachment, ProjectNote, Unit } from '../lib/types'
+import UnitCard from '../components/search/UnitCard'
 import { isModelAttachmentTitle, isModelImageFile, isModelPdfFile } from '../lib/projectMedia'
 import { useFeatureSwitchStore } from '../lib/store'
 import OpenStreetProjectMap from '../components/ui/OpenStreetProjectMap'
@@ -53,6 +54,8 @@ export default function ProjectDetails() {
   const [selectedGalleryTag, setSelectedGalleryTag] = useState<string | null>(null)
   const [modelViewerOpen, setModelViewerOpen] = useState(false)
   const [selectedModel, setSelectedModel] = useState<ProjectModelFile | null>(null)
+  const [sampleUnits, setSampleUnits] = useState<Unit[]>([])
+  const [sampleUnitsLoading, setSampleUnitsLoading] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -66,6 +69,20 @@ export default function ProjectDetails() {
       }
     }
     load()
+  }, [id])
+
+  useEffect(() => {
+    async function loadSampleUnits() {
+      if (!id) return
+      setSampleUnitsLoading(true)
+      try {
+        const res = await searchUnits({ projectId: id, pageSize: 3 })
+        if (res.success && res.data) setSampleUnits(res.data)
+      } finally {
+        setSampleUnitsLoading(false)
+      }
+    }
+    loadSampleUnits()
   }, [id])
 
   const title = useMemo(() => {
@@ -346,6 +363,46 @@ export default function ProjectDetails() {
               sx={{ fontWeight: 'bold', fontSize: '1rem', py: 2.5, px: 2, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
             />
           </MotionBox>
+        )}
+
+        {/* Description Section */}
+        {project.description && (
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            sx={{ mb: 4 }}
+          >
+            <Card sx={{ borderRadius: 4, p: { xs: 3, md: 4 }, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+              <Typography variant="h5" fontWeight="bold" sx={{ mb: 2, color: 'primary.main' }}>
+                {t('project.about', 'About')} {title}
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9, fontSize: '1.02rem' }}>
+                {project.description}
+              </Typography>
+            </Card>
+          </MotionBox>
+        )}
+
+        {/* Sample Units Section */}
+        {sampleUnits.length > 0 && (
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                {t('project.sampleUnits', 'Available Units')}
+              </Typography>
+              <Button component={RouterLink} to={`/search?projectId=${project.id}`} variant="outlined" size="small" sx={{ borderRadius: 8, px: 3 }}>
+                {t('home.viewAll', 'View All')} &rarr;
+              </Button>
+            </Box>
+            <Grid container spacing={3}>
+              {sampleUnits.slice(0, 3).map((unit, i) => (
+                <Grid key={unit.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <UnitCard unit={unit} index={i} variant="grid" />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
         <Grid container spacing={4}>

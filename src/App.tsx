@@ -16,10 +16,10 @@ import Offline from './pages/Offline'
 import ComingSoon from './pages/ComingSoon'
 import AboutUs from './pages/AboutUs'
 import Achievements from './pages/Achievements'
+import Favorites from './pages/Favorites'
 import LatestReleases from './pages/LatestReleases'
 import News from './pages/News'
 import NewsArticle from './pages/NewsArticle'
-import CollaborationComingSoon from './pages/CollaborationComingSoon'
 import Toast from './components/ui/Toast'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -92,6 +92,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           {getFeature('Show_Home_Page__c', true) && <Route index element={<Home />} />}
           <Route path="search" element={<Search />} />
+          <Route path="favorites" element={<Favorites />} />
           <Route path="project/:id" element={<ProjectDetails />} />
           <Route path="unit/:id" element={<UnitDetails />} />
           {getFeature('Show_Support_Page__c', true) && <Route path="contact" element={<Contact />} />}
@@ -105,7 +106,6 @@ function App() {
               <Route path="our-news" element={<Navigate to="/news" replace />} />
             </>
           )}
-          <Route path="collaboration-coming-soon" element={<CollaborationComingSoon />} />
           {getFeature('Show_My_Community_Page__c', true) && (
             <Route
               path="community"

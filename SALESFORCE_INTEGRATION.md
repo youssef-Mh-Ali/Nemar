@@ -9,7 +9,7 @@
 3. Netlify function:
    - Gets Salesforce access token using OAuth2 (client credentials)
    - Calls Salesforce Apex REST: `/services/apexrest/ContactAuth/v1/login`
-   - On success: Creates JWT session cookie (fbs_session)
+   - On success: Creates JWT session cookie (`cloudestate_session`)
    - Returns user data to frontend
 
 ## Netlify Functions Inventory

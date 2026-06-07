@@ -24,7 +24,7 @@ export default function BottomNav() {
 
   const visibleItems = [
     { path: '/', label: t('common.home'), icon: Home },
-    { path: '/search', label: t('common.search'), icon: Search },
+    { path: '/search', label: t('common.properties', 'Properties'), icon: Search },
     { path: '/achievements', label: t('common.achievements'), icon: Trophy },
   ]
 

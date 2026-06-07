@@ -62,7 +62,7 @@ function buildLeadPayload(body) {
     FirstName: String(body.firstName || '').trim() || 'PWA',
     LastName: String(body.lastName || '').trim() || 'Lead',
     Phone: String(body.phone || '').trim(),
-    Company: String(body.company || 'Faisal Bin Saedan PWA').trim(),
+    Company: String(body.company || process.env.SALESFORCE_LEAD_COMPANY_DEFAULT || 'CloudEstate PWA').trim(),
     LeadSource: 'PWA',
     Description: lines.join('\n\n'),
   }

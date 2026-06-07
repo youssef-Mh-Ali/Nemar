@@ -59,15 +59,30 @@ export default function SaraBot() {
     }
   }
 
-  // Common regions in Saudi Arabia
-  const saudiRegions = [
-    'Riyadh', 'Makkah', 'Madinah', 'Eastern Province', 'Qassim', 
-    'Aseer', 'Tabuk', 'Hail', 'Northern Borders', 'Jazan', 'Najran', 'Al Baha', 'Al Jouf'
+  const egyptRegions = [
+    'Cairo Governorate', 'Giza Governorate', 'Alexandria Governorate',
+    'New Administrative Capital Governorate', 'Red Sea Governorate',
+    'Qalyubia Governorate', 'Sharqia Governorate', 'Dakahlia Governorate',
+    'Beheira Governorate', 'Monufia Governorate', 'Gharbia Governorate',
+    'Fayoum Governorate', 'Beni Suef Governorate', 'Minya Governorate',
+    'Asyut Governorate', 'Sohag Governorate', 'Qena Governorate', 'Luxor Governorate',
+    'Aswan Governorate', 'Matrouh Governorate', 'New Valley Governorate',
+    'North Sinai Governorate', 'South Sinai Governorate', 'Port Said Governorate',
+    'Suez Governorate', 'Ismailia Governorate', 'Kafr El Sheikh Governorate',
+    'Damietta Governorate',
   ]
 
-  const saudiRegionsAr = [
-    'الرياض', 'مكة المكرمة', 'المدينة المنورة', 'المنطقة الشرقية', 'القصيم', 
-    'عسير', 'تبوك', 'حائل', 'الحدود الشمالية', 'جازان', 'نجران', 'الباحة', 'الجوف'
+  const egyptRegionsAr = [
+    'محافظة القاهرة', 'محافظة الجيزة', 'محافظة الإسكندرية',
+    'محافظة العاصمة الإدارية الجديدة', 'محافظة البحر الأحمر',
+    'محافظة القليوبية', 'محافظة الشرقية', 'محافظة الدقهلية',
+    'محافظة البحيرة', 'محافظة المنوفية', 'محافظة الغربية',
+    'محافظة الفيوم', 'محافظة بني سويف', 'محافظة المنيا',
+    'محافظة أسيوط', 'محافظة سوهاج', 'محافظة قنا', 'محافظة الأقصر',
+    'محافظة أسوان', 'محافظة مطروح', 'محافظة الوادي الجديد',
+    'محافظة شمال سيناء', 'محافظة جنوب سيناء', 'محافظة بورسعيد',
+    'محافظة السويس', 'محافظة الإسماعيلية', 'محافظة كفر الشيخ',
+    'محافظة دمياط',
   ]
 
   return (
@@ -131,12 +146,12 @@ export default function SaraBot() {
                 zIndex: 10
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar src="/images/sara-avatar.jpg" alt="Sara" sx={{ bgcolor: 'white', width: 40, height: 40 }}>
+                  <Avatar alt="Sara" sx={{ bgcolor: 'white', width: 40, height: 40 }}>
                     <Typography color="#102d4a" fontWeight="bold">S</Typography>
                   </Avatar>
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold" sx={{ lineHeight: 1.2 }}>
-                      {isRtl ? 'سارة العتيبي' : 'Sara Al Otaibi'}
+                      {isRtl ? 'سارة آدم' : 'Sara Adam'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e' }} />
@@ -174,7 +189,7 @@ export default function SaraBot() {
                       >
                         <Box sx={{ display: 'flex', gap: 1, flexDirection: isBot ? 'row' : 'row-reverse' }}>
                           {isBot && (
-                            <Avatar src="/images/sara-avatar.jpg" sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
+                            <Avatar sx={{ width: 28, height: 28, bgcolor: '#102d4a', fontSize: '0.8rem', mt: 1 }}>S</Avatar>
                           )}
                           <Box sx={{
                             bgcolor: isBot ? 'white' : '#102d4a',
@@ -429,11 +444,12 @@ export default function SaraBot() {
                       <InputLabel>{isRtl ? 'رمز الدولة' : 'Country Code'}</InputLabel>
                       <Select
                         label={isRtl ? 'رمز الدولة' : 'Country Code'}
-                        value={inputText || '+966'}
+                        value={inputText || '+20'}
                         onChange={(e) => {
                           handleOptionSelect(e.target.value)
                         }}
                       >
+                        <MenuItem value="+20">+20 (Egypt)</MenuItem>
                         <MenuItem value="+966">+966 (Saudi Arabia)</MenuItem>
                         <MenuItem value="+971">+971 (UAE)</MenuItem>
                         <MenuItem value="+965">+965 (Kuwait)</MenuItem>
@@ -447,12 +463,12 @@ export default function SaraBot() {
 
                 {inputType === 'region_select' && (
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    {(isRtl ? saudiRegionsAr : saudiRegions).map((region, idx) => (
+                    {(isRtl ? egyptRegionsAr : egyptRegions).map((region, idx) => (
                       <Button
                         key={region}
                         variant="outlined"
                         size="small"
-                        onClick={() => handleOptionSelect(saudiRegions[idx])} // Always pass English value for backend
+                        onClick={() => handleOptionSelect(egyptRegions[idx])}
                         sx={{
                           borderRadius: 20,
                           textTransform: 'none',

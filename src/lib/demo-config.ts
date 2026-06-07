@@ -44,7 +44,6 @@ export const DEMO_CONFIG = {
     currency: 'EGP',
   },
   features: {
-    showCmaSection: true,
     showSubsidyBadges: true,
     showVision2030: true,
     showBoardMembers: true,

@@ -50,7 +50,7 @@
     "snapshot": {
       "kicker": "Company Snapshot",
       "title": "A legacy of development, built for today",
-      "subtitle": "A modern extension of the {{companyName}} family legacy since 1934—focused on high-quality residential and commercial destinations, investment solutions, and long-term property care across Saudi Arabia.",
+      "subtitle": "A modern extension of the {{companyName}} family legacy since 1934—focused on high-quality residential and commercial destinations, investment solutions, and long-term property care across Egypt.",
       "cards": {
         "residential": {
           "title": "Residential Communities",
@@ -96,7 +96,7 @@
     "title": "About Us",
     "subtitle": "Learn about our board members and our strategic vision and mission.",
     "companyIntroTitle": "About the Company",
-    "companyIntroBody": "It is a real estate development company that was established to be an active partner in the real estate scene of the Kingdom of Saudi Arabia by implementing exceptional residential and commercial real estate innovations. Since its inception, the company has worked to ensure that its projects are characterized by quality and sustainability to create spaces that meet the desires and goals of individuals and communities.",
+    "companyIntroBody": "It is a real estate development company established to be an active partner in Egypt's real estate market by implementing exceptional residential and commercial innovations. Since its inception, the company has worked to ensure that its projects are characterized by quality and sustainability to create spaces that meet the desires and goals of individuals and communities.",
     "visionMissionTitle": "Vision & Mission",
     "boardMembersTitle": "Board Members",
     "animatedPanelTitle": "Building Tomorrow",
@@ -104,7 +104,7 @@
   },
   "home": {
     "title": "{{companyName}}",
-    "subtitle": "Explore our distinguished collection of residential projects in the best locations in the Kingdom",
+    "subtitle": "Explore our distinguished collection of residential projects in the best locations across Egypt",
     "heroTitle": "Shaping the Future",
     "heroSubtitle": "of Real Estate",
     "heroDescription": "We design and deliver developments that shape cities, support national progress, and create long-lasting value.",
@@ -131,9 +131,6 @@
     "soldOut": "Sold Out",
     "phases": "phases",
     "viewUnits": "View Units",
-    "cmaDescription": "CloudEstate Investment and Real Estate Development Company operates in accordance with approved regulatory frameworks and in coordination with the Saudi Capital Market Authority to develop and manage investment opportunities. This includes structuring and launching real estate funds in line with the highest standards of governance and compliance, thereby enhancing transparency and safeguarding investors’ interests.",
-    "cmaCollaborationTeaser": "Additional collaboration initiatives with the Saudi Capital Market Authority are coming soon.",
-    "cmaCollaborationCta": "View details",
     "watchOnInstagram": "Watch video on Instagram",
     "inspiringSpacesTitle": "Inspiring Spaces, Building Futures",
     "inspiringSpacesDesc": "Through structure, discipline, and strategic foresight, we transform potential into enduring, measurable value, supporting national progress and sustainable growth.",
@@ -152,18 +149,13 @@
       "readMore": "Read More →",
       "residential": {
         "title": "Residential",
-        "description": "Faisal bin Saedan residential projects provide inspiring havens with sustainable environmental designs that meet all your basic and luxury needs, from internal protection and living services to stunning views, as they are designed to suit your distinctive lifestyle."
+        "description": "CloudEstate residential projects offer thoughtfully designed homes with sustainable features, modern amenities, and comfortable living spaces tailored to diverse lifestyles."
       },
       "commercial": {
         "title": "Commercial",
         "description": "Our carefully selected commercial buildings inspire you to pursue your entrepreneurial dreams, as we provide the ideal starting point for whatever your business growth may be, from retail and entertainment venues to modern office space."
       }
     }
-  },
-  "collaboration": {
-    "title": "Collaboration — coming soon",
-    "description": "We are preparing additional programs in coordination with the Saudi Capital Market Authority. This page will be updated with more information in due course.",
-    "backToHome": "Back to home"
   },
   "search": {
     "title": "Search for a Unit",
@@ -188,8 +180,8 @@
     "next": "Next",
     "autocomplete": {
       "placeholder": "Search for a project or phase...",
-      "popular1": "Apartments for sale in Riyadh",
-      "popular2": "Villas in Jeddah",
+      "popular1": "Apartments in New Administrative Capital",
+      "popular2": "Villas in Hurghada",
       "popular3": "Residential Units",
       "popular4": "New Projects",
       "clearedRecent": "Recent search history cleared",
@@ -207,11 +199,11 @@
       "fourRooms": "4 Rooms",
       "fivePlusRooms": "5+ Rooms",
       "price": {
-        "opt1": "Less than 1 Million SAR",
-        "opt2": "1 - 2 Million SAR",
-        "opt3": "2 - 3 Million SAR",
-        "opt4": "3 - 5 Million SAR",
-        "opt5": "More than 5 Million SAR"
+        "opt1": "Less than 1 Million EGP",
+        "opt2": "1 - 2 Million EGP",
+        "opt3": "2 - 3 Million EGP",
+        "opt4": "3 - 5 Million EGP",
+        "opt5": "More than 5 Million EGP"
       }
     }
   },
@@ -471,13 +463,13 @@
     "placeholder": {
       "title": "Content coming soon",
       "description": "Our news section is being prepared. Articles, press releases, and company updates will be published here shortly.",
-      "note": "Content for this page will be provided by the FBS team."
+      "note": "Content for this page will be provided by the CloudEstate team."
     },
     "contactCta": "Contact us"
   },
   "latestReleasesPage": {
     "title": "Latest Releases",
-    "subtitle": "Explore our portfolio of residential and commercial developments across Saudi Arabia.",
+    "subtitle": "Explore our portfolio of residential and commercial developments across Egypt.",
     "status": {
       "active": "Active",
       "completed": "Completed"
@@ -532,15 +524,16 @@
     },
     "findUnitIntro": "I can help you find available units based on your preferences. Let's start! What is your preferred location?",
     "location": {
-      "riyadh": "Riyadh",
-      "kaec": "KAEC",
+      "cairo": "Cairo",
+      "new_capital": "New Administrative Capital",
+      "red_sea": "Red Sea (Hurghada)",
       "any": "Any Location"
     },
     "askBudget": "What is your budget range?",
     "budget": {
-      "under_1_5m": "Under 1.5M SAR",
-      "between_1_5m_3m": "1.5M - 3M SAR",
-      "above_3m": "Above 3M SAR",
+      "under_3m": "Under 3M EGP",
+      "between_3m_8m": "3M - 8M EGP",
+      "above_8m": "Above 8M EGP",
       "any": "Any Budget"
     },
     "askBedrooms": "How many bedrooms do you need?",
@@ -558,7 +551,7 @@
       "area": "Area"
     },
     "askName": "Great! I'll connect you with our sales team. First, what is your full name?",
-    "askCountry": "Nice to meet you! Please enter your mobile country code (e.g. +966).",
+    "askCountry": "Nice to meet you! Please enter your mobile country code (e.g. +20).",
     "askPhone": "Thank you. What is your phone number?",
     "askRegion": "Which region or province are you located in?",
     "askCity": "Which city do you live in?",

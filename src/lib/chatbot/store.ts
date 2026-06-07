@@ -126,8 +126,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
           currentStep: 'PROPOSAL_LOCATION',
           inputType: 'options',
           options: [
-            { value: 'Riyadh', labelKey: 'chatbot.location.riyadh' },
-            { value: 'KAEC', labelKey: 'chatbot.location.kaec' },
+            { value: 'Cairo Governorate', labelKey: 'chatbot.location.cairo' },
+            { value: 'New Administrative Capital Governorate', labelKey: 'chatbot.location.new_capital' },
+            { value: 'Red Sea Governorate', labelKey: 'chatbot.location.red_sea' },
             { value: 'any', labelKey: 'chatbot.location.any' }
           ]
         })
@@ -152,9 +153,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         currentStep: 'PROPOSAL_BUDGET',
         inputType: 'options',
         options: [
-          { value: 'under_1_5m', labelKey: 'chatbot.budget.under_1_5m' },
-          { value: 'between_1_5m_3m', labelKey: 'chatbot.budget.between_1_5m_3m' },
-          { value: 'above_3m', labelKey: 'chatbot.budget.above_3m' },
+          { value: 'under_3m', labelKey: 'chatbot.budget.under_3m' },
+          { value: 'between_3m_8m', labelKey: 'chatbot.budget.between_3m_8m' },
+          { value: 'above_8m', labelKey: 'chatbot.budget.above_8m' },
           { value: 'any', labelKey: 'chatbot.budget.any' }
         ]
       })
@@ -183,18 +184,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
         if (filters.location !== 'any') {
           const project = mockProjects.find(p => p.id === unit.projectId)
           if (!project) return false
-          const isRiyadh = project.location.toLowerCase().includes('riyadh')
-          const isKaec = project.location.toLowerCase().includes('economic') || project.location.toLowerCase().includes('kaec')
-          
-          if (filters.location === 'Riyadh' && !isRiyadh) return false
-          if (filters.location === 'KAEC' && !isKaec) return false
+          const loc = project.location.toLowerCase()
+          const isCairo = /cairo|giza|alex|riyadh|north riyadh|west riyadh|south riyadh|central riyadh/.test(loc)
+          const isNewCapital = /capital|administrative|nac|new capital/.test(loc)
+          const isRedSea = /red sea|hurghada|sahl|economic|kaec/.test(loc)
+
+          if (filters.location === 'Cairo Governorate' && !isCairo) return false
+          if (filters.location === 'New Administrative Capital Governorate' && !isNewCapital) return false
+          if (filters.location === 'Red Sea Governorate' && !isRedSea) return false
         }
-        
+
         // Budget matching
         if (filters.budget !== 'any') {
-          if (filters.budget === 'under_1_5m' && unit.price >= 1500000) return false
-          if (filters.budget === 'between_1_5m_3m' && (unit.price < 1500000 || unit.price > 3000000)) return false
-          if (filters.budget === 'above_3m' && unit.price <= 3000000) return false
+          if (filters.budget === 'under_3m' && unit.price >= 3000000) return false
+          if (filters.budget === 'between_3m_8m' && (unit.price < 3000000 || unit.price > 8000000)) return false
+          if (filters.budget === 'above_8m' && unit.price <= 8000000) return false
         }
         
         // Bedrooms matching

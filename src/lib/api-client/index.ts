@@ -161,6 +161,7 @@ interface SalesforceProjectRecord {
   Map_Centroid_Lat__c?: number
   Map_Centroid_Lng__c?: number
   Map_Geometry_JSON__c?: string
+  Description__c?: string
 }
 
 interface SalesforceContentDocumentLinkRecord {
@@ -499,7 +500,8 @@ export async function getProjects() {
     // 1. Fetch Projects
     const projectsQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c,
                           Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
-                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c
+                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c,
+                          Description__c
                           FROM Project__c 
                           ORDER BY CreatedDate DESC`
 
@@ -558,6 +560,9 @@ export async function getProjects() {
         // UI Helpers (kept for compatibility)
         hasAvailability: availableUnitsCount > 0,
         availablePhasesCount: availableUnitsCount,
+        // Description from Salesforce
+        description: p.Description__c?.trim() || undefined,
+        descriptionAr: p.Description__c?.trim() || undefined,
         // Compatibility with older UI fields
         nameEn: p.Name,
         locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
@@ -684,7 +689,8 @@ export async function getProject(id: string) {
   try {
     const projectQuery = `SELECT Id, Name, City__c, Province_Region__c, District__c,
                           Hero_Image_URL__c, Logo_URL__c, Available_Units__c,
-                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c
+                          Map_Centroid_Lat__c, Map_Centroid_Lng__c, Map_Geometry_JSON__c,
+                          Description__c
                           FROM Project__c 
                           WHERE Id = '${id}'
                           LIMIT 1`
@@ -736,6 +742,8 @@ export async function getProject(id: string) {
         phases: [],
         hasAvailability: availableUnitsCount > 0,
         availablePhasesCount: availableUnitsCount,
+        description: p.Description__c?.trim() || undefined,
+        descriptionAr: p.Description__c?.trim() || undefined,
         nameEn: p.Name,
         locationEn: [p.District__c, p.City__c, p.Province_Region__c].filter(Boolean).join(', '),
       },

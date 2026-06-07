@@ -9,8 +9,6 @@ import {
   IconButton,
   Divider,
   Stack,
-  FormControlLabel,
-  Checkbox,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { Close, Refresh as RefreshIcon } from '@mui/icons-material'
@@ -30,7 +28,6 @@ export default function FilterDrawer() {
     model: filters.model || '',
     bedrooms: filters.bedrooms?.toString() || '',
     priceRange: '',
-    eligibleForSubsidies: filters.eligibleForSubsidies === true,
   })
 
   useEffect(() => {
@@ -49,7 +46,6 @@ export default function FilterDrawer() {
       model: filters.model || '',
       bedrooms: filters.bedrooms?.toString() || '',
       priceRange: '',
-      eligibleForSubsidies: filters.eligibleForSubsidies === true,
     })
   }, [filters])
 
@@ -92,7 +88,6 @@ export default function FilterDrawer() {
       bedrooms: localFilters.bedrooms ? parseInt(localFilters.bedrooms) : undefined,
       minPrice,
       maxPrice,
-      eligibleForSubsidies: localFilters.eligibleForSubsidies ? true : undefined,
       page: 1,
     })
     setFilterDrawerOpen(false)
@@ -104,7 +99,6 @@ export default function FilterDrawer() {
       model: '',
       bedrooms: '',
       priceRange: '',
-      eligibleForSubsidies: false,
     })
     clearFilters()
   }
@@ -113,8 +107,7 @@ export default function FilterDrawer() {
     localFilters.projectId !== '' ||
     localFilters.model !== '' ||
     localFilters.bedrooms !== '' ||
-    localFilters.priceRange !== '' ||
-    localFilters.eligibleForSubsidies
+    localFilters.priceRange !== ''
 
   return (
     <Drawer
@@ -230,18 +223,6 @@ export default function FilterDrawer() {
               </MenuItem>
             ))}
           </TextField>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={localFilters.eligibleForSubsidies}
-                onChange={(e) =>
-                  setLocalFilters({ ...localFilters, eligibleForSubsidies: e.target.checked })
-                }
-              />
-            }
-            label={t('search.eligibleForSubsidies')}
-          />
         </Stack>
       </Box>
 

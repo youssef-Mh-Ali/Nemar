@@ -3,7 +3,7 @@ import { pickId, pickSfLookup } from '../lib/sf-pick-id.cjs'
 /**
  * Netlify Function: Owner support requests (Salesforce Case)
  *
- * GET  — list cases for the logged-in Contact (fbs_session cookie)
+ * GET  — list cases for the logged-in Contact (cloudestate_session cookie)
  * POST — create a case linked to Contact + optional Unit__c
  *
  * Env:
@@ -132,7 +132,7 @@ async function verifySession(event) {
 
   const cookieHeader = event.headers?.cookie || event.headers?.Cookie || ''
   const cookies = parseCookies(cookieHeader)
-  const raw = cookies.fbs_session
+  const raw = cookies.cloudestate_session
   if (!raw) {
     const err = new Error('Unauthorized')
     err.statusCode = 401

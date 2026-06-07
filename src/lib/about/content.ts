@@ -20,7 +20,7 @@ export const boardMembers: BoardMember[] = [
       'مؤسس ورئيس تنفيذي بخبرة واسعة في قيادة التحول الرقمي وتطوير حلول تقنية مبتكرة لقطاع العقارات.',
     descriptionEn:
       'Founder and CEO with extensive experience in leading digital transformation and developing innovative technology solutions for the real estate sector.',
-    image: '/images/board/Mina_Michel_Founder_of_Cloudastick_Systems.png',
+    image: '',
   },
   {
     nameAr: 'جون شدودي',
@@ -31,7 +31,7 @@ export const boardMembers: BoardMember[] = [
       'خبير في استشارات Salesforce مع خبرة عميقة في تصميم وتنفيذ الحلول العقارية على منصة Salesforce.',
     descriptionEn:
       'Salesforce consultant with deep expertise in designing and implementing real estate solutions on the Salesforce platform.',
-    image: '/images/board/John_Shedoudy_Salesforce_Consultant.png',
+    image: '',
   },
   {
     nameAr: 'لؤي علاء الدين',
@@ -42,7 +42,7 @@ export const boardMembers: BoardMember[] = [
       'مستشار Salesforce محترف ذو خبرة في تحسين العمليات التجارية وتنفيذ حلول تقنية متكاملة.',
     descriptionEn:
       'Professional Salesforce consultant with expertise in optimizing business processes and implementing integrated technical solutions.',
-    image: '/images/board/Luay_Aladin_Salesforce_Consultant.png',
+    image: '',
   },
   {
     nameAr: 'شادي توماس',
@@ -53,7 +53,7 @@ export const boardMembers: BoardMember[] = [
       'مستشار Salesforce محترف يمتلك خبرة في تحسين العمليات التجارية وتطوير حلول تقنية متكاملة.',
     descriptionEn:
       'Professional Salesforce consultant with expertise in optimizing business processes and developing integrated technical solutions.',
-    image: '/images/board/Shady_Thomas_Salesforce_Consultant.png',
+    image: '',
   },
   {
     nameAr: 'أشرف رزق',
@@ -63,7 +63,7 @@ export const boardMembers: BoardMember[] = [
     descriptionAr: 'قائد تقني بخبرة في تطوير الحلول البرمجية وإدارة فرق الهندسة لبناء منصات عقارية مبتكرة.',
     descriptionEn:
       'Technology leader with experience in software development and managing engineering teams to build innovative real estate platforms.',
-    image: '/images/board/Ashraf_Rezk_Head_of_Tech.png',
+    image: '',
   },
 ]
 

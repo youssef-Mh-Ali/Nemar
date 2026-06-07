@@ -45,7 +45,7 @@ function isLocalhost(headers) {
 function clearSessionCookie(headers) {
   const secure = !isLocalhost(headers)
   const parts = [
-    'fbs_session=',
+    'cloudestate_session=',
     'Path=/',
     'HttpOnly',
     'SameSite=Lax',
@@ -104,7 +104,7 @@ export const handler = async (event) => {
  
     const cookieHeader = event.headers?.cookie || event.headers?.Cookie || ''
     const cookies = parseCookies(cookieHeader)
-    const raw = cookies.fbs_session
+    const raw = cookies.cloudestate_session
     if (!raw) {
       return json(200, { success: true, data: null })
     }

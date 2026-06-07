@@ -8,8 +8,6 @@ import {
   Button,
   Stack,
   Box,
-  FormControlLabel,
-  Checkbox,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { Refresh } from '@mui/icons-material'
@@ -144,22 +142,6 @@ export default function DesktopFilters() {
               </MenuItem>
             ))}
           </TextField>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.eligibleForSubsidies === true}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    eligibleForSubsidies: e.target.checked ? true : undefined,
-                    page: 1,
-                  })
-                }
-              />
-            }
-            label={t('search.eligibleForSubsidies')}
-          />
         </Stack>
       </CardContent>
     </Card>

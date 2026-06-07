@@ -110,42 +110,27 @@ const icons = {
   school: createPOIPinIcon('school'),
 }
 
+const EGYPT_MAP_CENTER: [number, number] = [30.0, 31.7]
+const EGYPT_DEFAULT_ZOOM = 6
+
+function getEgyptRegionCenter(rName?: string): [number, number] {
+  const lower = (rName || '').toLowerCase()
+  if (lower.includes('red sea') || lower.includes('البحر الأحمر')) return [27.24, 33.84]
+  if (lower.includes('administrative capital') || lower.includes('العاصمة الإدارية')) return [30.028, 31.768]
+  if (lower.includes('cairo') || lower.includes('القاهرة')) return [30.044, 31.235]
+  if (lower.includes('giza') || lower.includes('الجيزة')) return [30.013, 31.209]
+  if (lower.includes('alexandria') || lower.includes('الإسكندرية')) return [31.200, 29.918]
+  return EGYPT_MAP_CENTER
+}
+
 const POIs: Array<{ id: string; lat: number; lng: number; nameAr: string; nameEn: string; type: POIType }> = [
-  // Riyadh
-  { id: 'ruh-airport', lat: 24.9576, lng: 46.6988, nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport', type: 'airport' },
-  { id: 'ruh-hospital-1', lat: 24.8425, lng: 46.7215, nameAr: 'مستشفى الدكتور سليمان الحبيب (النرجس)', nameEn: 'Dr. Sulaiman Al Habib Hospital (Al Narjis)', type: 'hospital' },
-  { id: 'ruh-hospital-2', lat: 24.6725, lng: 46.6783, nameAr: 'مستشفى الملك فيصل التخصصي', nameEn: 'King Faisal Specialist Hospital', type: 'hospital' },
-  { id: 'ruh-uni-1', lat: 24.8468, lng: 46.7245, nameAr: 'جامعة الأميرة نورة بنت عبدالرحمن', nameEn: 'Princess Nourah University', type: 'university' },
-  { id: 'ruh-uni-2', lat: 24.7170, lng: 46.6231, nameAr: 'جامعة الملك سعود', nameEn: 'King Saud University', type: 'university' },
-  { id: 'ruh-school-1', lat: 24.7891, lng: 46.6612, nameAr: 'مدارس المملكة', nameEn: 'Kingdom Schools', type: 'school' },
-  { id: 'ruh-school-2', lat: 24.8116, lng: 46.5168, nameAr: 'مدارس مسك', nameEn: 'Misk Schools', type: 'school' },
-
-  // Jeddah
-  { id: 'jed-airport', lat: 21.6702, lng: 39.1565, nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport', type: 'airport' },
-  { id: 'jed-hospital-1', lat: 21.7825, lng: 39.1350, nameAr: 'مجمع الملك عبدالله الطبي (شمال جدة)', nameEn: 'King Abdullah Medical Complex', type: 'hospital' },
-  { id: 'jed-hospital-2', lat: 21.5642, lng: 39.1670, nameAr: 'مستشفى الملك فيصل التخصصي', nameEn: 'King Faisal Specialist Hospital', type: 'hospital' },
-  { id: 'jed-uni-1', lat: 21.8480, lng: 39.2310, nameAr: 'جامعة جدة', nameEn: 'University of Jeddah', type: 'university' },
-  { id: 'jed-uni-2', lat: 21.4925, lng: 39.2458, nameAr: 'جامعة الملك عبدالعزيز', nameEn: 'King Abdulaziz University', type: 'university' },
-  { id: 'jed-school-1', lat: 21.7580, lng: 39.1520, nameAr: 'مدارس دار الفكر (الحمدانية)', nameEn: 'Dar Al Fikr Schools', type: 'school' },
-
-  // Madinah
-  { id: 'med-airport', lat: 24.5534, lng: 39.7051, nameAr: 'مطار الأمير محمد بن عبدالعزيز الدولي', nameEn: 'Prince Mohammad bin Abdulaziz Airport', type: 'airport' },
-  { id: 'med-hospital-1', lat: 24.4925, lng: 39.5788, nameAr: 'مستشفى الملك فهد بالمدينة المنورة', nameEn: 'King Fahad Hospital', type: 'hospital' },
-  { id: 'med-uni-1', lat: 24.4835, lng: 39.5390, nameAr: 'جامعة طيبة', nameEn: 'Taibah University', type: 'university' },
-  { id: 'med-uni-2', lat: 24.4815, lng: 39.5630, nameAr: 'الجامعة الإسلامية بالمدينة المنورة', nameEn: 'Islamic University of Madinah', type: 'university' },
-  { id: 'med-school-1', lat: 24.4755, lng: 39.6105, nameAr: 'مدارس العقيق الأهلية', nameEn: 'Al Aqeeq Private Schools', type: 'school' },
-
-  // Taif / Makkah
-  { id: 'tif-airport', lat: 21.4822, lng: 40.5447, nameAr: 'مطار الطائف الدولي', nameEn: 'Taif International Airport', type: 'airport' },
-  { id: 'tif-uni-1', lat: 21.4294, lng: 40.4855, nameAr: 'جامعة الطائف (الحوية)', nameEn: 'Taif University', type: 'university' },
-  { id: 'tif-hospital-1', lat: 21.2825, lng: 40.4215, nameAr: 'مستشفى الملك عبدالعزيز التخصصي', nameEn: 'King Abdulaziz Specialist Hospital', type: 'hospital' },
-  { id: 'tif-school-1', lat: 21.3650, lng: 40.4610, nameAr: 'مدارس الصفوة الأهلية', nameEn: 'Al-Safwah Private Schools', type: 'school' },
-
-  // Tabuk
-  { id: 'tbk-airport', lat: 28.3654, lng: 36.6189, nameAr: 'مطار الأمير سلطان بن عبدالعزيز الدولي', nameEn: 'Prince Sultan bin Abdulaziz Airport', type: 'airport' },
-  { id: 'tbk-hospital-1', lat: 28.3755, lng: 36.5210, nameAr: 'مستشفى الملك فهد التخصصي بتبوك', nameEn: 'King Fahad Specialist Hospital', type: 'hospital' },
-  { id: 'tbk-uni-1', lat: 28.3980, lng: 36.4850, nameAr: 'جامعة تبوك', nameEn: 'University of Tabuk', type: 'university' },
-  { id: 'tbk-school-1', lat: 28.3880, lng: 36.5820, nameAr: 'مدارس تبوك العالمية', nameEn: 'Tabuk International School', type: 'school' },
+  { id: 'cai-airport', lat: 30.1219, lng: 31.4056, nameAr: 'مطار القاهرة الدولي', nameEn: 'Cairo International Airport', type: 'airport' },
+  { id: 'hrg-airport', lat: 27.1783, lng: 33.7994, nameAr: 'مطار الغردقة الدولي', nameEn: 'Hurghada International Airport', type: 'airport' },
+  { id: 'nac-hospital', lat: 30.025, lng: 31.77, nameAr: 'مستشفى العاصمة الإدارية', nameEn: 'New Capital Medical Complex', type: 'hospital' },
+  { id: 'cai-hospital', lat: 30.0275, lng: 31.235, nameAr: 'مستشفى النيل', nameEn: 'Nile Hospital', type: 'hospital' },
+  { id: 'auc-uni', lat: 30.042, lng: 31.208, nameAr: 'الجامعة الأمريكية بالقاهرة', nameEn: 'American University in Cairo', type: 'university' },
+  { id: 'cu-uni', lat: 30.027, lng: 31.21, nameAr: 'جامعة القاهرة', nameEn: 'Cairo University', type: 'university' },
+  { id: 'nac-school', lat: 30.03, lng: 31.76, nameAr: 'مدارس العاصمة الإدارية', nameEn: 'New Capital International Schools', type: 'school' },
 ]
 
 function MapController({
@@ -210,7 +195,7 @@ function MapController({
       const bounds = L.latLngBounds(pts)
       map.flyToBounds(bounds, { padding: [60, 60], duration: 1.2 })
     } else if (!selectedRegion) {
-      map.flyTo([24.7136, 46.6753], 6, { duration: 1.2 })
+      map.flyTo(EGYPT_MAP_CENTER, EGYPT_DEFAULT_ZOOM, { duration: 1.2 })
     }
   }, [selectedRegion, projects, resetTrigger, map, highlightedProjectId])
 
@@ -273,26 +258,12 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
       try {
         const res = await getProjects()
         if (res.success && res.data) {
-          const saudiProvinces = [
-            'riyadh', 'الرياض',
-            'makkah', 'مكة',
-            'madinah', 'المدينة',
-            'tabuk', 'تبوك',
-            'eastern', 'الشرقية',
-            'asir', 'عسير',
-            'qassim', 'القصيم',
-            'hail', 'حائل',
-            'jazan', 'جازان',
-            'najran', 'نجران',
-            'northern', 'الحدود الشمالية',
-            'jouf', 'الجوف',
-            'bahah', 'الباحة',
-          ]
-          const saudiProjects = res.data.filter((p) => {
-            const r = (p.provinceRegion || '').toLowerCase()
-            return saudiProvinces.some((prov) => r.includes(prov))
-          })
-          setFetchedProjects(saudiProjects)
+          const mappable = res.data.filter(
+            (p) =>
+              (typeof p.mapCentroidLat === 'number' && typeof p.mapCentroidLng === 'number') ||
+              p.mapGeometryJson != null
+          )
+          setFetchedProjects(mappable)
         }
       } catch (err) {
         console.error('Error loading projects map data:', err)
@@ -309,17 +280,6 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
   }, [projects])
 
   const projectMarkers = useMemo(() => {
-    const getRegionCenter = (rName?: string): [number, number] => {
-      const lower = (rName || '').toLowerCase()
-      if (lower.includes('riyadh') || lower.includes('الرياض')) return [24.7136, 46.6753]
-      if (lower.includes('makkah') || lower.includes('مكة')) return [21.4858, 39.1925]
-      if (lower.includes('madinah') || lower.includes('المدينة')) return [24.5247, 39.5692]
-      if (lower.includes('tabuk') || lower.includes('تبوك')) return [28.3835, 36.5662]
-      if (lower.includes('eastern') || lower.includes('الشرقية')) return [26.4207, 50.0888]
-      if (lower.includes('asir') || lower.includes('عسير')) return [18.2164, 42.5053]
-      return [24.7136, 46.6753]
-    }
-
     const fallbackCounts: Record<string, number> = {}
 
     return projects.map((project) => {
@@ -334,7 +294,7 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
       }
 
       if (typeof lat !== 'number' || typeof lng !== 'number') {
-        const [baseLat, baseLng] = getRegionCenter(project.provinceRegion)
+        const [baseLat, baseLng] = getEgyptRegionCenter(project.provinceRegion)
         const key = `${baseLat}-${baseLng}`
         const count = fallbackCounts[key] || 0
         fallbackCounts[key] = count + 1
@@ -355,31 +315,16 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
 
   const getLocalizedRegionName = (rName: string) => {
     if (!rName) return ''
-    const lower = rName.toLowerCase()
 
+    const lines = rName.split(/[\r\n-]+/)
     if (isRtl) {
-      if (lower.includes('riyadh') || lower.includes('الرياض')) return 'منطقة الرياض'
-      if (lower.includes('makkah') || lower.includes('مكة')) return 'منطقة مكة المكرمة'
-      if (lower.includes('madinah') || lower.includes('المدينة')) return 'منطقة المدينة المنورة'
-      if (lower.includes('tabuk') || lower.includes('تبوك')) return 'منطقة تبوك'
-      if (lower.includes('eastern') || lower.includes('الشرقية')) return 'المنطقة الشرقية'
-      if (lower.includes('asir') || lower.includes('عسير')) return 'منطقة عسير'
-
-      const lines = rName.split(/[\r\n]+/)
       const arabicLine = lines.find((l) => /[\u0600-\u06FF]/.test(l))
       if (arabicLine) return arabicLine.replace(/^-?\s*/, '').trim()
       return rName
     }
 
-    if (lower.includes('riyadh') || lower.includes('الرياض')) return 'Riyadh Province'
-    if (lower.includes('makkah') || lower.includes('مكة')) return 'Makkah Province'
-    if (lower.includes('madinah') || lower.includes('المدينة')) return 'Madinah Province'
-    if (lower.includes('tabuk') || lower.includes('تبوك')) return 'Tabuk Province'
-    if (lower.includes('eastern') || lower.includes('الشرقية')) return 'Eastern Province'
-    if (lower.includes('asir') || lower.includes('عسير')) return 'Asir Province'
-
-    const lines = rName.split(/[\r\n]+/)
-    const englishLine = lines.find((l) => /[a-zA-Z]/.test(l))
+    const linesEn = rName.split(/[\r\n]+/)
+    const englishLine = linesEn.find((l) => /[a-zA-Z]/.test(l))
     if (englishLine) return englishLine.replace(/^-?\s*/, '').trim()
     return rName
   }
@@ -425,8 +370,8 @@ export default function ProjectsMap({ sx, highlightedProjectId, onProjectSelect,
       }}
     >
       <MapContainer
-        center={[24.7136, 46.6753]}
-        zoom={6}
+        center={EGYPT_MAP_CENTER}
+        zoom={EGYPT_DEFAULT_ZOOM}
         style={{ width: '100%', height: '100%' }}
         scrollWheelZoom
       >

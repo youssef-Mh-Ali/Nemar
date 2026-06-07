@@ -11,7 +11,7 @@ const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
 )
 
 const actionButtonSx = {
-  color: 'primary.main',
+  color: '#ffffff',
   fontWeight: 600,
   fontSize: '0.75rem',
   textTransform: 'none' as const,
@@ -20,10 +20,10 @@ const actionButtonSx = {
   py: 0.75,
   borderRadius: 1.5,
   border: 1,
-  borderColor: (theme: { palette: { divider: string } }) => alpha(theme.palette.divider, 0.35),
+  borderColor: 'rgba(255,255,255,0.4)',
   '&:hover': {
-    bgcolor: (theme: { palette: { primary: { main: string } } }) => alpha(theme.palette.primary.main, 0.06),
-    borderColor: 'primary.main',
+    bgcolor: 'rgba(255,255,255,0.1)',
+    borderColor: '#ffffff',
   },
 }
 
@@ -47,7 +47,7 @@ export default function NavContactActions({ compact = false }: NavContactActions
             href={COMPANY_PHONE_TEL}
             size="small"
             aria-label={callLabel}
-            sx={{ color: 'primary.main' }}
+            sx={{ color: '#ffffff' }}
           >
             <Phone size={18} />
           </IconButton>

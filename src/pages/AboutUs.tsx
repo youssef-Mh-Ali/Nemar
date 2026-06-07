@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Card, CardContent, Container, Grid, Typography, Dialog, DialogContent, IconButton } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography, Dialog, DialogContent, IconButton, Avatar } from '@mui/material'
+import PersonIcon from '@mui/icons-material/Person'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import { alpha } from '@mui/material/styles'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
@@ -172,29 +173,46 @@ function MemberCard({ member, onClick }: { member: { name: string; title: string
           />
 
           {/* Portrait */}
-          <motion.img
-            className="member-portrait"
-            src={member.image}
-            alt={member.name}
-            initial={{ y: 20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              zIndex: 2,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              objectPosition: 'bottom center', // Ground the half-body to the bottom of the container
-              filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          />
+          {member.image ? (
+            <motion.img
+              className="member-portrait"
+              src={member.image}
+              alt={member.name}
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                zIndex: 2,
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                objectPosition: 'bottom center',
+                filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))',
+                WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            />
+          ) : (
+            <Avatar
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                zIndex: 2,
+                width: '100%',
+                height: '100%',
+                bgcolor: 'primary.main',
+                fontSize: 80,
+              }}
+            >
+              <PersonIcon sx={{ fontSize: 100 }} />
+            </Avatar>
+          )}
         </Box>
       </Box>
       <CardContent

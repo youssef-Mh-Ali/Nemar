@@ -33,7 +33,7 @@ function isLocalhost(headers) {
 function buildSessionCookie(token, headers, maxAgeSeconds) {
   const secure = !isLocalhost(headers)
   const parts = [
-    `fbs_session=${encodeURIComponent(token)}`,
+    `cloudestate_session=${encodeURIComponent(token)}`,
     'Path=/',
     'HttpOnly',
     'SameSite=Lax',

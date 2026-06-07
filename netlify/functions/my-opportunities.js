@@ -3,7 +3,7 @@ import { pickId } from '../lib/sf-pick-id.cjs'
 /**
  * Netlify Function: My Opportunities + related Units (SPA)
  *
- * Reads the logged-in contact from `fbs_session` cookie (signed JWT),
+ * Reads the logged-in contact from `cloudestate_session` cookie (signed JWT),
  * then queries Salesforce for Opportunities linked to that Contact and Units linked to those Opportunities.
  *
  * Relationship assumption:
@@ -160,7 +160,7 @@ export const handler = async (event) => {
 
     const cookieHeader = event.headers?.cookie || event.headers?.Cookie || ''
     const cookies = parseCookies(cookieHeader)
-    const raw = cookies.fbs_session
+    const raw = cookies.cloudestate_session
     if (!raw) return json(401, { success: false, error: 'Unauthorized' })
 
     const cookieJwt = decodeURIComponent(raw)

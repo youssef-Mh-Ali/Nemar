@@ -1,193 +1,388 @@
-import { Award, Building2, Users, Trophy, ShieldCheck, Sparkles, Star, Quote, Home } from "lucide-react";
-import { useLanguage } from "../contexts/LanguageContext";
-import { useCountUp } from "../hooks/useCountUp";
-import { useReveal } from "../hooks/useReveal";
+import { Box, Container, Typography, Grid } from '@mui/material'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import { Award, Building2, Users, Trophy, ShieldCheck, Sparkles, Star, Quote, Home } from 'lucide-react'
+import { useCountUp } from '../hooks/useCountUp'
+import { DEMO_CONFIG } from '../lib/demo-config'
 
-const Stat = ({ value, label, suffix = "" }: { value: number; label: string; suffix?: string }) => {
-  const ref = useCountUp(value);
+function StatCard({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
+  const ref = useCountUp(value)
   return (
-    <div className="reveal text-center">
-      <div
-        className="text-5xl font-bold text-primary md:text-6xl"
-        style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: "-0.01em" }}
+    <Box sx={{ textAlign: 'center' }}>
+      <Typography
+        sx={{
+          fontFamily: '"EB Garamond", serif',
+          fontSize: { xs: 48, md: 56 },
+          fontWeight: 500,
+          color: '#003527',
+          lineHeight: 1,
+        }}
       >
         <span ref={ref}>0</span>
-        <span
-          className="relative -top-2 ml-0.5 text-3xl font-medium md:-top-3 md:text-4xl"
-          style={{ color: "hsl(var(--accent))" }}
+        <Typography
+          component="span"
+          sx={{
+            fontFamily: '"EB Garamond", serif',
+            fontSize: { xs: 28, md: 36 },
+            fontWeight: 400,
+            color: '#d4af37',
+            ml: 0.5,
+          }}
         >
           {suffix}
-        </span>
-      </div>
-      <div className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{label}</div>
-    </div>
-  );
-};
+        </Typography>
+      </Typography>
+      <Typography
+        sx={{
+          fontFamily: '"Inter", sans-serif',
+          fontSize: 12,
+          letterSpacing: '0.1em',
+          fontWeight: 600,
+          color: '#5b677b',
+          textTransform: 'uppercase',
+          mt: 1.5,
+        }}
+      >
+        {label}
+      </Typography>
+    </Box>
+  )
+}
 
-const Achievements = () => {
-  const { t, lang } = useLanguage();
-  const ref = useReveal();
+export default function Achievements() {
+  const { t, i18n } = useTranslation()
 
   const snapshotCards = [
-    { icon: Home, title: t("ach.snapshot.cards.residential.title"), desc: t("ach.snapshot.cards.residential.desc") },
-    { icon: Building2, title: t("ach.snapshot.cards.commercial.title"), desc: t("ach.snapshot.cards.commercial.desc") },
-    { icon: Trophy, title: t("ach.snapshot.cards.investment.title"), desc: t("ach.snapshot.cards.investment.desc") },
-    { icon: Users, title: t("ach.snapshot.cards.management.title"), desc: t("ach.snapshot.cards.management.desc") },
-  ];
+    { icon: Home, title: t('ach.snapshot.cards.residential.title'), desc: t('ach.snapshot.cards.residential.desc') },
+    { icon: Building2, title: t('ach.snapshot.cards.commercial.title'), desc: t('ach.snapshot.cards.commercial.desc') },
+    { icon: Trophy, title: t('ach.snapshot.cards.investment.title'), desc: t('ach.snapshot.cards.investment.desc') },
+    { icon: Users, title: t('ach.snapshot.cards.management.title'), desc: t('ach.snapshot.cards.management.desc') },
+  ]
 
   const highlights = [
-    { icon: Sparkles, title: t("ach.snapshot.highlights.legacy.title"), desc: t("ach.snapshot.highlights.legacy.desc") },
-    { icon: ShieldCheck, title: t("ach.snapshot.highlights.quality.title"), desc: t("ach.snapshot.highlights.quality.desc") },
-    { icon: Award, title: t("ach.snapshot.highlights.vision.title"), desc: t("ach.snapshot.highlights.vision.desc") },
-  ];
-
-  const isAr = lang.startsWith("ar");
+    { icon: Sparkles, title: t('ach.snapshot.highlights.legacy.title'), desc: t('ach.snapshot.highlights.legacy.desc') },
+    { icon: ShieldCheck, title: t('ach.snapshot.highlights.quality.title'), desc: t('ach.snapshot.highlights.quality.desc') },
+    { icon: Award, title: t('ach.snapshot.highlights.vision.title'), desc: t('ach.snapshot.highlights.vision.desc') },
+  ]
 
   const awards = [
-    { icon: Trophy, title: isAr ? "أفضل مطور عقاري" : "Best Real Estate Developer", desc: isAr ? "جائزة العقارات السعودية 2023" : "Saudi Real Estate Awards 2023" },
-    { icon: ShieldCheck, title: isAr ? "شهادة ISO 9001" : "ISO 9001 Certified", desc: isAr ? "نظام إدارة الجودة" : "Quality Management Systems" },
-    { icon: Award, title: isAr ? "هيئة السوق المالية" : "CMA Approved", desc: isAr ? "شريك معتمد لإدارة الصناديق العقارية" : "Approved real estate fund partner" },
-    { icon: Sparkles, title: isAr ? "التميز في التصميم" : "Design Excellence", desc: isAr ? "جائزة العمارة الخليجية 2022" : "Gulf Architecture Award 2022" },
-    { icon: Building2, title: isAr ? "الاستدامة الحضرية" : "Urban Sustainability", desc: isAr ? "تقدير رؤية 2030" : "Vision 2030 Recognition" },
-    { icon: Users, title: isAr ? "خيار العملاء" : "Customer Choice", desc: isAr ? "5 سنوات متتالية" : "5 consecutive years" },
-  ];
+    { icon: Trophy, title: i18n.language.startsWith('ar') ? 'أفضل مطور عقاري' : 'Best Real Estate Developer', desc: i18n.language.startsWith('ar') ? 'جائزة العقارات السعودية 2023' : 'Saudi Real Estate Awards 2023' },
+    { icon: ShieldCheck, title: i18n.language.startsWith('ar') ? 'شهادة ISO 9001' : 'ISO 9001 Certified', desc: i18n.language.startsWith('ar') ? 'نظام إدارة الجودة' : 'Quality Management Systems' },
+    { icon: Sparkles, title: i18n.language.startsWith('ar') ? 'التميز في التصميم' : 'Design Excellence', desc: i18n.language.startsWith('ar') ? 'جائزة العمارة الخليجية 2022' : 'Gulf Architecture Award 2022' },
+    { icon: Building2, title: i18n.language.startsWith('ar') ? 'الاستدامة الحضرية' : 'Urban Sustainability', desc: i18n.language.startsWith('ar') ? 'تقدير رؤية 2030' : 'Vision 2030 Recognition' },
+    { icon: Users, title: i18n.language.startsWith('ar') ? 'خيار العملاء' : 'Customer Choice', desc: i18n.language.startsWith('ar') ? '5 سنوات متتالية' : '5 consecutive years' },
+  ]
 
   const press = [
-    { quote: isAr ? "أحد أبرز المطورين في المملكة، يجمع بين الجودة والابتكار." : "One of the Kingdom's most distinguished developers, blending quality with innovation.", source: "Arab News" },
-    { quote: isAr ? "مرجع في بناء المجتمعات السكنية المتكاملة." : "A benchmark for building integrated residential communities.", source: "Saudi Gazette" },
-    { quote: isAr ? "التزامهم بمعايير الاستدامة يضع معيارًا جديدًا." : "Their commitment to sustainability sets a new standard.", source: "Argaam" },
-  ];
+    { quote: i18n.language.startsWith('ar') ? 'أحد أبرز المطورين في المملكة، يجمع بين الجودة والابتكار.' : "One of the Kingdom's most distinguished developers, blending quality with innovation.", source: 'Arab News' },
+    { quote: i18n.language.startsWith('ar') ? 'مرجع في بناء المجتمعات السكنية المتكاملة.' : 'A benchmark for building integrated residential communities.', source: 'Saudi Gazette' },
+    { quote: i18n.language.startsWith('ar') ? 'التزامهم بمعايير الاستدامة يضع معيارًا جديدًا.' : 'Their commitment to sustainability sets a new standard.', source: 'Argaam' },
+  ]
 
   return (
-    <div ref={ref}>
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-navy py-24 text-white">
-        <div className="absolute inset-0 dot-pattern opacity-30" />
-        <div className="container-fbs relative text-center">
-          <span className="reveal inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent backdrop-blur-sm">
-            {isAr ? "إنجازاتنا" : "Our Achievements"}
-          </span>
-          <h1 className="reveal reveal-delay-1 mt-5 font-display text-5xl font-bold text-white md:text-6xl">
-            {t("ach.title")}
-          </h1>
-          <p className="reveal reveal-delay-2 mx-auto mt-4 max-w-2xl text-lg text-white/80">{t("ach.subtitle")}</p>
-        </div>
-      </section>
-
-      {/* COUNTERS */}
-      <section className="container-fbs -mt-12 pb-16">
-        <div className="rounded-2xl bg-white p-12 shadow-[0_20px_50px_-20px_rgba(2,6,23,0.25)] ring-1 ring-black/5 md:p-16">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            <Stat value={35} suffix="+" label={t("ach.stats.years")} />
-            <div className="hidden md:block" style={{ width: 0 }} />
-            <Stat value={120} suffix="+" label={t("ach.stats.projects")} />
-            <Stat value={30000} suffix="+" label={t("ach.stats.units")} />
-            <Stat value={25000} suffix="+" label={t("ach.stats.families")} />
-          </div>
-        </div>
-      </section>
-
-      {/* COMPANY SNAPSHOT */}
-      <section className="container-fbs py-20">
-        <div className="text-center">
-          <span className="reveal eyebrow">{t("ach.snapshot.kicker")}</span>
-          <h2 className="reveal reveal-delay-1 mt-4 font-display text-4xl font-bold md:text-5xl">{t("ach.snapshot.title")}</h2>
-          <p className="reveal reveal-delay-2 mx-auto mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            {t("ach.snapshot.subtitle")}
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {snapshotCards.map((c, i) => (
-            <div
-              key={i}
-              className={`reveal reveal-delay-${(i % 4) + 1} group relative overflow-hidden rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-elegant`}
+    <Box>
+      {/* Hero */}
+      <Box sx={{ bgcolor: '#003527', py: { xs: 10, md: 14 }, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <Container maxWidth="md">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 3,
+                py: 1,
+                fontFamily: '"Inter", sans-serif',
+                fontSize: 12,
+                letterSpacing: '0.1em',
+                fontWeight: 600,
+                color: '#d4af37',
+                textTransform: 'uppercase',
+                mb: 3,
+              }}
             >
-              <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/5 transition-all duration-700 group-hover:scale-150 group-hover:bg-accent/10" />
-              <div className="relative">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all duration-500 group-hover:bg-accent group-hover:text-accent-foreground">
-                  <c.icon className="h-6 w-6" />
-                </div>
-                <h3 className="mt-5 font-display text-lg font-semibold">{c.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{c.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {highlights.map((h, i) => (
-            <div
-              key={i}
-              className={`reveal reveal-delay-${i + 1} rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant`}
+              {i18n.language.startsWith('ar') ? 'إنجازاتنا' : 'Our Achievements'}
+            </Box>
+            <Typography
+              variant="h1"
+              sx={{ color: '#ffffff', mb: 2 }}
             >
-              <div className="flex items-start gap-4">
-                <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <h.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-display text-lg font-semibold">{h.title}</div>
-                  <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{h.desc}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+              {t('ach.title')}
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ color: 'rgba(255,255,255,0.7)', maxWidth: 640, mx: 'auto', fontSize: 18, lineHeight: 1.7 }}
+            >
+              {t('ach.subtitle')}
+            </Typography>
+          </motion.div>
+        </Container>
+      </Box>
 
-      {/* AWARDS */}
-      <section className="bg-secondary/40 py-20">
-        <div className="container-fbs">
-          <div className="text-center">
-            <span className="reveal eyebrow">{t("ach.awards.title")}</span>
-            <h2 className="reveal reveal-delay-1 mt-4 font-display text-4xl font-bold md:text-5xl">
-              {t("ach.awards.subtitle")}
-            </h2>
-          </div>
+      {/* Stats Counters */}
+      <Container maxWidth="lg" sx={{ mt: -6, pb: { xs: 6, md: 8 } }}>
+        <Box
+          sx={{
+            bgcolor: '#ffffff',
+            boxShadow: '0 20px 50px -20px rgba(0,53,39,0.25)',
+            p: { xs: 4, md: 6 },
+          }}
+        >
+          <Grid container spacing={{ xs: 4, md: 6 }}>
+            <Grid size={{ xs: 6, md: 3 }}>
+              <StatCard value={35} suffix="+" label={t('ach.stats.years')} />
+            </Grid>
+            <Grid size={{ xs: 6, md: 3 }}>
+              <StatCard value={120} suffix="+" label={t('ach.stats.projects')} />
+            </Grid>
+            <Grid size={{ xs: 6, md: 3 }}>
+              <StatCard value={30000} suffix="+" label={t('ach.stats.units')} />
+            </Grid>
+            <Grid size={{ xs: 6, md: 3 }}>
+              <StatCard value={25000} suffix="+" label={t('ach.stats.families')} />
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {awards.map((a, i) => (
-              <div
-                key={i}
-                className={`reveal reveal-delay-${(i % 4) + 1} group relative overflow-hidden rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-elegant`}
+      {/* Company Snapshot */}
+      <Container maxWidth="lg" sx={{ pb: { xs: 8, md: 12 } }}>
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+          <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}>
+            <Typography
+              sx={{
+                fontFamily: '"Inter", sans-serif',
+                fontSize: 12,
+                letterSpacing: '0.1em',
+                fontWeight: 600,
+                color: '#d4af37',
+                textTransform: 'uppercase',
+                mb: 1.5,
+              }}
+            >
+              {t('ach.snapshot.kicker')}
+            </Typography>
+            <Typography variant="h2" sx={{ mb: 2 }}>
+              {t('ach.snapshot.title')}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', fontSize: 17, lineHeight: 1.7 }}>
+              {t('ach.snapshot.subtitle', { companyName: DEMO_CONFIG.brand.name })}
+            </Typography>
+          </Box>
+        </motion.div>
+
+        <Grid container spacing={{ xs: 3, md: 4 }}>
+          {snapshotCards.map((card, i) => {
+            const Icon = card.icon
+            return (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}>
+                  <Box
+                    sx={{
+                      bgcolor: '#ffffff',
+                      border: '1px solid rgba(0,53,39,0.06)',
+                      p: { xs: 4, md: 5 },
+                      transition: 'all 0.4s',
+                      '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 20px 40px rgba(30,41,59,0.04)' },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        width: 56,
+                        height: 56,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: '#003527',
+                        color: '#ffffff',
+                        mb: 3,
+                        transition: 'all 0.4s',
+                        '&:hover': { bgcolor: '#d4af37', color: '#003527' },
+                      }}
+                    >
+                      <Icon size={24} />
+                    </Box>
+                    <Typography variant="h4" sx={{ mb: 1.5 }}>
+                      {card.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                      {card.desc}
+                    </Typography>
+                  </Box>
+                </motion.div>
+              </Grid>
+            )
+          })}
+        </Grid>
+
+        {/* Highlights */}
+        <Grid container spacing={{ xs: 3, md: 4 }} sx={{ mt: 4 }}>
+          {highlights.map((h, i) => {
+            const Icon = h.icon
+            return (
+              <Grid size={{ xs: 12, md: 4 }} key={i}>
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 3,
+                      bgcolor: '#ffffff',
+                      border: '1px solid rgba(0,53,39,0.06)',
+                      p: { xs: 3, md: 4 },
+                      transition: 'all 0.3s',
+                      '&:hover': { boxShadow: '0 8px 24px rgba(30,41,59,0.04)' },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        width: 44,
+                        height: 44,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'rgba(212,175,55,0.1)',
+                        color: '#d4af37',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={20} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h5" sx={{ mb: 0.75 }}>
+                        {h.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                        {h.desc}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </motion.div>
+              </Grid>
+            )
+          })}
+        </Grid>
+      </Container>
+
+      {/* Awards */}
+      <Box sx={{ bgcolor: '#eef4f0', py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}>
+              <Typography
+                sx={{
+                  fontFamily: '"Inter", sans-serif',
+                  fontSize: 12,
+                  letterSpacing: '0.1em',
+                  fontWeight: 600,
+                  color: '#d4af37',
+                  textTransform: 'uppercase',
+                  mb: 1.5,
+                }}
               >
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/5 transition-all duration-700 group-hover:scale-150 group-hover:bg-accent/10" />
-                <div className="relative">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all duration-500 group-hover:bg-accent group-hover:text-accent-foreground">
-                    <a.icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-5 font-display text-lg font-semibold">{a.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{a.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                {t('ach.awards.title')}
+              </Typography>
+              <Typography variant="h2">
+                {t('ach.awards.subtitle')}
+              </Typography>
+            </Box>
+          </motion.div>
 
-      {/* PRESS */}
-      <section className="container-fbs py-20">
-        <h2 className="reveal text-center font-display text-3xl font-bold md:text-4xl">{t("ach.press.title")}</h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <Grid container spacing={{ xs: 3, md: 4 }}>
+            {awards.map((a, i) => {
+              const Icon = a.icon
+              return (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.08 }}>
+                    <Box
+                      sx={{
+                        bgcolor: '#ffffff',
+                        border: '1px solid rgba(0,53,39,0.06)',
+                        p: { xs: 4, md: 5 },
+                        transition: 'all 0.4s',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 20px 40px rgba(30,41,59,0.04)' },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          width: 52,
+                          height: 52,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          bgcolor: '#003527',
+                          color: '#ffffff',
+                          mb: 3,
+                          transition: 'all 0.4s',
+                          '&:hover': { bgcolor: '#d4af37', color: '#003527' },
+                        }}
+                      >
+                        <Icon size={22} />
+                      </Box>
+                      <Typography variant="h4" sx={{ mb: 1 }}>
+                        {a.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {a.desc}
+                      </Typography>
+                    </Box>
+                  </motion.div>
+                </Grid>
+              )
+            })}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Press */}
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+          <Typography variant="h2" sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}>
+            {t('ach.press.title')}
+          </Typography>
+        </motion.div>
+
+        <Grid container spacing={{ xs: 3, md: 4 }}>
           {press.map((p, i) => (
-            <div
-              key={i}
-              className={`reveal reveal-delay-${i + 1} relative rounded-2xl border bg-card p-8 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant`}
-            >
-              <Quote className="h-8 w-8 text-accent/40" />
-              <p className="mt-4 text-base leading-relaxed">{p.quote}</p>
-              <div className="mt-6 flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, k) => (
-                  <Star key={k} className="h-4 w-4 fill-accent text-accent" />
-                ))}
-              </div>
-              <div className="mt-3 text-sm font-semibold text-muted-foreground">— {p.source}</div>
-            </div>
+            <Grid size={{ xs: 12, md: 4 }} key={i}>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}>
+                <Box
+                  sx={{
+                    bgcolor: '#ffffff',
+                    border: '1px solid rgba(0,53,39,0.06)',
+                    p: { xs: 4, md: 5 },
+                    transition: 'all 0.3s',
+                    '&:hover': { boxShadow: '0 8px 24px rgba(30,41,59,0.04)' },
+                  }}
+                >
+                  <Quote size={28} color="#d4af37" style={{ opacity: 0.6 }} />
+                  <Typography
+                    variant="body1"
+                    sx={{ mt: 3, mb: 4, lineHeight: 1.7, fontStyle: 'italic', color: 'text.secondary' }}
+                  >
+                    {p.quote}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, mb: 2 }}>
+                    {Array.from({ length: 5 }).map((_, k) => (
+                      <Star key={k} size={16} color="#d4af37" fill="#d4af37" />
+                    ))}
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontFamily: '"Inter", sans-serif',
+                      fontSize: 12,
+                      letterSpacing: '0.1em',
+                      fontWeight: 600,
+                      color: '#003527',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    — {p.source}
+                  </Typography>
+                </Box>
+              </motion.div>
+            </Grid>
           ))}
-        </div>
-      </section>
-    </div>
-  );
-};
-
-export default Achievements;
+        </Grid>
+      </Container>
+    </Box>
+  )
+}

@@ -24,7 +24,7 @@ export default function Layout() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,
-          pt: isHome ? 0 : 10,
+          pt: isHome ? 0 : { xs: 14, md: 16 },
         }}
       >
         <Box sx={{ flex: 1, minHeight: 0 }}>
